@@ -65,7 +65,7 @@ laleme-miniprogram/       微信小程序（原生框架，零依赖）
     └── haptics.js        触感反馈三档封装
 ```
 
-- **原生小程序框架**，无第三方依赖，代码包约 76KB
+- **原生小程序框架**，无第三方依赖，代码包约 110KB
 - **canvas 2d** 动态绘制分享海报（500×400，5:4 与微信缩略图比例一致，dpr 适配，`canvas.createImage` 预加载徽章）
 - **隐私合规三层设计**：首启弹窗（`open-type="agreePrivacyAuthorization"`）→ 指引全文页 → 常驻入口，配合 `wx.onNeedPrivacyAuthorization` 动态应答
 - Web 版原型（`拉了么/index.html`）与产品设计文档（`拉了么-产品设计文档.md`）同仓库维护
