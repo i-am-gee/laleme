@@ -21,11 +21,32 @@
     "backgroundColor": "#ffffff",
     "borderStyle": "white",
     "list": [
-      { "pagePath": "pages/index/index", "text": "首页", "iconPath": "assets/tabbar/home.png", "selectedIconPath": "assets/tabbar/home-active.png" },
-      { "pagePath": "pages/history/history", "text": "历史", "iconPath": "assets/tabbar/history.png", "selectedIconPath": "assets/tabbar/history-active.png" },
-      { "pagePath": "pages/stats/stats", "text": "统计", "iconPath": "assets/tabbar/stats.png", "selectedIconPath": "assets/tabbar/stats-active.png" },
-      { "pagePath": "pages/me/me", "text": "我的", "iconPath": "assets/tabbar/me.png", "selectedIconPath": "assets/tabbar/me-active.png" }
-    ]
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "assets/tabbar/home.png",
+        "selectedIconPath": "assets/tabbar/home-active.png"
+      },
+      {
+        "pagePath": "pages/history/history",
+        "text": "历史",
+        "iconPath": "assets/tabbar/history.png",
+        "selectedIconPath": "assets/tabbar/history-active.png"
+      },
+      {
+        "pagePath": "pages/stats/stats",
+        "text": "统计",
+        "iconPath": "assets/tabbar/stats.png",
+        "selectedIconPath": "assets/tabbar/stats-active.png"
+      },
+      {
+        "pagePath": "pages/me/me",
+        "text": "我的",
+        "iconPath": "assets/tabbar/me.png",
+        "selectedIconPath": "assets/tabbar/me-active.png"
+      }
+    ],
+    "custom": true
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json",

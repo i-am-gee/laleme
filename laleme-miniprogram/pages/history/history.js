@@ -16,6 +16,7 @@ Page({
     },
 
     onShow() {
+        syncTabBar(this, 1);
         const app = getApp();
         const target = app && app.globalData ? app.globalData.historyTargetDay : '';
         if (app && app.globalData) {
@@ -229,3 +230,14 @@ Page({
         });
     },
 });
+
+// 自定义 tabBar 需要页面自己同步选中项
+function syncTabBar(page, index) {
+    if (typeof page.getTabBar !== 'function') {
+        return;
+    }
+    const bar = page.getTabBar();
+    if (bar && bar.setData) {
+        bar.setData({ selected: index });
+    }
+}

@@ -3,7 +3,7 @@
 > 一款极度克制的肠道健康记录小程序。
 > 数据只属于你，从未离开你的手机。
 
-[![Version](https://img.shields.io/badge/version-1.4.0-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
+[![Version](https://img.shields.io/badge/version-1.5.0-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
 
 ---
 
@@ -30,15 +30,15 @@
 
 ## 功能一览
 
-- **快速记录**：计时器 / 手动时长 / 日期时间补记，单次上限 12 小时（超过该去挂号了）
+- **快速记录**：首页大圆按钮一键拉起底部抽屉，下滑即可收起；计时器 / 手动时长 / 日期时间补记，切后台时长照常累加，单次上限 12 小时（超过该去挂号了）
 - **布里斯托 7 型分类**：附「不确定」选项，每型配医学描述与通俗提示
 - **健康统计**：周/月/自定义任意时间范围，频次、平均时长、性状分布
-- **打卡日历**：每月打卡一目了然，一天 2 次以上自动出角标；点某天直接跳历史并锚定高亮当天明细
+- **打卡日历**：💩 图标标记每一次打卡，一天 2 次以上自动出角标；点某天直接跳历史并锚定高亮当天明细
 - **连续打卡与成就系统**：4 枚成就徽章（七日全勤/闪电侠/马拉松选手/收藏家），记录即奖励
 - **庆祝动画**：彩带 + 烟花 + 星星人，献给每一次如释重负
 - **挑战分享**：canvas 生成 5:4 专属海报——本月日历图形 + 已点亮徽章，一图看懂打卡节奏；首页/统计/我的三处发出内容完全一致（纯分享机制，不读取任何好友数据）
 - **数据可携带**：CSV 导出成文件 / 复制到剪贴板；恢复支持聊天文件、剪贴板、直接粘贴三条通道（按时间+时长自动去重）
-- **触感反馈**：全站按钮均有震动，主操作双段强化，震动只发生在手指按下的瞬间
+- **触感反馈**：全站按钮（含底部导航）均有震动，主操作走设备上限强度，只在手指按下瞬间触发
 - **隐私授权**：符合微信平台规范的隐私告知与同意流程，拒绝即退出，绝不静默收集
 
 ## 技术实现
@@ -54,9 +54,13 @@ laleme-miniprogram/       微信小程序（原生框架，零依赖）
 │   ├── data/             数据备份与恢复：文件/剪贴板/粘贴三通道导入，导出与清空
 │   ├── privacy/          隐私保护指引全文
 │   └── me/               我的：数据概览、入口聚合
+├── custom-tab-bar/       自定义底部导航（原生 tabBar 无法加震动反馈）
+├── components/
+│   └── record-form/      记录表单：首页抽屉与编辑页共用
 ├── assets/
 │   ├── tabbar/           四枚 tabBar 图标（双状态）
-│   └── badges/           四枚成就徽章图标（点亮/未点亮）
+│   ├── badges/           四枚成就徽章图标（点亮/未点亮）
+│   └── actions/          铅笔 / 垃圾桶 / 左滑箭头图标
 └── utils/
     ├── constants.js      布里斯托分类、徽章定义、月历口径、隐私文本
     ├── record-store.js   本地存储层（list/create/update/remove，含字段校验）

@@ -1,8 +1,7 @@
 <view class="page">
-    <!-- 左滑引导（保留常驻） -->
+    <!-- 左滑引导：图形化（动画双箭头），不用文字 -->
     <view class="hint {{hintDim ? 'dim' : ''}}">
-        <text class="hint-icon">←</text>
-        <text class="hint-text">左滑任意一条记录，可修改或删除</text>
+        <image class="hint-icon" src="/assets/actions/swipe.png" mode="aspectFit" />
     </view>
 
     <block wx:if="{{empty}}">
@@ -16,8 +15,12 @@
             </view>
             <view class="h-swipe" wx:for="{{group.items}}" wx:key="id" wx:for-item="item" wx:for-index="ii">
                 <view class="h-actions">
-                    <view class="h-act act-edit" data-g="{{gi}}" data-i="{{ii}}" bindtap="onEdit">修改</view>
-                    <view class="h-act act-del" data-g="{{gi}}" data-i="{{ii}}" bindtap="onDelete">删除</view>
+                    <view class="h-act act-edit" data-g="{{gi}}" data-i="{{ii}}" bindtap="onEdit">
+                        <image class="act-icon" src="/assets/actions/edit.png" mode="aspectFit" />
+                    </view>
+                    <view class="h-act act-del" data-g="{{gi}}" data-i="{{ii}}" bindtap="onDelete">
+                        <image class="act-icon" src="/assets/actions/trash.png" mode="aspectFit" />
+                    </view>
                 </view>
                 <view
                     class="h-item"

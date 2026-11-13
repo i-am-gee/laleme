@@ -23,9 +23,6 @@ function dateToMs(dateStr, endOfDay) {
     return new Date(y, m, d, 0, 0, 0, 0).getTime();
 }
 
-// 加载动画最短展示时长（ms），避免一闪而过
-const MIN_LOADING = 420;
-
 Page({
     data: {
         period: 'week', // week | month | custom
@@ -41,10 +38,10 @@ Page({
         }),
         gotCount: 0,
         hasDist: false,
-        loading: true,
     },
 
     onShow() {
+        syncTabBar(this, 2);
         const that = this;
         store.list().then(function (res) {
             if (!res.error) {
@@ -113,13 +110,9 @@ Page({
         const that = this;
         const seq = (this._seq || 0) + 1;
         this._seq = seq;
-        const startedAt = Date.now();
-        this.setData({ loading: true });
-
         store.list().then(function (res) {
             if (res.error) {
                 wx.showToast({ title: '读取失败，请重试', icon: 'none' });
-                that.setData({ loading: false });
                 return;
             }
             const records = res.data;
@@ -191,30 +184,20 @@ Page({
                 };
             });
 
-            const apply = function () {
-                if (that._seq !== seq) {
-                    return; // 已被更新的渲染覆盖
-                }
-                that.setData({
-                    period: period,
-                    rangeLabel: rangeLabel,
-                    countText: String(list.length),
-                    avgText: avgText,
-                    streakText: String(streakDays(records)),
-                    dist: dist,
-                    hasDist: dist.length > 0,
-                    achList: achList,
-                    gotCount: gotCount,
-                    loading: false,
-                });
-            };
-
-            const wait = Math.max(0, MIN_LOADING - (Date.now() - startedAt));
-            if (wait > 0) {
-                setTimeout(apply, wait);
-            } else {
-                apply();
+            if (that._seq !== seq) {
+                return; // 已被更新的渲染覆盖
             }
+            that.setData({
+                period: period,
+                rangeLabel: rangeLabel,
+                countText: String(list.length),
+                avgText: avgText,
+                streakText: String(streakDays(records)),
+                dist: dist,
+                hasDist: dist.length > 0,
+                achList: achList,
+                gotCount: gotCount,
+            });
         });
     },
 });
@@ -222,4 +205,15 @@ Page({
 function withinDays(records, days) {
     const start = Date.now() - days * 24 * 3600 * 1000;
     return records.filter(function (r) { return r.timestamp >= start; });
+}
+
+// 自定义 tabBar 需要页面自己同步选中项
+function syncTabBar(page, index) {
+    if (typeof page.getTabBar !== 'function') {
+        return;
+    }
+    const bar = page.getTabBar();
+    if (bar && bar.setData) {
+        bar.setData({ selected: index });
+    }
 }

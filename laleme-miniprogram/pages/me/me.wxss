@@ -1,5 +1,5 @@
 .page {
-    padding: 24rpx 32rpx 60rpx;
+    padding: 24rpx 32rpx calc(env(safe-area-inset-bottom) + 120rpx);
 }
 
 .card {

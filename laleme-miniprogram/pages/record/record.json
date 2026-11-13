@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "记一次",
-  "usingComponents": {}
+  "usingComponents": {
+    "record-form": "/components/record-form/record-form"
+  }
 }

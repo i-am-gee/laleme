@@ -39,6 +39,7 @@ Page({
         challenge: null,
         calendar: null,
         fabPressed: false,
+        sheetShow: false,
         showCelebrate: false,
         celebrateText: '',
         confetti: [],
@@ -59,9 +60,15 @@ Page({
     },
 
     onShow() {
+        syncTabBar(this, 0);
         this.refresh();
         this.maybeCelebrate();
         this.checkPrivacy();
+        // 回到前台时把抽屉里的计时补上（切后台期间也计入）
+        const form = this.selectComponent('#recordForm');
+        if (form) {
+            form.resume();
+        }
     },
 
     onReady() {
@@ -280,22 +287,74 @@ Page({
         haptics.strong();
     },
 
-    // 主按钮点击：抖动/涟漪动画后跳转
+    // 主按钮点击：抖动/涟漪动画后从底部拉起记录抽屉
     onFabTap() {
         if (this._fabLock) {
             return; // 防连点
+        }
+        if (this.data.sheetShow) {
+            return;
         }
         this._fabLock = true;
         this.setData({ fabPressed: true });
         const that = this;
         this._fabTimer = setTimeout(function () {
-            that.setData({ fabPressed: false });
             that._fabLock = false;
-            wx.navigateTo({ url: '/pages/record/record' });
+            that.setData({ fabPressed: false, sheetShow: true }, function () {
+                that.openSheetForm();
+            });
         }, 190);
     },
 
+    // 抽屉里的表单可能晚一帧才渲染，取不到就再试一次
+    openSheetForm() {
+        const form = this.selectComponent('#recordForm');
+        if (form) {
+            form.open();
+            return;
+        }
+        const that = this;
+        setTimeout(function () {
+            const retry = that.selectComponent('#recordForm');
+            if (retry) {
+                retry.open();
+            }
+        }, 80);
+    },
+
+    closeSheet() {
+        this.setData({ sheetShow: false });
+    },
+
+    onSheetLeave() {
+        // 下滑关闭 / 点遮罩关闭时同步状态并停止计时
+        const form = this.selectComponent('#recordForm');
+        if (form) {
+            form.close();
+        }
+        if (this.data.sheetShow) {
+            this.setData({ sheetShow: false });
+        }
+    },
+
+    onSheetOverlay() {
+        this.onSheetLeave();
+    },
+
+    onSheetSaved() {
+        this.setData({ sheetShow: false });
+        const that = this;
+        setTimeout(function () {
+            that.refresh();
+            that.maybeCelebrate();
+        }, 260);
+    },
+
     onHide() {
+        const form = this.selectComponent('#recordForm');
+        if (form) {
+            form.pause();
+        }
         // 页面隐藏时清理动画状态与锁，避免返回后按钮卡住
         if (this._fabTimer) {
             clearTimeout(this._fabTimer);
@@ -319,4 +378,15 @@ Page({
 
 function pad2(n) {
     return n < 10 ? '0' + n : '' + n;
+}
+
+// 自定义 tabBar 需要页面自己同步选中项
+function syncTabBar(page, index) {
+    if (typeof page.getTabBar !== 'function') {
+        return;
+    }
+    const bar = page.getTabBar();
+    if (bar && bar.setData) {
+        bar.setData({ selected: index });
+    }
 }

@@ -1,55 +1,6 @@
-<view class="page">
-    <view class="timer-box" wx:if="{{!isEdit}}">
-        <view class="t-display">{{timerText}}</view>
-        <view class="t-state">{{timerState}}</view>
-        <view class="manual-row">
-            <input
-                class="manual-input"
-                type="number"
-                placeholder="分钟"
-                value="{{manualMin}}"
-                bindinput="onManualMin"
-            />
-            <text class="manual-tip">分钟（填写后优先于计时）</text>
-        </view>
-    </view>
-
-    <view class="q-label">什么时候拉的（默认刚才）</view>
-    <view class="dt-row">
-        <picker mode="date" value="{{dateValue}}" bindchange="onDateChange" class="picker-half">
-            <view class="picker-value">{{dateValue}}</view>
-        </picker>
-        <picker mode="time" value="{{timeValue}}" bindchange="onTimeChange" class="picker-half">
-            <view class="picker-value">{{timeValue}}</view>
-        </picker>
-    </view>
-
-    <view class="q-label">布里斯托性状（选一个最像的）</view>
-    <view class="bs-grid">
-        <view
-            class="bs-item {{item.sel ? 'sel' : ''}} {{item.ideal ? 'ideal' : ''}}"
-            wx:for="{{bristolOptions}}"
-            wx:key="t"
-            data-t="{{item.t}}"
-            bindtap="pickBristol"
-        >
-            <view class="bs-num">{{item.t === 0 ? '?' : item.t}}</view>
-            <view class="bs-name">{{item.name}}</view>
-        </view>
-    </view>
-    <view class="bs-hint">{{bristolHint}}</view>
-
-    <view class="q-label">今天的感觉</view>
-    <view class="mood-row">
-        <view
-            class="mood-item {{item.sel ? 'sel' : ''}}"
-            wx:for="{{moodOptions}}"
-            wx:key="key"
-            data-mood="{{item.key}}"
-            bindtap="pickMood"
-        >{{item.text}}</view>
-    </view>
-
-    <button class="primary-btn" bindtap="submit">完成记录</button>
-    <button class="danger-btn" wx:if="{{isEdit}}" bindtap="removeThis">删除这条记录</button>
-</view>
+<record-form
+    id="recordForm"
+    record-id="{{recordId}}"
+    bind:saved="onSaved"
+    bind:deleted="onDeleted"
+/>

@@ -1,0 +1,55 @@
+<view class="form">
+    <!-- 计时区：新建时显示计时器，编辑时只保留时长输入 -->
+    <view class="timer-box">
+        <view class="t-display" wx:if="{{!isEdit}}">{{timerText}}</view>
+        <view class="manual-row">
+            <input
+                class="manual-input"
+                type="number"
+                placeholder="分钟"
+                value="{{manualMin}}"
+                bindinput="onManualMin"
+            />
+            <text class="manual-tip">{{isEdit ? '分钟' : '直接填分钟，优先于计时'}}</text>
+        </view>
+    </view>
+
+    <!-- 性状：图形化选择 -->
+    <view class="bs-grid">
+        <view
+            class="bs-item {{item.sel ? 'sel' : ''}} {{item.ideal ? 'ideal' : ''}}"
+            wx:for="{{bristolOptions}}"
+            wx:key="t"
+            data-t="{{item.t}}"
+            bindtap="pickBristol"
+        >
+            <view class="bs-num">{{item.t === 0 ? '?' : item.t}}</view>
+            <view class="bs-name">{{item.name}}</view>
+        </view>
+    </view>
+    <view class="bs-hint">{{bristolHint}}</view>
+
+    <!-- 感觉 -->
+    <view class="mood-row">
+        <view
+            class="mood-item {{item.sel ? 'sel' : ''}}"
+            wx:for="{{moodOptions}}"
+            wx:key="key"
+            data-mood="{{item.key}}"
+            bindtap="pickMood"
+        >{{item.text}}</view>
+    </view>
+
+    <!-- 时间 -->
+    <view class="dt-row">
+        <picker mode="date" value="{{dateValue}}" bindchange="onDateChange" class="picker-half">
+            <view class="picker-value">{{dateValue}}</view>
+        </picker>
+        <picker mode="time" value="{{timeValue}}" bindchange="onTimeChange" class="picker-half">
+            <view class="picker-value">{{timeValue}}</view>
+        </picker>
+    </view>
+
+    <button class="primary-btn" bindtap="submit">{{isEdit ? '保存修改' : '完成记录'}}</button>
+    <view class="danger-link" wx:if="{{isEdit}}" bindtap="removeThis">删除这条记录</view>
+</view>

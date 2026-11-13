@@ -5,26 +5,32 @@
         <view class="challenge-close" bindtap="dismissChallenge">✕</view>
     </view>
 
-    <!-- 主视觉：状态 + 圆形记录按钮 -->
+    <!-- 主视觉：居中的大圆按钮 -->
     <view class="hero {{statusClass}}">
-        <view class="hero-main">
-            <view class="hero-title">{{statusTitle}}</view>
-            <view class="hero-sub">{{statusSub}}</view>
-            <view class="chips">
-                <view class="chip">
-                    <text class="chip-v">{{streakText}}</text>
-                    <text class="chip-k">连续记录</text>
-                </view>
-                <view class="chip">
-                    <text class="chip-v">{{monthCountText}}</text>
-                    <text class="chip-k">近 30 天</text>
-                </view>
+        <view class="hero-status">
+            <text class="hero-title">{{statusTitle}}</text>
+            <text class="hero-sep">·</text>
+            <text class="hero-sub">{{statusSub}}</text>
+        </view>
+
+        <view class="fab-wrap">
+            <view class="fab-halo"></view>
+            <view class="fab {{fabPressed ? 'fab-pressed' : ''}}" hover-class="fab-hover" bindtouchstart="onFabTouchStart" bindtap="onFabTap">
+                <text class="fab-emoji">💩</text>
+                <text class="fab-label">记一次</text>
+                <view class="fab-ripple" wx:if="{{fabPressed}}"></view>
             </view>
         </view>
-        <view class="fab {{fabPressed ? 'fab-pressed' : ''}}" hover-class="fab-hover" bindtouchstart="onFabTouchStart" bindtap="onFabTap">
-            <text class="fab-emoji">💩</text>
-            <text class="fab-label">记一次</text>
-            <view class="fab-ripple" wx:if="{{fabPressed}}"></view>
+
+        <view class="chips">
+            <view class="chip">
+                <text class="chip-v">{{streakText}}</text>
+                <text class="chip-k">连续记录</text>
+            </view>
+            <view class="chip">
+                <text class="chip-v">{{monthCountText}}</text>
+                <text class="chip-k">近 30 天</text>
+            </view>
         </view>
     </view>
 
@@ -46,7 +52,8 @@
                 data-count="{{item.count}}"
                 bindtap="onDayTap"
             >
-                <text class="cal-num" wx:if="{{!item.blank}}">{{item.day}}</text>
+                <text class="cal-poop" wx:if="{{item.pooped}}">💩</text>
+                <text class="cal-num" wx:elif="{{!item.blank}}">{{item.day}}</text>
                 <view class="cal-badge" wx:if="{{item.count > 1}}">{{item.count}}</view>
             </view>
         </view>
@@ -99,6 +106,25 @@
         <view class="privacy-decline" bindtap="onPrivacyDecline">不同意</view>
     </view>
 </view>
+
+<!-- 记录抽屉：从底部拉起，可下滑收起 -->
+<page-container
+    show="{{sheetShow}}"
+    position="bottom"
+    round="{{true}}"
+    overlay="{{true}}"
+    duration="{{300}}"
+    z-index="{{800}}"
+    close-on-slide-down="{{true}}"
+    custom-style="background:#ffffff;border-radius:28rpx 28rpx 0 0;"
+    bind:beforeleave="onSheetLeave"
+    bind:clickoverlay="onSheetOverlay"
+>
+    <view class="sheet">
+        <view class="sheet-bar"></view>
+        <record-form id="recordForm" bind:saved="onSheetSaved" bind:deleted="onSheetSaved" />
+    </view>
+</page-container>
 
 <!-- 分享海报绘制画布（不可见） -->
 <canvas type="2d" id="shareCanvas" class="share-canvas"></canvas>
