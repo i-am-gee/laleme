@@ -80,8 +80,10 @@ def build(name, glyph, lit):
     d.ellipse([sc(11), sc(11), sc(85), sc(85)], outline=ring, width=sc(1.6))
     glyph(d, fg)
     img = img.resize((SIZE, SIZE), Image.LANCZOS)
+    # 平面色图标量化到 64 色，体积从 ~9KB 降到 ~2KB，视觉无差异
+    img = img.quantize(colors=64, method=Image.FASTOCTREE, dither=Image.NONE)
     suffix = "on" if lit else "off"
-    img.save(os.path.join(OUT, "%s-%s.png" % (name, suffix)))
+    img.save(os.path.join(OUT, "%s-%s.png" % (name, suffix)), optimize=True)
     return img
 
 
