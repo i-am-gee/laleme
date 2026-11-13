@@ -3,31 +3,6 @@
 }
 
 /* 好友挑战横幅 */
-/* 每日提醒横幅 */
-.reminder-banner {
-    display: flex;
-    align-items: center;
-    gap: 16rpx;
-    background: #fdf3e0;
-    border: 1rpx solid #e8a33d;
-    border-radius: 20rpx;
-    padding: 20rpx 24rpx;
-    margin-bottom: 20rpx;
-}
-
-.reminder-text {
-    flex: 1;
-    font-size: 26rpx;
-    color: #8a5a00;
-}
-
-.reminder-go {
-    font-size: 26rpx;
-    font-weight: 600;
-    color: #b57300;
-    flex-shrink: 0;
-}
-
 .challenge-banner {
     display: flex;
     align-items: center;
@@ -95,13 +70,21 @@
 }
 
 .primary-btn {
-    background: #8b5e3c;
+    background: linear-gradient(135deg, #a97750 0%, #8b5e3c 55%, #6f4b30 100%);
     color: #ffffff;
-    font-size: 32rpx;
-    font-weight: 600;
-    border-radius: 24rpx;
-    padding: 8rpx 0;
-    margin-bottom: 24rpx;
+    font-size: 44rpx;
+    font-weight: 700;
+    letter-spacing: 4rpx;
+    border-radius: 48rpx;
+    height: 136rpx;
+    line-height: 136rpx;
+    padding: 0;
+    margin: 24rpx 0 36rpx;
+    box-shadow: 0 14rpx 32rpx rgba(139, 94, 60, 0.35);
+}
+
+.primary-btn::after {
+    border: none;
 }
 
 .card {
@@ -223,9 +206,17 @@
     background: #ffffff;
     color: #8b5e3c;
     border: 1rpx solid #8b5e3c;
-    font-size: 30rpx;
+    font-size: 32rpx;
     font-weight: 500;
+    height: 104rpx;
+    line-height: 104rpx;
+    padding: 0;
+    border-radius: 52rpx;
     margin: 8rpx 0 0;
+}
+
+.ghost-btn::after {
+    border: none;
 }
 
 /* 成就庆祝动画 */

@@ -1,4 +1,4 @@
-const { fmtDT, fmtDur, bristolLabel, streakDays, dayStr, todayStr, CHEERS, REMINDER_TIME_KEY, REMINDER_ON_KEY, pad2 } = require('../../utils/constants.js');
+const { fmtDT, fmtDur, bristolLabel, streakDays, dayStr, todayStr, CHEERS } = require('../../utils/constants.js');
 const { createRecordStore } = require('../../utils/record-store.js');
 const share = require('../../utils/share.js');
 
@@ -61,19 +61,6 @@ function buildCalendar(records) {
     };
 }
 
-// 今日提醒：开关开启、当前时间已过设定时间、今天尚未打卡
-function shouldShowReminder(todayCount) {
-    if (!wx.getStorageSync(REMINDER_ON_KEY) || todayCount > 0) {
-        return false;
-    }
-    const t = String(wx.getStorageSync(REMINDER_TIME_KEY) || '08:00');
-    const parts = t.split(':');
-    const target = (parseInt(parts[0], 10) || 0) * 60 + (parseInt(parts[1], 10) || 0);
-    const now = new Date();
-    const cur = now.getHours() * 60 + now.getMinutes();
-    return cur >= target;
-}
-
 Page({
     data: {
         statusClass: 'notyet',
@@ -84,7 +71,6 @@ Page({
         monthCountText: '0 次',
         challenge: null,
         calendar: null,
-        reminderShow: false,
         showCelebrate: false,
         celebrateText: '',
         confetti: [],
@@ -159,7 +145,6 @@ Page({
                 streakText: streak > 0 ? streak + ' 天' : '未开始',
                 monthCountText: monthCount + ' 次',
                 calendar: calendar,
-                reminderShow: shouldShowReminder(today.length),
             }, function () {
                 share.ensurePoster(that, that._stats);
             });

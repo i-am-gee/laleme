@@ -22,28 +22,9 @@
         </view>
     </view>
 
-    <!-- 每日提醒 -->
-    <view class="card">
-        <view class="section-head">⏰ 每日提醒</view>
-        <view class="info-row">
-            <text class="label">到点提醒打卡</text>
-            <switch checked="{{reminderOn}}" color="#8B5E3C" bindchange="onReminderToggle" />
-        </view>
-        <view class="info-row" wx:if="{{reminderOn}}">
-            <text class="label">提醒时间</text>
-            <picker mode="time" value="{{reminderTime}}" bindchange="onReminderTime">
-                <view class="value time-value">{{reminderTime}} ▾</view>
-            </picker>
-        </view>
-        <view class="reminder-tip">到点后打开小程序，首页会置顶提醒你完成今日打卡。</view>
-        <button class="ghost-btn slim" bindtap="subscribeReminder">订阅提醒消息</button>
-    </view>
-
-    <button class="ghost-btn" open-type="share">💩 分享给朋友</button>
-    <button class="ghost-btn" bindtap="exportFile">📤 导出数据文件</button>
-    <button class="ghost-btn" bindtap="importFile">📥 从文件导入</button>
-    <button class="ghost-btn" bindtap="exportCSV">导出 CSV 到剪贴板</button>
-    <button class="danger-btn" bindtap="clearAll">清空全部数据</button>
+    <button class="primary-btn" open-type="share">💩 分享给朋友</button>
+    <button class="ghost-btn" bindtap="openDataManage">数据备份与恢复</button>
+    <view class="danger-link" bindtap="clearAll">清空全部数据</view>
 
     <view class="card about">
         <view class="about-text">「拉了么」v1.3 · 数据仅保存在本机，不上传任何服务器。\n\n性状分类采用国际通用的布里斯托大便分类法（Bristol Stool Scale）。\n\n本应用不构成医疗建议，持续异常请咨询消化科医生。</view>

@@ -206,9 +206,19 @@
 }
 
 .share-btn {
-    background: #8b5e3c;
+    background: linear-gradient(135deg, #a97750 0%, #8b5e3c 55%, #6f4b30 100%);
     color: #ffffff;
-    font-size: 30rpx;
-    font-weight: 600;
+    font-size: 34rpx;
+    font-weight: 700;
+    letter-spacing: 2rpx;
+    height: 104rpx;
+    line-height: 104rpx;
+    padding: 0;
+    border-radius: 52rpx;
     margin-top: 32rpx;
+    box-shadow: 0 12rpx 28rpx rgba(139, 94, 60, 0.3);
+}
+
+.share-btn::after {
+    border: none;
 }

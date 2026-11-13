@@ -33,20 +33,49 @@
     font-weight: 500;
 }
 
+/* 主按钮：与首页「记一次」同视觉 */
+.primary-btn {
+    background: linear-gradient(135deg, #a97750 0%, #8b5e3c 55%, #6f4b30 100%);
+    color: #ffffff;
+    font-size: 36rpx;
+    font-weight: 700;
+    letter-spacing: 2rpx;
+    border-radius: 48rpx;
+    height: 116rpx;
+    line-height: 116rpx;
+    padding: 0;
+    margin: 8rpx 0 24rpx;
+    box-shadow: 0 12rpx 28rpx rgba(139, 94, 60, 0.3);
+}
+
+.primary-btn::after {
+    border: none;
+}
+
+/* 次级按钮 */
 .ghost-btn {
     background: #ffffff;
     color: #8b5e3c;
     border: 1rpx solid #8b5e3c;
     font-size: 30rpx;
     font-weight: 500;
-    margin-bottom: 20rpx;
+    height: 96rpx;
+    line-height: 96rpx;
+    padding: 0;
+    border-radius: 48rpx;
+    margin-bottom: 24rpx;
 }
 
-.danger-btn {
-    background: #e24b4a;
-    color: #ffffff;
-    font-size: 30rpx;
-    font-weight: 500;
+.ghost-btn::after {
+    border: none;
+}
+
+/* 清空：降级为小号文字链接，弱化危险操作 */
+.danger-link {
+    text-align: center;
+    font-size: 26rpx;
+    color: #c0766f;
+    padding: 8rpx 0 32rpx;
 }
 
 .about {
@@ -58,34 +87,6 @@
     color: #888780;
     line-height: 1.7;
     white-space: pre-line;
-}
-
-/* 每日提醒卡片 */
-.section-head {
-    font-size: 29rpx;
-    font-weight: 600;
-    color: #2c2c2a;
-    padding: 24rpx 0 4rpx;
-}
-
-.time-value {
-    color: #8b5e3c;
-    font-weight: 600;
-}
-
-.reminder-tip {
-    font-size: 24rpx;
-    color: #9b8f7d;
-    line-height: 1.6;
-    padding: 18rpx 0 20rpx;
-}
-
-.ghost-btn.slim {
-    font-size: 27rpx;
-    padding: 0 24rpx;
-    height: 68rpx;
-    line-height: 68rpx;
-    margin-bottom: 24rpx;
 }
 
 /* 隐藏分享画布 */
