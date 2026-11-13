@@ -4,9 +4,10 @@ const { SHARE_TITLES } = require('./constants.js');
 
 let cachedPath = '';
 let cachedKey = '';
+const POSTER_VERSION = 2; // 视觉改版时递增，避免复用旧海报缓存
 
 function posterKey(stats) {
-    return (stats.streak || 0) + '|' + (stats.monthDays || 0);
+    return POSTER_VERSION + '|' + (stats.streak || 0) + '|' + (stats.monthDays || 0);
 }
 
 function makeTitle(streak, month) {
@@ -67,41 +68,69 @@ function drawPoster(canvas, stats, done) {
     ctx.fillStyle = '#FAEEDA';
     ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = '#8B5E3C';
-    ctx.fillRect(0, 0, W, 10);
-    ctx.fillRect(0, H - 10, W, 10);
+    ctx.fillRect(0, 0, W, 8);
+    ctx.fillRect(0, H - 8, W, 8);
 
-    // 品牌区（左上）
+    // ---- 品牌区（左上）：只出现标题里没有的内容 ----
     ctx.textAlign = 'left';
     ctx.fillStyle = '#8B5E3C';
-    ctx.font = 'bold 46px sans-serif';
-    ctx.fillText('拉了么', 36, 70);
-    ctx.font = '20px sans-serif';
-    ctx.fillStyle = '#854F0B';
-    ctx.fillText('肠道健康打卡', 38, 100);
+    ctx.font = 'bold 62px sans-serif';
+    ctx.fillText('拉了么', 38, 92);
+    ctx.fillStyle = '#7A5230';
+    ctx.font = '600 26px sans-serif';
+    ctx.fillText('记录每一次，读懂你的肠道', 40, 130);
+    // 品牌短横线
+    ctx.fillStyle = '#D9BFA6';
+    ctx.fillRect(40, 148, 58, 5);
 
-    // 大便便（右侧）
+    // ---- 图形化信息（不重复标题中的天数文字）----
+    const streak = Math.min((stats && stats.streak) || 0, 14);
+    const month = Math.min((stats && stats.monthDays) || 0, 28);
+    const SOLID = '#8B5E3C';
+    const HOLLOW = '#D9BFA6';
+
+    // 1) 连续打卡：一排圆点，实心=已打卡（最多 14 天）
+    const dotR = 6;
+    const dotGap = 19;
+    for (let i = 0; i < 14; i += 1) {
+        const cx = 46 + i * dotGap;
+        const cy = 206;
+        ctx.beginPath();
+        ctx.arc(cx, cy, dotR, 0, Math.PI * 2);
+        if (i < streak) {
+            ctx.fillStyle = SOLID;
+            ctx.fill();
+        } else {
+            ctx.strokeStyle = HOLLOW;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+    }
+
+    // 2) 本月打卡：7×4 方块网格，实心=已打卡
+    const cellSize = 16;
+    const cellGap = 8;
+    for (let i = 0; i < 28; i += 1) {
+        const col = i % 7;
+        const row = Math.floor(i / 7);
+        const x = 40 + col * (cellSize + cellGap);
+        const y = 246 + row * (cellSize + cellGap);
+        if (i < month) {
+            ctx.fillStyle = SOLID;
+            roundRect(ctx, x, y, cellSize, cellSize, 4);
+            ctx.fill();
+        } else {
+            ctx.strokeStyle = HOLLOW;
+            ctx.lineWidth = 2;
+            roundRect(ctx, x, y, cellSize, cellSize, 4);
+            ctx.stroke();
+        }
+    }
+
+    // 3) 品牌符号（右侧）
     ctx.textAlign = 'center';
-    ctx.font = '150px sans-serif';
-    ctx.fillText('💩', 388, 240);
-
-    // 数据区（左中）
-    const streak = (stats && stats.streak) || 0;
-    const month = (stats && stats.monthDays) || 0;
-    ctx.textAlign = 'left';
-    ctx.font = 'bold 36px sans-serif';
-    ctx.fillStyle = '#2C2C2A';
-    ctx.fillText('连续打卡 ' + streak + ' 天', 36, 205);
-    ctx.font = '30px sans-serif';
-    ctx.fillStyle = '#444441';
-    ctx.fillText('本月打卡 ' + month + ' 天', 36, 250);
-
-    // 行动号召（左下）
-    ctx.font = 'bold 32px sans-serif';
-    ctx.fillStyle = '#0F6E56';
-    ctx.fillText('来挑战我吧！', 36, 325);
-    ctx.font = '18px sans-serif';
-    ctx.fillStyle = '#888780';
-    ctx.fillText('记录每一次，读懂你的肠道', 38, 356);
+    ctx.font = '166px sans-serif';
+    ctx.fillText('💩', 408, 228);
 
     wx.canvasToTempFilePath({
         canvas: canvas,
@@ -114,6 +143,21 @@ function drawPoster(canvas, stats, done) {
             // 海报失败不影响分享（回退为默认截图）
         },
     });
+}
+
+// 圆角矩形路径
+function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
 }
 
 function getPosterPath() {
