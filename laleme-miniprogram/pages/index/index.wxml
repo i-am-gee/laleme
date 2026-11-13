@@ -1,0 +1,92 @@
+<view class="page">
+    <!-- 好友挑战横幅 -->
+    <view class="challenge-banner" wx:if="{{challenge}}">
+        <view class="challenge-text">💩 一位好友向你发起挑战：连续打卡 {{challenge.streak}} 天，本月 {{challenge.month}} 次。接招！</view>
+        <view class="challenge-close" bindtap="dismissChallenge">✕</view>
+    </view>
+
+    <view class="status-card {{statusClass}}">
+        <view class="big">{{statusTitle}}</view>
+        <view class="sub">{{statusSub}}</view>
+    </view>
+
+    <button class="primary-btn" bindtap="goRecord">记一次</button>
+
+    <view class="card">
+        <view class="info-row">
+            <text class="label">最近一次</text>
+            <text class="value">{{lastText}}</text>
+        </view>
+        <view class="info-row">
+            <text class="label">连续记录</text>
+            <text class="value">{{streakText}}</text>
+        </view>
+        <view class="info-row">
+            <text class="label">近 30 天次数</text>
+            <text class="value">{{monthCountText}}</text>
+        </view>
+    </view>
+
+    <!-- 本月打卡日历 -->
+    <view class="card cal-card" wx:if="{{calendar}}">
+        <view class="cal-title">
+            <text class="cal-month">{{calendar.monthLabel}}打卡日历</text>
+            <text class="cal-count">已打 {{calendar.poopedCount}} 天</text>
+        </view>
+        <view class="cal-week">
+            <text class="cal-wd">一</text><text class="cal-wd">二</text><text class="cal-wd">三</text><text class="cal-wd">四</text><text class="cal-wd">五</text><text class="cal-wd">六</text><text class="cal-wd">日</text>
+        </view>
+        <view class="cal-grid">
+            <view class="cal-cell {{item.blank ? 'blank' : ''}} {{item.pooped ? 'pooped' : ''}} {{item.today ? 'today' : ''}} {{item.future ? 'future' : ''}}" wx:for="{{calendar.cells}}" wx:key="index">
+                <text class="cal-pooped" wx:if="{{item.pooped}}">💩</text>
+                <text class="cal-day" wx:else>{{item.day}}</text>
+            </view>
+        </view>
+    </view>
+
+    <!-- 挑战好友 -->
+    <button class="ghost-btn" open-type="share">💩 挑战好友</button>
+
+    <view class="footnote" bindtap="goHistory">查看全部历史 ></view>
+</view>
+
+<!-- 成就庆祝动画 -->
+<view class="celebrate-mask" wx:if="{{showCelebrate}}" bindtap="hideCelebrate">
+    <view class="confetti-piece {{item.round ? 'round' : ''}}"
+        wx:for="{{confetti}}"
+        wx:key="index"
+        style="left: {{item.left}}%; width: {{item.size}}rpx; height: {{item.round ? item.size : item.size * 2}}rpx; background: {{item.color}}; animation-delay: {{item.delay}}s; animation-duration: {{item.duration}}s;">
+    </view>
+    <view class="fw fw1"></view>
+    <view class="fw fw2"></view>
+    <view class="fw fw3"></view>
+    <view class="celebrate-center">
+        <view class="star-man">🌟</view>
+        <view class="star-poop">💩</view>
+        <view class="celebrate-title">打卡成功！</view>
+        <view class="celebrate-sub">{{celebrateText}}</view>
+    </view>
+</view>
+
+<!-- 隐私保护指引弹窗 -->
+<view class="privacy-mask" wx:if="{{showPrivacy}}">
+    <view class="privacy-card">
+        <view class="privacy-title">隐私保护指引</view>
+        <scroll-view scroll-y class="privacy-body">
+            <text class="privacy-text">{{privacySummary}}</text>
+        </scroll-view>
+        <view class="privacy-link" bindtap="goPrivacyPage">查看「{{privacyContractName}}」全文 ></view>
+        <button
+            class="privacy-agree"
+            id="agree-btn"
+            open-type="agreePrivacyAuthorization"
+            bindagree="onPrivacyAgree"
+            bindtap="onPrivacyAgree"
+        >同意并继续</button>
+        <view class="privacy-decline" bindtap="onPrivacyDecline">不同意</view>
+    </view>
+</view>
+
+<!-- 分享海报绘制画布（不可见） -->
+<canvas type="2d" id="shareCanvas" class="share-canvas"></canvas>
+

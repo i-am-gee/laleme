@@ -1,0 +1,495 @@
+.page {
+    padding: 24rpx 32rpx 60rpx;
+}
+
+/* 好友挑战横幅 */
+.challenge-banner {
+    display: flex;
+    align-items: center;
+    gap: 16rpx;
+    background: #fcebeb;
+    border: 1rpx solid #e24b4a;
+    border-radius: 20rpx;
+    padding: 20rpx 24rpx;
+    margin-bottom: 20rpx;
+}
+
+.challenge-text {
+    flex: 1;
+    font-size: 25rpx;
+    color: #a32d2d;
+    line-height: 1.5;
+}
+
+.challenge-close {
+    font-size: 28rpx;
+    color: #888780;
+    padding: 6rpx 10rpx;
+}
+
+.status-card {
+    border-radius: 28rpx;
+    padding: 56rpx 32rpx;
+    text-align: center;
+    margin-bottom: 24rpx;
+}
+
+.status-card.notyet {
+    background: #faeeda;
+}
+
+.status-card.done {
+    background: #e1f5ee;
+}
+
+.status-card .big {
+    font-size: 52rpx;
+    font-weight: 700;
+}
+
+.status-card.notyet .big {
+    color: #854f0b;
+}
+
+.status-card.done .big {
+    color: #0f6e56;
+}
+
+.status-card .sub {
+    font-size: 28rpx;
+    margin-top: 12rpx;
+    opacity: 0.85;
+}
+
+.status-card.notyet .sub {
+    color: #854f0b;
+}
+
+.status-card.done .sub {
+    color: #0f6e56;
+}
+
+.primary-btn {
+    background: #8b5e3c;
+    color: #ffffff;
+    font-size: 32rpx;
+    font-weight: 600;
+    border-radius: 24rpx;
+    padding: 8rpx 0;
+    margin-bottom: 24rpx;
+}
+
+.card {
+    background: #ffffff;
+    border: 0.5rpx solid rgba(44, 44, 42, 0.12);
+    border-radius: 28rpx;
+    padding: 10rpx 30rpx;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 26rpx 0;
+    border-bottom: 0.5rpx solid rgba(44, 44, 42, 0.08);
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.label {
+    color: #888780;
+    font-size: 27rpx;
+}
+
+.value {
+    color: #2c2c2a;
+    font-size: 27rpx;
+    font-weight: 500;
+}
+
+.footnote {
+    text-align: center;
+    color: #8b5e3c;
+    font-size: 26rpx;
+    padding: 24rpx 0;
+}
+
+/* 打卡日历 */
+.cal-card {
+    padding: 26rpx 30rpx 30rpx;
+    margin: 24rpx 0;
+}
+
+.cal-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 18rpx;
+}
+
+.cal-month {
+    font-size: 29rpx;
+    font-weight: 600;
+}
+
+.cal-count {
+    font-size: 24rpx;
+    color: #8b5e3c;
+}
+
+.cal-week {
+    display: flex;
+    margin-bottom: 8rpx;
+}
+
+.cal-wd {
+    flex: 1;
+    text-align: center;
+    font-size: 22rpx;
+    color: #888780;
+}
+
+.cal-grid {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.cal-cell {
+    width: calc(100% / 7);
+    height: 76rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    margin-bottom: 6rpx;
+}
+
+.cal-day {
+    font-size: 25rpx;
+    color: #2c2c2a;
+}
+
+.cal-cell.future .cal-day {
+    color: #c4c2ba;
+}
+
+.cal-cell.pooped {
+    background: #faeeda;
+    border-radius: 14rpx;
+    margin: 0 4rpx 6rpx;
+    width: calc(100% / 7 - 8rpx);
+}
+
+.cal-cell.pooped .cal-pooped {
+    font-size: 36rpx;
+    line-height: 1;
+}
+
+.cal-cell.today {
+    border: 2rpx solid #8b5e3c;
+    border-radius: 14rpx;
+    margin: 0 4rpx 6rpx;
+    width: calc(100% / 7 - 8rpx);
+}
+
+.ghost-btn {
+    background: #ffffff;
+    color: #8b5e3c;
+    border: 1rpx solid #8b5e3c;
+    font-size: 30rpx;
+    font-weight: 500;
+    margin: 8rpx 0 0;
+}
+
+/* 成就庆祝动画 */
+.celebrate-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 22, 18, 0.78);
+    z-index: 999;
+    overflow: hidden;
+}
+
+.confetti-piece {
+    position: absolute;
+    top: -40rpx;
+    border-radius: 4rpx;
+    opacity: 0.9;
+    animation-name: confetti-fall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+.confetti-piece.round {
+    border-radius: 50%;
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-40rpx) rotate(0deg);
+        opacity: 0.9;
+    }
+    100% {
+        transform: translateY(1400rpx) rotate(540deg);
+        opacity: 0.4;
+    }
+}
+
+.fw {
+    position: absolute;
+    width: 60rpx;
+    height: 60rpx;
+    border-radius: 50%;
+    opacity: 0;
+    border-width: 6rpx;
+    border-style: solid;
+    animation: firework 2s ease-out infinite;
+}
+
+.fw1 {
+    left: 14%;
+    top: 22%;
+    border-color: #fac775;
+    animation-delay: 0.1s;
+}
+
+.fw2 {
+    left: 72%;
+    top: 28%;
+    border-color: #ed93b1;
+    animation-delay: 0.7s;
+}
+
+.fw3 {
+    left: 44%;
+    top: 12%;
+    border-color: #85b7eb;
+    animation-delay: 1.3s;
+}
+
+@keyframes firework {
+    0% {
+        transform: scale(0.2);
+        opacity: 0;
+    }
+    15% {
+        opacity: 1;
+    }
+    55% {
+        transform: scale(3.2);
+        opacity: 0.85;
+    }
+    100% {
+        transform: scale(3.6);
+        opacity: 0;
+    }
+}
+
+.celebrate-center {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 30%;
+    text-align: center;
+    animation: star-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.star-man {
+    font-size: 170rpx;
+    line-height: 1;
+    display: inline-block;
+    animation: star-bounce 1s ease-in-out infinite;
+    text-shadow: 0 0 60rpx rgba(250, 199, 117, 0.9);
+}
+
+.star-poop {
+    font-size: 72rpx;
+    display: inline-block;
+    margin-left: 8rpx;
+    vertical-align: bottom;
+    animation: star-bounce 1s ease-in-out 0.2s infinite;
+}
+
+.celebrate-title {
+    font-size: 48rpx;
+    font-weight: 700;
+    color: #ffffff;
+    margin-top: 22rpx;
+    text-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.35);
+}
+
+.celebrate-sub {
+    font-size: 28rpx;
+    color: #fac775;
+    margin-top: 10rpx;
+}
+
+@keyframes star-pop {
+    0% {
+        transform: scale(0.2);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes star-bounce {
+    0%, 100% {
+        transform: translateY(0) rotate(-4deg);
+    }
+    50% {
+        transform: translateY(-26rpx) rotate(4deg);
+    }
+}
+
+/* 隐私保护指引弹窗 */
+.privacy-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 22, 18, 0.6);
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48rpx;
+}
+
+.privacy-card {
+    width: 100%;
+    background: #ffffff;
+    border-radius: 28rpx;
+    padding: 36rpx 32rpx 28rpx;
+    box-sizing: border-box;
+}
+
+.privacy-title {
+    font-size: 34rpx;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 20rpx;
+}
+
+.privacy-body {
+    max-height: 300rpx;
+}
+
+.privacy-text {
+    font-size: 25rpx;
+    color: #444441;
+    line-height: 1.8;
+    white-space: pre-line;
+}
+
+.privacy-link {
+    font-size: 24rpx;
+    color: #8b5e3c;
+    text-align: center;
+    padding: 18rpx 0;
+}
+
+.privacy-agree {
+    background: #8b5e3c;
+    color: #ffffff;
+    font-size: 30rpx;
+    font-weight: 600;
+    border-radius: 20rpx;
+    margin-bottom: 14rpx;
+}
+
+.privacy-agree::after {
+    border: none;
+}
+
+.privacy-decline {
+    text-align: center;
+    font-size: 27rpx;
+    color: #888780;
+    padding: 8rpx 0 4rpx;
+}
+
+/* 分享海报画布：移出可视区域 */
+.share-canvas {
+    position: fixed;
+    left: -9999rpx;
+    top: -9999rpx;
+    width: 600px;
+    height: 960px;
+}
+
+/* 隐私保护指引弹窗 */
+.privacy-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 22, 18, 0.6);
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48rpx;
+}
+
+.privacy-card {
+    width: 100%;
+    background: #ffffff;
+    border-radius: 28rpx;
+    padding: 36rpx 32rpx 28rpx;
+    box-sizing: border-box;
+}
+
+.privacy-title {
+    font-size: 34rpx;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 20rpx;
+}
+
+.privacy-body {
+    max-height: 300rpx;
+}
+
+.privacy-text {
+    font-size: 25rpx;
+    color: #444441;
+    line-height: 1.8;
+    white-space: pre-line;
+}
+
+.privacy-link {
+    font-size: 24rpx;
+    color: #8b5e3c;
+    text-align: center;
+    padding: 18rpx 0;
+}
+
+.privacy-agree {
+    background: #8b5e3c;
+    color: #ffffff;
+    font-size: 30rpx;
+    font-weight: 600;
+    border-radius: 20rpx;
+    margin-bottom: 14rpx;
+}
+
+.privacy-agree::after {
+    border: none;
+}
+
+.privacy-decline {
+    text-align: center;
+    font-size: 27rpx;
+    color: #888780;
+    padding: 8rpx 0 4rpx;
+}
+
+/* 分享海报画布：移出可视区域 */
+.share-canvas {
+    position: fixed;
+    left: -9999rpx;
+    top: -9999rpx;
+    width: 600px;
+    height: 960px;
+}

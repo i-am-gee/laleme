@@ -1,0 +1,23 @@
+<view class="page">
+    <block wx:if="{{empty}}">
+        <view class="empty">还没有记录，去首页「记一次」开始吧</view>
+    </block>
+    <block wx:else>
+        <block wx:for="{{groups}}" wx:key="day" wx:for-item="group">
+            <view class="h-date">{{group.day}}</view>
+            <view
+                class="h-item"
+                wx:for="{{group.items}}"
+                wx:key="id"
+                data-id="{{item.id}}"
+                bindtap="editItem"
+            >
+                <view class="h-top">
+                    <text class="h-time">{{item.time}}</text>
+                    <text class="h-tag">点击编辑</text>
+                </view>
+                <view class="h-detail">{{item.detail}}</view>
+            </view>
+        </block>
+    </block>
+</view>

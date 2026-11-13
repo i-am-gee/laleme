@@ -1,0 +1,47 @@
+.page {
+    padding: 24rpx 32rpx 60rpx;
+}
+
+.empty {
+    text-align: center;
+    color: #888780;
+    font-size: 27rpx;
+    padding: 120rpx 40rpx;
+}
+
+.h-date {
+    color: #888780;
+    font-size: 24rpx;
+    font-weight: 600;
+    margin: 28rpx 0 14rpx;
+}
+
+.h-item {
+    background: #ffffff;
+    border: 0.5rpx solid rgba(44, 44, 42, 0.12);
+    border-radius: 24rpx;
+    padding: 24rpx 30rpx;
+    margin-bottom: 16rpx;
+}
+
+.h-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.h-time {
+    font-size: 30rpx;
+    font-weight: 600;
+}
+
+.h-tag {
+    font-size: 22rpx;
+    color: #888780;
+}
+
+.h-detail {
+    font-size: 26rpx;
+    color: #888780;
+    margin-top: 10rpx;
+}

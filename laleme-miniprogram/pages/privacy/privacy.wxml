@@ -1,0 +1,7 @@
+<view class="page">
+    <view class="doc-card">
+        <view class="doc-title">「拉了么」用户隐私保护指引</view>
+        <view class="para {{index === 0 ? 'meta' : ''}} {{item.charAt(1) === '、' ? 'heading' : ''}}" wx:for="{{paragraphs}}" wx:key="index">{{item}}</view>
+    </view>
+    <view class="tip" wx:if="{{canAgree}}">阅读后可返回弹窗完成同意</view>
+</view>

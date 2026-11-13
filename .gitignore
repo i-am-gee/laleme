@@ -1,0 +1,16 @@
+# WorkBuddy 内部数据（禁止上传）
+.workbuddy/
+
+# 系统文件
+.DS_Store
+
+# 图标生成的中间文件（保留成品）
+laleme-icon/check_*
+laleme-icon/prev_*
+laleme-icon/iOS_app_icon__*
+laleme-icon/clean_*
+laleme-icon/compare_sizes.png
+
+# 依赖与构建产物
+node_modules/
+dist/

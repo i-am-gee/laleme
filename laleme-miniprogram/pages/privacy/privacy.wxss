@@ -1,0 +1,40 @@
+.page {
+    padding: 24rpx 32rpx 60rpx;
+}
+
+.doc-card {
+    background: #ffffff;
+    border: 0.5rpx solid rgba(44, 44, 42, 0.12);
+    border-radius: 28rpx;
+    padding: 36rpx 32rpx;
+}
+
+.doc-title {
+    font-size: 32rpx;
+    font-weight: 700;
+    margin-bottom: 24rpx;
+}
+
+.para {
+    font-size: 26rpx;
+    color: #444441;
+    line-height: 1.8;
+    margin-bottom: 18rpx;
+}
+
+.para.meta {
+    font-size: 22rpx;
+    color: #888780;
+}
+
+.para.heading {
+    font-weight: 600;
+    margin-top: 28rpx;
+}
+
+.tip {
+    text-align: center;
+    color: #8b5e3c;
+    font-size: 25rpx;
+    padding: 28rpx 0;
+}

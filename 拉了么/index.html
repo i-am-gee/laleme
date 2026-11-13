@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>拉了么</title>
+<style>
+  :root {
+    --brown: #8B5E3C;
+    --brown-dark: #6B4426;
+    --amber-bg: #FAEEDA;
+    --amber-text: #854F0B;
+    --green: #0F6E56;
+    --green-bg: #E1F5EE;
+    --red: #E24B4A;
+    --red-bg: #FCEBEB;
+    --bg: #F7F4EF;
+    --card: #FFFFFF;
+    --muted: #888780;
+    --text: #2C2C2A;
+    --border: rgba(44, 44, 42, 0.12);
+    --radius: 14px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+  }
+  .app {
+    width: 100%;
+    max-width: 480px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+  }
+  header {
+    padding: 22px 20px 6px;
+  }
+  header h1 { font-size: 26px; font-weight: 700; color: var(--brown); letter-spacing: 1px; }
+  header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  main { flex: 1; padding: 12px 20px 100px; }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .card {
+    background: var(--card);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+  .status-card {
+    text-align: center;
+    padding: 30px 18px;
+    border: none;
+  }
+  .status-card.notyet { background: var(--amber-bg); }
+  .status-card.done { background: var(--green-bg); }
+  .status-card .big { font-size: 30px; font-weight: 700; }
+  .status-card.notyet .big { color: var(--amber-text); }
+  .status-card.done .big { color: var(--green); }
+  .status-card .sub { font-size: 14px; margin-top: 6px; }
+  .status-card.notyet .sub { color: var(--amber-text); opacity: .85; }
+  .status-card.done .sub { color: var(--green); opacity: .85; }
+
+  .btn {
+    display: block;
+    width: 100%;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    background: var(--brown);
+    color: #fff;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .btn:active { opacity: .8; }
+  .btn.ghost {
+    background: transparent;
+    color: var(--brown);
+    border: 1px solid var(--brown);
+  }
+  .btn.danger { background: var(--red); }
+  .btn + .btn { margin-top: 10px; }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    padding: 10px 0;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .info-row:last-child { border-bottom: none; }
+  .info-row .label { color: var(--muted); }
+  .info-row .value { color: var(--text); font-weight: 500; }
+
+  .section-title { font-size: 15px; font-weight: 600; margin: 18px 0 10px; }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .metric {
+    background: var(--card);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 8px;
+    text-align: center;
+  }
+  .metric .num { font-size: 22px; font-weight: 700; color: var(--brown); }
+  .metric .lbl { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .seg {
+    display: flex;
+    background: var(--card);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .seg button {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 10px;
+    font-size: 14px;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .seg button.active { background: var(--brown); color: #fff; font-weight: 600; }
+
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .bar-row .bar-label { width: 64px; font-size: 12px; color: var(--text); flex-shrink: 0; }
+  .bar-track { flex: 1; height: 12px; background: var(--bg); border-radius: 6px; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--brown); border-radius: 6px; transition: width .3s; }
+  .bar-fill.warn { background: var(--amber-text); }
+  .bar-fill.bad { background: var(--red); }
+  .bar-row .bar-pct { width: 40px; font-size: 12px; text-align: right; color: var(--muted); }
+
+  .h-item {
+    background: var(--card);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+  .h-item .h-top { display: flex; justify-content: space-between; align-items: baseline; }
+  .h-item .h-time { font-size: 15px; font-weight: 600; }
+  .h-item .h-tag { font-size: 12px; color: var(--muted); }
+  .h-item .h-detail { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .h-date { font-size: 12px; color: var(--muted); margin: 16px 0 8px; font-weight: 600; }
+  .h-date:first-child { margin-top: 0; }
+
+  .ach-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .ach {
+    background: var(--card);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    text-align: center;
+    opacity: .45;
+  }
+  .ach.got { opacity: 1; background: var(--amber-bg); border-color: var(--amber-text); }
+  .ach .a-name { font-size: 14px; font-weight: 600; margin-top: 4px; }
+  .ach .a-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* 记录页（覆盖层） */
+  #record-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 100;
+    display: none;
+    overflow-y: auto;
+    padding: 22px 20px 40px;
+    max-width: 480px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  #record-overlay.open { display: block; }
+  .r-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .r-head h2 { font-size: 20px; color: var(--brown); }
+  .r-close { background: none; border: none; font-size: 22px; color: var(--muted); cursor: pointer; padding: 4px 8px; }
+  .timer-box {
+    background: var(--card);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .timer-box .t-display { font-size: 40px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+  .timer-box .t-state { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .manual-min { display: flex; align-items: center; gap: 8px; justify-content: center; margin-top: 12px; }
+  .manual-min input {
+    width: 70px;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 15px;
+    text-align: center;
+  }
+  .q-label { font-size: 14px; font-weight: 600; margin: 16px 0 8px; }
+  .q-label small { font-weight: 400; color: var(--muted); }
+  .bs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .bs-item {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 2px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text);
+    cursor: pointer;
+    transition: all .12s;
+  }
+  .bs-item .bs-num { font-size: 16px; font-weight: 700; color: var(--brown); }
+  .bs-item.sel { border-color: var(--brown); background: var(--amber-bg); }
+  .bs-item.ideal.sel { border-color: var(--green); background: var(--green-bg); }
+  .bs-hint { font-size: 12px; color: var(--muted); margin-top: 8px; min-height: 18px; }
+  .mood-row { display: flex; gap: 8px; }
+  .mood-item {
+    flex: 1;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 0;
+    text-align: center;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all .12s;
+  }
+  .mood-item.sel { border-color: var(--brown); background: var(--amber-bg); font-weight: 600; color: var(--brown); }
+  .dt-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 15px;
+    background: var(--card);
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+  .empty { text-align: center; color: var(--muted); font-size: 14px; padding: 40px 0; }
+
+  /* toast */
+  #toast {
+    position: fixed;
+    left: 50%;
+    bottom: 110px;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(44, 44, 42, 0.92);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    max-width: 82%;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: all .25s;
+    z-index: 200;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* 底部导航 */
+  nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    background: var(--card);
+    border-top: 0.5px solid var(--border);
+    display: flex;
+    z-index: 50;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  nav button {
+    flex: 1;
+    border: none;
+    background: none;
+    padding: 12px 0 14px;
+    font-size: 12px;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  nav button.active { color: var(--brown); font-weight: 600; }
+  nav .n-icon { font-size: 18px; line-height: 1; }
+  .fab {
+    position: fixed;
+    bottom: 84px;
+    right: calc(50% - 240px + 20px);
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--brown);
+    color: #fff;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(139, 94, 60, 0.4);
+    z-index: 60;
+  }
+  @media (max-width: 540px) {
+    .fab { right: 20px; }
+  }
+  .confirm-box {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.35);
+    z-index: 150;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .confirm-box.open { display: flex; }
+  .confirm-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 320px;
+    width: 100%;
+    text-align: center;
+  }
+  .confirm-card p { font-size: 15px; margin-bottom: 18px; line-height: 1.6; }
+  .confirm-btns { display: flex; gap: 10px; }
+  .confirm-btns button { flex: 1; padding: 12px; border-radius: 10px; border: none; font-size: 15px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>拉了么</h1>
+    <p>严肃记录，轻松呈现 · 肠道健康追踪</p>
+  </header>
+  <main>
+    <!-- 首页 -->
+    <section class="view active" id="view-home">
+      <div class="card status-card notyet" id="status-card">
+        <div class="big" id="status-title">拉了么？</div>
+        <div class="sub" id="status-sub">今天还没拉</div>
+      </div>
+      <button class="btn" onclick="openRecord()">记一次</button>
+      <div class="card" style="margin-top:14px;">
+        <div class="info-row"><span class="label">最近一次</span><span class="value" id="home-last">-</span></div>
+        <div class="info-row"><span class="label">连续记录</span><span class="value" id="home-streak">-</span></div>
+        <div class="info-row"><span class="label">本月次数</span><span class="value" id="home-month-count">-</span></div>
+      </div>
+    </section>
+
+    <!-- 历史 -->
+    <section class="view" id="view-history">
+      <div id="history-list"></div>
+    </section>
+
+    <!-- 统计 -->
+    <section class="view" id="view-stats">
+      <div class="seg">
+        <button id="seg-week" class="active" onclick="setPeriod('week')">近 7 天</button>
+        <button id="seg-month" onclick="setPeriod('month')">近 30 天</button>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="num" id="s-count">0</div><div class="lbl">次数</div></div>
+        <div class="metric"><div class="num" id="s-avg">-</div><div class="lbl">平均时长</div></div>
+        <div class="metric"><div class="num" id="s-streak">0</div><div class="lbl">连续天数</div></div>
+      </div>
+      <div class="card">
+        <div style="font-size:15px;font-weight:600;margin-bottom:12px;">布里斯托性状分布</div>
+        <div id="s-dist"></div>
+      </div>
+      <div class="section-title">成就墙</div>
+      <div class="ach-grid" id="ach-grid"></div>
+    </section>
+
+    <!-- 我的 -->
+    <section class="view" id="view-me">
+      <div class="card">
+        <div class="info-row"><span class="label">已记录条数</span><span class="value" id="me-count">0</span></div>
+        <div class="info-row"><span class="label">最早记录</span><span class="value" id="me-first">-</span></div>
+        <div class="info-row"><span class="label">存储方式</span><span class="value">本地浏览器</span></div>
+      </div>
+      <button class="btn ghost" onclick="exportCSV()">导出 CSV（就医参考）</button>
+      <button class="btn danger" onclick="askClear()">清空全部数据</button>
+      <div class="card" style="margin-top:14px;">
+        <div style="font-size:13px;color:var(--muted);line-height:1.7;">
+          「拉了么」v1.0 · 数据仅保存在本设备浏览器中，不上传任何服务器。<br>
+          性状分类采用国际通用的布里斯托大便分类法（Bristol Stool Scale）。<br>
+          本应用不构成医疗建议，持续异常请咨询消化科医生。
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <button class="fab" onclick="openRecord()" title="记一次">+</button>
+  <nav>
+    <button class="active" data-tab="home" onclick="switchTab('home', this)"><span class="n-icon">◎</span>首页</button>
+    <button data-tab="history" onclick="switchTab('history', this)"><span class="n-icon">≡</span>历史</button>
+    <button data-tab="stats" onclick="switchTab('stats', this)"><span class="n-icon">◫</span>统计</button>
+    <button data-tab="me" onclick="switchTab('me', this)"><span class="n-icon">⚙</span>我的</button>
+  </nav>
+</div>
+
+<!-- 记录页 -->
+<div id="record-overlay">
+  <div class="r-head">
+    <h2 id="r-title">记一次</h2>
+    <button class="r-close" onclick="closeRecord()">✕</button>
+  </div>
+  <div class="timer-box" id="timer-box">
+    <div class="t-display" id="t-display">00:00</div>
+    <div class="t-state" id="t-state">计时中</div>
+    <div class="manual-min">
+      <input type="number" id="manual-min" min="1" max="120" placeholder="分钟">
+      <span style="font-size:13px;color:var(--muted);">分钟（手动填写优先）</span>
+    </div>
+  </div>
+  <div class="q-label">什么时候拉的 <small>（默认刚才）</small></div>
+  <input type="datetime-local" class="dt-input" id="r-datetime">
+  <div class="q-label">布里斯托性状 <small>（选一个最像的）</small></div>
+  <div class="bs-grid" id="bs-grid"></div>
+  <div class="bs-hint" id="bs-hint"></div>
+  <div class="q-label">今天的感觉</div>
+  <div class="mood-row" id="mood-row">
+    <div class="mood-item" data-mood="good" onclick="pickMood(this)">通畅</div>
+    <div class="mood-item" data-mood="normal" onclick="pickMood(this)">一般</div>
+    <div class="mood-item" data-mood="hard" onclick="pickMood(this)">费劲</div>
+  </div>
+  <button class="btn" style="margin-top:20px;" onclick="submitRecord()">完成记录</button>
+  <button class="btn danger" id="r-delete" style="display:none;" onclick="askDelete()">删除这条记录</button>
+</div>
+
+<div id="toast"></div>
+
+<div class="confirm-box" id="confirm-box">
+  <div class="confirm-card">
+    <p id="confirm-text"></p>
+    <div class="confirm-btns">
+      <button style="background:var(--bg);color:var(--text);" onclick="closeConfirm(false)">取消</button>
+      <button style="background:var(--red);color:#fff;" onclick="closeConfirm(true)">确认</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  var STORE_KEY = 'laleme_records';
+  var records = [];
+
+  var BRISTOL = [
+    { t: 1, name: '硬球', desc: '一颗颗硬球', hint: '严重便秘，多喝水、多补膳食纤维', level: 'bad' },
+    { t: 2, name: '结块', desc: '腊肠状结块', hint: '轻度便秘，多吃蔬果粗粮', level: 'warn' },
+    { t: 3, name: '干裂', desc: '干裂腊肠', hint: '正常偏干，注意补水', level: 'ok' },
+    { t: 4, name: '理想', desc: '光滑软条', hint: '理想状态，继续保持！', level: 'ok' },
+    { t: 5, name: '软块', desc: '软块边缘清晰', hint: '偏软，建议补充膳食纤维', level: 'ok' },
+    { t: 6, name: '糊状', desc: '糊状蓬松', hint: '轻度腹泻，注意饮食清淡', level: 'warn' },
+    { t: 7, name: '水状', desc: '完全水状', hint: '腹泻，注意补水休息，持续请就医', level: 'bad' }
+  ];
+  var MOOD_TEXT = { good: '通畅', normal: '一般', hard: '费劲' };
+  var CHEERS = ['顺风顺水！', '今天也畅通了！', '一身轻松！', '完美完成任务！', '肠道谢谢你！', '纪录 +1，继续加油！'];
+  var ACH = [
+    { id: 'week', name: '七日全勤', desc: '连续记录 7 天' },
+    { id: 'flash', name: '闪电侠', desc: '单次用时 ≤ 3 分钟' },
+    { id: 'marathon', name: '马拉松选手', desc: '单次用时 ≥ 20 分钟' },
+    { id: 'collector', name: '收藏家', desc: '集齐布里斯托 1-7 型' }
+  ];
+
+  function load() {
+    try { records = JSON.parse(localStorage.getItem(STORE_KEY)) || []; }
+    catch (e) { records = []; }
+    if (!Array.isArray(records)) records = [];
+  }
+  function save() { localStorage.setItem(STORE_KEY, JSON.stringify(records)); }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+  function byTimeDesc(a, b) { return new Date(b.timestamp) - new Date(a.timestamp); }
+
+  function dayStr(d) {
+    var x = new Date(d);
+    return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0');
+  }
+  function todayStr() { return dayStr(new Date()); }
+  function fmtDur(m) { return m >= 60 ? Math.floor(m / 60) + ' 小时 ' + (m % 60) + ' 分' : m + ' 分钟'; }
+  function fmtDT(ts) {
+    var d = new Date(ts);
+    return d.getMonth() + 1 + '月' + d.getDate() + '日 ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  }
+  function toast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._tm);
+    t._tm = setTimeout(function () { t.classList.remove('show'); }, 2200);
+  }
+
+  /* ---- 导航 ---- */
+  function switchTab(name, btn) {
+    document.querySelectorAll('.view').forEach(function (v) { v.classList.remove('active'); });
+    document.getElementById('view-' + name).classList.add('active');
+    document.querySelectorAll('nav button').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    if (name === 'home') renderHome();
+    if (name === 'history') renderHistory();
+    if (name === 'stats') renderStats();
+    if (name === 'me') renderMe();
+    if (name === 'stats') setPeriod(currentPeriod);
+  }
+
+  /* ---- 首页 ---- */
+  function streakDays() {
+    var days = {};
+    records.forEach(function (r) { days[dayStr(r.timestamp)] = true; });
+    var n = 0;
+    var d = new Date();
+    if (!days[dayStr(d)]) d.setDate(d.getDate() - 1); // 今天没拉不算断签
+    while (days[dayStr(d)]) {
+      n++;
+      d.setDate(d.getDate() - 1);
+    }
+    return n;
+  }
+  function renderHome() {
+    var today = records.filter(function (r) { return dayStr(r.timestamp) === todayStr(); });
+    var card = document.getElementById('status-card');
+    if (today.length > 0) {
+      card.className = 'card status-card done';
+      document.getElementById('status-title').textContent = '拉过了';
+      document.getElementById('status-sub').textContent = '今天已拉 ' + today.length + ' 次，继续保持';
+    } else {
+      card.className = 'card status-card notyet';
+      document.getElementById('status-title').textContent = '拉了么？';
+      document.getElementById('status-sub').textContent = '今天还没拉';
+    }
+    var last = records.slice().sort(byTimeDesc)[0];
+    document.getElementById('home-last').textContent = last
+      ? fmtDT(last.timestamp) + ' · ' + fmtDur(last.durationMin) + (last.bristol ? ' · ' + last.bristol + ' 型' + BRISTOL[last.bristol - 1].name : '')
+      : '还没有记录';
+    var s = streakDays();
+    document.getElementById('home-streak').textContent = s > 0 ? s + ' 天' : '未开始';
+    var monthAgo = new Date(); monthAgo.setDate(monthAgo.getDate() - 30);
+    document.getElementById('home-month-count').textContent =
+      records.filter(function (r) { return new Date(r.timestamp) >= monthAgo; }).length + ' 次';
+  }
+
+  /* ---- 记录页 ---- */
+  var timer = { sec: 0, int: null };
+  var curBristol = null, curMood = null, editId = null;
+
+  function openRecord(editRec) {
+    editId = editRec ? editRec.id : null;
+    document.getElementById('r-title').textContent = editId ? '编辑记录' : '记一次';
+    document.getElementById('r-delete').style.display = editId ? 'block' : 'none';
+    document.getElementById('timer-box').style.display = editId ? 'none' : 'block';
+    document.getElementById('manual-min').value = editId ? editRec.durationMin : '';
+    var dt = document.getElementById('r-datetime');
+    var d = editId ? new Date(editRec.timestamp) : new Date();
+    d.setSeconds(0, 0);
+    dt.value = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    buildBristolGrid();
+    curBristol = editId ? editRec.bristol : null;
+    if (curBristol) markBristol(curBristol);
+    curMood = editId ? editRec.mood : null;
+    document.querySelectorAll('.mood-item').forEach(function (m) {
+      m.classList.toggle('sel', m.dataset.mood === curMood);
+    });
+    document.getElementById('record-overlay').classList.add('open');
+    if (!editId) startTimer();
+    else document.getElementById('bs-hint').textContent = curBristol ? BRISTOL[curBristol - 1].hint : '';
+  }
+  function closeRecord() {
+    stopTimer();
+    document.getElementById('record-overlay').classList.remove('open');
+    editId = null;
+  }
+  function startTimer() {
+    stopTimer();
+    timer.sec = 0;
+    document.getElementById('t-display').textContent = '00:00';
+    document.getElementById('t-state').textContent = '计时中';
+    timer.int = setInterval(function () {
+      timer.sec++;
+      var m = Math.floor(timer.sec / 60), s = timer.sec % 60;
+      document.getElementById('t-display').textContent =
+        String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    }, 1000);
+  }
+  function stopTimer() { if (timer.int) { clearInterval(timer.int); timer.int = null; } }
+
+  function buildBristolGrid() {
+    var g = document.getElementById('bs-grid');
+    g.innerHTML = '';
+    BRISTOL.forEach(function (b) {
+      var el = document.createElement('div');
+      el.className = 'bs-item' + (b.t === 4 ? ' ideal' : '');
+      el.dataset.t = b.t;
+      el.innerHTML = '<div class="bs-num">' + b.t + '</div>' + b.name;
+      el.onclick = function () { markBristol(b.t); };
+      g.appendChild(el);
+    });
+    var unk = document.createElement('div');
+    unk.className = 'bs-item';
+    unk.innerHTML = '<div class="bs-num">?</div>不确定';
+    unk.style.borderStyle = 'dashed';
+    unk.onclick = function () { markBristol(null); };
+    g.appendChild(unk);
+  }
+  function markBristol(t) {
+    curBristol = t;
+    document.querySelectorAll('#bs-grid .bs-item').forEach(function (el) {
+      el.classList.toggle('sel', (t === null && el.textContent.indexOf('不确定') >= 0) || Number(el.dataset.t) === t);
+    });
+    document.getElementById('bs-hint').textContent = t ? BRISTOL[t - 1].hint : '';
+  }
+  function pickMood(el) {
+    curMood = el.dataset.mood;
+    document.querySelectorAll('.mood-item').forEach(function (m) { m.classList.remove('sel'); });
+    el.classList.add('sel');
+  }
+
+  function submitRecord() {
+    var manual = parseInt(document.getElementById('manual-min').value, 10);
+    var duration = (!isNaN(manual) && manual > 0)
+      ? Math.min(manual, 720)
+      : Math.max(1, Math.round(timer.sec / 60));
+    var dtVal = document.getElementById('r-datetime').value;
+    var ts = dtVal ? new Date(dtVal).toISOString() : new Date().toISOString();
+    if (editId) {
+      var rec = records.find(function (r) { return r.id === editId; });
+      if (rec) {
+        rec.timestamp = ts;
+        rec.durationMin = duration;
+        rec.bristol = curBristol;
+        rec.mood = curMood;
+      }
+      toast('记录已更新');
+    } else {
+      records.push({
+        id: uid(), timestamp: ts, durationMin: duration,
+        bristol: curBristol, mood: curMood, createdAt: new Date().toISOString()
+      });
+      var cheer = CHEERS[Math.floor(Math.random() * CHEERS.length)];
+      var hint = curBristol ? BRISTOL[curBristol - 1].hint : '';
+      toast(cheer + (hint ? '　' + hint : ''));
+      // 成就提示
+      var got = checkAch();
+      if (got.length && got[0]._justNow) toast('解锁成就：' + got[0].name);
+    }
+    save();
+    closeRecord();
+    renderHome();
+    renderHistory();
+    renderStats();
+    renderMe();
+  }
+
+  /* ---- 历史 ---- */
+  function renderHistory() {
+    var box = document.getElementById('history-list');
+    var sorted = records.slice().sort(byTimeDesc);
+    if (!sorted.length) {
+      box.innerHTML = '<div class="empty">还没有记录，点右下角 + 开始第一次</div>';
+      return;
+    }
+    var html = '', lastDay = '';
+    sorted.forEach(function (r) {
+      var day = dayStr(r.timestamp);
+      if (day !== lastDay) {
+        lastDay = day;
+        html += '<div class="h-date">' + (day === todayStr() ? '今天' : day) + '</div>';
+      }
+      var bs = r.bristol ? BRISTOL[r.bristol - 1].t + ' 型 ' + BRISTOL[r.bristol - 1].name : '未记性状';
+      var mood = r.mood ? ' · ' + MOOD_TEXT[r.mood] : '';
+      html += '<div class="h-item" onclick="editRecord(\'' + r.id + '\')">' +
+        '<div class="h-top"><span class="h-time">' +
+        String(new Date(r.timestamp).getHours()).padStart(2, '0') + ':' +
+        String(new Date(r.timestamp).getMinutes()).padStart(2, '0') + '</span>' +
+        '<span class="h-tag">点击编辑</span></div>' +
+        '<div class="h-detail">' + fmtDur(r.durationMin) + ' · ' + bs + mood + '</div></div>';
+    });
+    box.innerHTML = html;
+  }
+  function editRecord(id) {
+    var rec = records.find(function (r) { return r.id === id; });
+    if (rec) openRecord(rec);
+  }
+
+  /* ---- 确认框 ---- */
+  var confirmCb = null;
+  function askConfirm(text, cb) {
+    document.getElementById('confirm-text').textContent = text;
+    document.getElementById('confirm-box').classList.add('open');
+    confirmCb = cb;
+  }
+  function closeConfirm(ok) {
+    document.getElementById('confirm-box').classList.remove('open');
+    if (ok && confirmCb) confirmCb();
+    confirmCb = null;
+  }
+  function askDelete() {
+    var id = editId;
+    askConfirm('删除这条记录？删除后无法恢复。', function () {
+      records = records.filter(function (r) { return r.id !== id; });
+      save(); closeRecord();
+      renderHome(); renderHistory(); renderStats(); renderMe();
+      toast('已删除');
+    });
+  }
+  function askClear() {
+    askConfirm('清空全部 ' + records.length + ' 条记录？此操作不可恢复，建议先导出 CSV 备份。', function () {
+      records = [];
+      save();
+      renderHome(); renderHistory(); renderStats(); renderMe();
+      toast('已清空全部数据');
+    });
+  }
+
+  /* ---- 统计 ---- */
+  var currentPeriod = 'week';
+  function setPeriod(p) {
+    currentPeriod = p;
+    document.getElementById('seg-week').classList.toggle('active', p === 'week');
+    document.getElementById('seg-month').classList.toggle('active', p === 'month');
+    var days = p === 'week' ? 7 : 30;
+    var start = new Date(); start.setDate(start.getDate() - days); start.setHours(0, 0, 0, 0);
+    var list = records.filter(function (r) { return new Date(r.timestamp) >= start; });
+    document.getElementById('s-count').textContent = list.length;
+    if (list.length) {
+      var avg = list.reduce(function (s, r) { return s + r.durationMin; }, 0) / list.length;
+      document.getElementById('s-avg').textContent = Math.round(avg) + ' 分';
+    } else {
+      document.getElementById('s-avg').textContent = '-';
+    }
+    document.getElementById('s-streak').textContent = streakDays();
+    var cnt = {};
+    list.forEach(function (r) { if (r.bristol) cnt[r.bristol] = (cnt[r.bristol] || 0) + 1; });
+    var total = Object.keys(cnt).reduce(function (s, k) { return s + cnt[k]; }, 0);
+    var box = document.getElementById('s-dist');
+    if (!total) {
+      box.innerHTML = '<div class="empty" style="padding:20px 0;">该时段暂无性状数据</div>';
+    } else {
+      var html = '';
+      BRISTOL.forEach(function (b) {
+        var c = cnt[b.t] || 0;
+        if (!c) return;
+        var pct = Math.round(c / total * 100);
+        var cls = b.level === 'bad' ? 'bad' : (b.level === 'warn' ? 'warn' : '');
+        html += '<div class="bar-row"><span class="bar-label">' + b.t + ' ' + b.name + '</span>' +
+          '<div class="bar-track"><div class="bar-fill ' + cls + '" style="width:' + pct + '%"></div></div>' +
+          '<span class="bar-pct">' + pct + '%</span></div>';
+      });
+      box.innerHTML = html;
+    }
+  }
+  function checkAch() {
+    var got = [];
+    var days = {};
+    records.forEach(function (r) { days[dayStr(r.timestamp)] = true; });
+    var weekOK = streakDays() >= 7;
+    var flash = records.some(function (r) { return r.durationMin <= 3; });
+    var marathon = records.some(function (r) { return r.durationMin >= 20; });
+    var types = {}; records.forEach(function (r) { if (r.bristol) types[r.bristol] = true; });
+    var collector = Object.keys(types).length >= 7;
+    if (weekOK) got.push({ name: '七日全勤' });
+    if (flash) got.push({ name: '闪电侠' });
+    if (marathon) got.push({ name: '马拉松选手' });
+    if (collector) got.push({ name: '收藏家' });
+    return got;
+  }
+  function renderStats() { setPeriod(currentPeriod); }
+  function renderAch() {
+    var weekOK = streakDays() >= 7;
+    var flash = records.some(function (r) { return r.durationMin <= 3; });
+    var marathon = records.some(function (r) { return r.durationMin >= 20; });
+    var types = {}; records.forEach(function (r) { if (r.bristol) types[r.bristol] = true; });
+    var collector = Object.keys(types).length >= 7;
+    var gotMap = { week: weekOK, flash: flash, marathon: marathon, collector: collector };
+    document.getElementById('ach-grid').innerHTML = ACH.map(function (a) {
+      return '<div class="ach' + (gotMap[a.id] ? ' got' : '') + '">' +
+        '<div class="a-name">' + (gotMap[a.id] ? a.name : a.name) + '</div>' +
+        '<div class="a-desc">' + (gotMap[a.id] ? '已达成' : a.desc) + '</div></div>';
+    }).join('');
+  }
+
+  /* ---- 我的 ---- */
+  function renderMe() {
+    document.getElementById('me-count').textContent = records.length + ' 条';
+    var sorted = records.slice().sort(function (a, b) { return new Date(a.timestamp) - new Date(b.timestamp); });
+    document.getElementById('me-first').textContent = sorted.length ? dayStr(sorted[0].timestamp) : '-';
+    renderAch();
+  }
+  function exportCSV() {
+    if (!records.length) { toast('暂无数据可导出'); return; }
+    var rows = [['时间', '时长(分钟)', '布里斯托类型', '感觉', '备注']];
+    records.slice().sort(byTimeDesc).forEach(function (r) {
+      rows.push([
+        new Date(r.timestamp).toLocaleString('zh-CN'),
+        r.durationMin,
+        r.bristol ? r.bristol + '型 ' + BRISTOL[r.bristol - 1].desc : '未记',
+        r.mood ? MOOD_TEXT[r.mood] : '未记',
+        r.note || ''
+      ]);
+    });
+    var csv = '\uFEFF' + rows.map(function (row) {
+      return row.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(',');
+    }).join('\n');
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = '拉了么记录_' + todayStr() + '.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('CSV 已导出');
+  }
+
+  /* ---- init ---- */
+  load();
+  renderHome();
+  renderHistory();
+  renderStats();
+  renderMe();
+</script>
+</body>
+</html>
