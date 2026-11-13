@@ -11,9 +11,10 @@
     </view>
 
     <view class="fab-wrap">
-        <view class="fab" hover-class="fab-hover" bindtap="goRecord">
+        <view class="fab {{fabPressed ? 'fab-pressed' : ''}}" hover-class="fab-hover" bindtouchstart="onFabTouchStart" bindtap="onFabTap">
             <text class="fab-emoji">💩</text>
             <text class="fab-label">记一次</text>
+            <view class="fab-ripple" wx:if="{{fabPressed}}"></view>
         </view>
     </view>
 

@@ -53,17 +53,19 @@ Page({
         });
     },
 
-    /* ---- 数据备份与恢复：ActionSheet 收纳三个入口 ---- */
+    /* ---- 数据备份与恢复：ActionSheet 收纳四个入口 ---- */
     openDataManage() {
         const that = this;
         wx.showActionSheet({
-            itemList: ['导出数据文件', '从文件导入', '复制 CSV 到剪贴板'],
+            itemList: ['导出数据文件', '从聊天文件导入', '从剪贴板导入', '复制 CSV 到剪贴板'],
             success: function (res) {
                 if (res.tapIndex === 0) {
                     that.exportFile();
                 } else if (res.tapIndex === 1) {
                     that.importFile();
                 } else if (res.tapIndex === 2) {
+                    that.importFromClipboard();
+                } else if (res.tapIndex === 3) {
                     that.exportCSV();
                 }
             },
@@ -105,73 +107,124 @@ Page({
         });
     },
 
-    /* ---- 导入：从聊天文件选择 CSV，按 时间+时长 去重合并 ---- */
+    /* ---- 导入：从聊天文件选择 CSV（不限后缀），按 时间+时长 去重合并 ---- */
     importFile() {
         const that = this;
         wx.chooseMessageFile({
             count: 1,
-            type: 'file',
-            extension: ['csv', 'txt'],
+            type: 'all',
             success: function (res) {
                 if (!res.tempFiles || !res.tempFiles.length) {
+                    wx.showToast({ title: '未选择文件', icon: 'none' });
                     return;
                 }
-                const path = res.tempFiles[0].path;
+                const file = res.tempFiles[0];
+                const name = file.name || '';
+                if (name && !/\.(csv|txt)$/i.test(name)) {
+                    wx.showModal({
+                        title: '文件类型不支持',
+                        content: '请选择 .csv 或 .txt 文件。当前选择的是「' + name + '」。',
+                        showCancel: false,
+                    });
+                    return;
+                }
                 let text = '';
                 try {
-                    text = wx.getFileSystemManager().readFileSync(path, 'utf8');
+                    text = wx.getFileSystemManager().readFileSync(file.path, 'utf8');
                 } catch (e) {
-                    wx.showToast({ title: '读取文件失败', icon: 'none' });
+                    wx.showModal({
+                        title: '读取失败',
+                        content: '无法读取该文件，请重新导出后再试。',
+                        showCancel: false,
+                    });
                     return;
                 }
-                const rows = parseCsv(String(text));
-                if (!rows.length) {
-                    wx.showToast({ title: '未识别到有效记录', icon: 'none' });
-                    return;
+                that.applyCsv(String(text));
+            },
+            fail: function (err) {
+                const msg = (err && err.errMsg) || '';
+                if (msg.indexOf('cancel') !== -1) {
+                    return; // 用户主动取消
                 }
-                store.list().then(function (cur) {
-                    const existing = {};
-                    (cur.data || []).forEach(function (r) {
-                        existing[r.timestamp + '|' + r.durationMin] = true;
-                    });
-                    let added = 0;
-                    let skipped = 0;
-                    let pending = rows.length;
-                    rows.forEach(function (row) {
-                        const key = row.timestamp + '|' + row.durationMin;
-                        if (existing[key]) {
-                            skipped += 1;
-                            done();
-                            return;
-                        }
-                        existing[key] = true;
-                        store.create(row).then(function (r) {
-                            if (!r.error) {
-                                added += 1;
-                            } else {
-                                skipped += 1;
-                            }
-                            done();
-                        });
-                    });
-                    function done() {
-                        pending -= 1;
-                        if (pending !== 0) {
-                            return;
-                        }
-                        wx.showModal({
-                            title: '导入完成',
-                            content: '新增 ' + added + ' 条，跳过 ' + skipped + ' 条（重复或无效）。',
-                            showCancel: false,
-                            confirmText: '好的',
-                        });
-                        that.refresh();
-                    }
+                // 最常见原因：聊天里没有 .csv 文件。给出可操作指引
+                wx.showModal({
+                    title: '没有可选文件',
+                    content: '微信只允许从「聊天记录」中选择文件。请先把导出的 CSV 发送到「文件传输助手」，再回到这里选择；或用「从剪贴板导入」。',
+                    confirmText: '知道了',
+                    showCancel: false,
                 });
             },
-            fail: function () {
-                // 用户取消选择
+        });
+    },
+
+    /* ---- 导入：从剪贴板（配合「复制 CSV 到剪贴板」形成闭环） ---- */
+    importFromClipboard() {
+        const that = this;
+        wx.getClipboardData({
+            success: function (res) {
+                const text = String(res.data || '');
+                if (!text.trim()) {
+                    wx.showToast({ title: '剪贴板为空', icon: 'none' });
+                    return;
+                }
+                that.applyCsv(text);
             },
+            fail: function () {
+                wx.showToast({ title: '读取剪贴板失败', icon: 'none' });
+            },
+        });
+    },
+
+    /* ---- 解析并合并 CSV 文本 ---- */
+    applyCsv(text) {
+        const that = this;
+        const rows = parseCsv(text);
+        if (!rows.length) {
+            wx.showModal({
+                title: '未识别到记录',
+                content: '内容不是有效的「拉了么」数据。首行应为「时间,时长(分钟),布里斯托类型,感觉」，请确认后重试。',
+                showCancel: false,
+            });
+            return;
+        }
+        store.list().then(function (cur) {
+            const existing = {};
+            (cur.data || []).forEach(function (r) {
+                existing[r.timestamp + '|' + r.durationMin] = true;
+            });
+            let added = 0;
+            let skipped = 0;
+            let pending = rows.length;
+            rows.forEach(function (row) {
+                const key = row.timestamp + '|' + row.durationMin;
+                if (existing[key]) {
+                    skipped += 1;
+                    done();
+                    return;
+                }
+                existing[key] = true;
+                store.create(row).then(function (r) {
+                    if (!r.error) {
+                        added += 1;
+                    } else {
+                        skipped += 1;
+                    }
+                    done();
+                });
+            });
+            function done() {
+                pending -= 1;
+                if (pending !== 0) {
+                    return;
+                }
+                wx.showModal({
+                    title: '导入完成',
+                    content: '新增 ' + added + ' 条，跳过 ' + skipped + ' 条（重复或无效）。',
+                    showCancel: false,
+                    confirmText: '好的',
+                });
+                that.refresh();
+            }
         });
     },
 
@@ -235,19 +288,20 @@ function buildCsv(records) {
     return { csv: csv };
 }
 
-// CSV 解析：支持引号转义；返回 [{timestamp, durationMin, bristol, mood}]
+// CSV 解析：支持引号转义、BOM、无引号、常见日期格式
 function parseCsv(text) {
-    const lines = String(text).split(/\r?\n/);
+    const clean = String(text).replace(/^\uFEFF/, '');
+    const lines = clean.split(/\r?\n/);
     const out = [];
-    lines.forEach(function (line, idx) {
+    lines.forEach(function (line) {
         if (!line.trim()) {
             return;
         }
         const cells = splitLine(line);
-        if (idx === 0 && cells[0] === '时间') {
+        if (String(cells[0] || '').replace(/\uFEFF/g, '').indexOf('时间') !== -1) {
             return; // 表头
         }
-        const ts = Date.parse(cells[0]);
+        const ts = parseDateCell(cells[0]);
         const dur = parseInt(cells[1], 10);
         if (!Number.isFinite(ts) || !Number.isFinite(dur) || dur <= 0) {
             return;
@@ -269,6 +323,30 @@ function parseCsv(text) {
         });
     });
     return out;
+}
+
+// 日期解析：ISO 8601 / 2026-11-13 20:00 / 2026/11/13 20:00:00
+function parseDateCell(raw) {
+    const s = String(raw || '').trim().replace(/^"|"$/g, '');
+    if (!s) {
+        return NaN;
+    }
+    const iso = Date.parse(s);
+    if (Number.isFinite(iso)) {
+        return iso;
+    }
+    const m = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[ T](\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+    if (m) {
+        return new Date(
+            parseInt(m[1], 10),
+            parseInt(m[2], 10) - 1,
+            parseInt(m[3], 10),
+            parseInt(m[4] || '0', 10),
+            parseInt(m[5] || '0', 10),
+            parseInt(m[6] || '0', 10)
+        ).getTime();
+    }
+    return NaN;
 }
 
 function splitLine(line) {

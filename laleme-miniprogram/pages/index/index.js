@@ -71,6 +71,7 @@ Page({
         monthCountText: '0 次',
         challenge: null,
         calendar: null,
+        fabPressed: false,
         showCelebrate: false,
         celebrateText: '',
         confetti: [],
@@ -278,6 +279,44 @@ Page({
 
     goRecord() {
         wx.navigateTo({ url: '/pages/record/record' });
+    },
+
+    // 按下瞬间：手机震动反馈
+    onFabTouchStart() {
+        wx.vibrateShort({
+            type: 'medium',
+            fail: function () {
+                // 低版本不支持 type 参数时退回默认强度
+                wx.vibrateShort({ fail: function () {} });
+            },
+        });
+    },
+
+    // 主按钮点击：抖动/涟漪动画后跳转
+    onFabTap() {
+        if (this._fabLock) {
+            return; // 防连点
+        }
+        this._fabLock = true;
+        this.setData({ fabPressed: true });
+        const that = this;
+        this._fabTimer = setTimeout(function () {
+            that.setData({ fabPressed: false });
+            that._fabLock = false;
+            wx.navigateTo({ url: '/pages/record/record' });
+        }, 190);
+    },
+
+    onHide() {
+        // 页面隐藏时清理动画状态与锁，避免返回后按钮卡住
+        if (this._fabTimer) {
+            clearTimeout(this._fabTimer);
+            this._fabTimer = null;
+        }
+        this._fabLock = false;
+        if (this.data.fabPressed) {
+            this.setData({ fabPressed: false });
+        }
     },
 
     goHistory() {

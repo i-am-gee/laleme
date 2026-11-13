@@ -77,6 +77,8 @@
 }
 
 .fab {
+    position: relative;
+    overflow: hidden;
     width: 268rpx;
     height: 268rpx;
     border-radius: 50%;
@@ -87,19 +89,64 @@
     background: linear-gradient(150deg, #b47e56 0%, #8b5e3c 55%, #6b4830 100%);
     box-shadow: 0 18rpx 40rpx rgba(139, 94, 60, 0.36), 0 0 0 10rpx rgba(139, 94, 60, 0.09);
     animation: fabPulse 3.2s ease-in-out infinite;
+    transition: transform 0.12s ease;
 }
 
 .fab-hover {
-    transform: scale(0.95);
-    opacity: 0.92;
+    transform: scale(0.94);
+}
+
+/* 按下：整圆压缩 + 表情抖动 */
+.fab-pressed {
+    animation: fabPulse 3.2s ease-in-out infinite, fabPress 0.32s ease;
+}
+
+.fab-pressed .fab-emoji {
+    animation: poopWobble 0.5s ease;
+}
+
+/* 涟漪 */
+.fab-ripple {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 268rpx;
+    height: 268rpx;
+    margin-left: -134rpx;
+    margin-top: -134rpx;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.28);
+    animation: fabRipple 0.55s ease-out forwards;
+}
+
+@keyframes fabPress {
+    0% { transform: scale(1); }
+    45% { transform: scale(0.9); }
+    100% { transform: scale(1); }
+}
+
+@keyframes poopWobble {
+    0% { transform: scale(1) rotate(0deg); }
+    30% { transform: scale(1.22) rotate(-12deg); }
+    60% { transform: scale(0.94) rotate(9deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes fabRipple {
+    0% { transform: scale(0.35); opacity: 0.85; }
+    100% { transform: scale(1.25); opacity: 0; }
 }
 
 .fab-emoji {
+    position: relative;
+    z-index: 1;
     font-size: 96rpx;
     line-height: 1;
 }
 
 .fab-label {
+    position: relative;
+    z-index: 1;
     display: block;
     margin-top: 14rpx;
     font-size: 32rpx;
