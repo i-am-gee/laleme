@@ -9,12 +9,12 @@
             <text class="value">{{firstText}}</text>
         </view>
         <view class="info-row">
-            <text class="label">存储方式</text>
-            <text class="value">本机本地存储</text>
-        </view>
-        <view class="info-row">
             <text class="label">连续记录</text>
             <text class="value">{{streakText}}</text>
+        </view>
+        <view class="info-row">
+            <text class="label">存储方式</text>
+            <text class="value">本机本地存储</text>
         </view>
         <view class="info-row link-row" bindtap="goPrivacy">
             <text class="label">用户隐私保护指引</text>
@@ -22,12 +22,12 @@
         </view>
     </view>
 
-    <button class="primary-btn" open-type="share">💩 分享给朋友</button>
-    <button class="ghost-btn" bindtap="openDataManage">数据备份与恢复</button>
+    <button class="primary-btn" open-type="share" bindtouchstart="onShareTouch">💩 分享给朋友</button>
+    <button class="ghost-btn" bindtap="goDataPage" bindtouchstart="onShareTouch">数据备份与恢复</button>
     <view class="danger-link" bindtap="clearAll">清空全部数据</view>
 
     <view class="card about">
-        <view class="about-text">「拉了么」v1.3 · 数据仅保存在本机，不上传任何服务器。\n\n性状分类采用国际通用的布里斯托大便分类法（Bristol Stool Scale）。\n\n本应用不构成医疗建议，持续异常请咨询消化科医生。</view>
+        <view class="about-text">「拉了么」v1.4 · 数据仅保存在本机，不上传任何服务器。\n\n性状分类采用国际通用的布里斯托大便分类法（Bristol Stool Scale）。\n\n本应用不构成医疗建议，持续异常请咨询消化科医生。</view>
     </view>
 </view>
 

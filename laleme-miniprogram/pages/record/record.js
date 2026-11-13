@@ -1,5 +1,6 @@
 const { BRISTOL, CHEERS, pad2, pickRecord } = require('../../utils/constants.js');
 const { createRecordStore } = require('../../utils/record-store.js');
+const haptics = require('../../utils/haptics.js');
 
 const store = createRecordStore();
 
@@ -125,14 +126,17 @@ Page({
     },
 
     onDateChange(event) {
+        haptics.light();
         this.setData({ dateValue: event.detail.value });
     },
 
     onTimeChange(event) {
+        haptics.light();
         this.setData({ timeValue: event.detail.value });
     },
 
     pickBristol(event) {
+        haptics.light();
         const t = Number(event.currentTarget.dataset.t);
         if (t === 0) {
             this.selBristol = null;
@@ -150,6 +154,7 @@ Page({
     },
 
     pickMood(event) {
+        haptics.light();
         const key = event.currentTarget.dataset.mood;
         this.selMood = key;
         const moodOptions = this.data.moodOptions.map(function (m) {
@@ -159,6 +164,7 @@ Page({
     },
 
     submit() {
+        haptics.strong();
         const that = this;
         const manual = parseInt(this.data.manualMin, 10);
         let duration;
@@ -221,6 +227,7 @@ Page({
     },
 
     removeThis() {
+        haptics.strong();
         const that = this;
         const id = this.editId;
         wx.showModal({

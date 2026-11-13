@@ -1,5 +1,5 @@
 .page {
-    padding: 24rpx 32rpx 60rpx;
+    padding: 20rpx 32rpx 40rpx;
 }
 
 /* 好友挑战横幅 */
@@ -10,8 +10,8 @@
     background: #fcebeb;
     border: 1rpx solid #e24b4a;
     border-radius: 20rpx;
-    padding: 20rpx 24rpx;
-    margin-bottom: 20rpx;
+    padding: 18rpx 22rpx;
+    margin-bottom: 18rpx;
 }
 
 .challenge-text {
@@ -27,67 +27,98 @@
     padding: 6rpx 10rpx;
 }
 
-.status-card {
-    border-radius: 28rpx;
-    padding: 56rpx 32rpx;
-    text-align: center;
-    margin-bottom: 24rpx;
+/* 主视觉：左侧状态 + 右侧圆形按钮 */
+.hero {
+    display: flex;
+    align-items: center;
+    border-radius: 30rpx;
+    padding: 26rpx 26rpx 26rpx 30rpx;
+    margin-bottom: 20rpx;
 }
 
-.status-card.notyet {
-    background: #faeeda;
+.hero.notyet {
+    background: linear-gradient(135deg, #fdf1dc 0%, #faeeda 100%);
 }
 
-.status-card.done {
-    background: #e1f5ee;
+.hero.done {
+    background: linear-gradient(135deg, #e8f7f1 0%, #e1f5ee 100%);
 }
 
-.status-card .big {
-    font-size: 52rpx;
+.hero-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.hero-title {
+    font-size: 42rpx;
     font-weight: 700;
+    letter-spacing: 1rpx;
 }
 
-.status-card.notyet .big {
+.hero.notyet .hero-title {
     color: #854f0b;
 }
 
-.status-card.done .big {
+.hero.done .hero-title {
     color: #0f6e56;
 }
 
-.status-card .sub {
-    font-size: 28rpx;
-    margin-top: 12rpx;
+.hero-sub {
+    font-size: 24rpx;
+    margin-top: 6rpx;
     opacity: 0.85;
 }
 
-.status-card.notyet .sub {
+.hero.notyet .hero-sub {
     color: #854f0b;
 }
 
-.status-card.done .sub {
+.hero.done .hero-sub {
     color: #0f6e56;
 }
 
-/* 主视觉：圆形记录按钮 */
-.fab-wrap {
+.chips {
     display: flex;
-    justify-content: center;
-    margin: 24rpx 0 40rpx;
+    gap: 12rpx;
+    margin-top: 18rpx;
 }
 
+.chip {
+    background: rgba(255, 255, 255, 0.72);
+    border-radius: 16rpx;
+    padding: 8rpx 16rpx;
+    display: flex;
+    flex-direction: column;
+}
+
+.chip-v {
+    font-size: 27rpx;
+    font-weight: 700;
+    color: #6b4830;
+    line-height: 1.2;
+}
+
+.chip-k {
+    font-size: 18rpx;
+    color: #9b8b78;
+    margin-top: 2rpx;
+}
+
+/* 圆形记录按钮 */
 .fab {
     position: relative;
     overflow: hidden;
-    width: 268rpx;
-    height: 268rpx;
+    flex-shrink: 0;
+    width: 192rpx;
+    height: 192rpx;
+    margin-left: 10rpx;
     border-radius: 50%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     background: linear-gradient(150deg, #b47e56 0%, #8b5e3c 55%, #6b4830 100%);
-    box-shadow: 0 18rpx 40rpx rgba(139, 94, 60, 0.36), 0 0 0 10rpx rgba(139, 94, 60, 0.09);
+    box-shadow: 0 14rpx 32rpx rgba(139, 94, 60, 0.34), 0 0 0 8rpx rgba(139, 94, 60, 0.09);
     animation: fabPulse 3.2s ease-in-out infinite;
     transition: transform 0.12s ease;
 }
@@ -110,10 +141,10 @@
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 268rpx;
-    height: 268rpx;
-    margin-left: -134rpx;
-    margin-top: -134rpx;
+    width: 192rpx;
+    height: 192rpx;
+    margin-left: -96rpx;
+    margin-top: -96rpx;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.28);
     animation: fabRipple 0.55s ease-out forwards;
@@ -140,7 +171,7 @@
 .fab-emoji {
     position: relative;
     z-index: 1;
-    font-size: 96rpx;
+    font-size: 68rpx;
     line-height: 1;
 }
 
@@ -148,19 +179,19 @@
     position: relative;
     z-index: 1;
     display: block;
-    margin-top: 14rpx;
-    font-size: 32rpx;
+    margin-top: 10rpx;
+    font-size: 25rpx;
     font-weight: 700;
-    letter-spacing: 4rpx;
+    letter-spacing: 2rpx;
     color: #ffffff;
 }
 
 @keyframes fabPulse {
     0%, 100% {
-        box-shadow: 0 18rpx 40rpx rgba(139, 94, 60, 0.36), 0 0 0 10rpx rgba(139, 94, 60, 0.09);
+        box-shadow: 0 14rpx 32rpx rgba(139, 94, 60, 0.34), 0 0 0 8rpx rgba(139, 94, 60, 0.09);
     }
     50% {
-        box-shadow: 0 22rpx 50rpx rgba(139, 94, 60, 0.44), 0 0 0 20rpx rgba(139, 94, 60, 0.05);
+        box-shadow: 0 18rpx 42rpx rgba(139, 94, 60, 0.42), 0 0 0 18rpx rgba(139, 94, 60, 0.05);
     }
 }
 
@@ -168,72 +199,41 @@
     background: #ffffff;
     border: 0.5rpx solid rgba(44, 44, 42, 0.12);
     border-radius: 28rpx;
-    padding: 10rpx 30rpx;
-}
-
-.info-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 26rpx 0;
-    border-bottom: 0.5rpx solid rgba(44, 44, 42, 0.08);
-}
-
-.info-row:last-child {
-    border-bottom: none;
-}
-
-.label {
-    color: #888780;
-    font-size: 27rpx;
-}
-
-.value {
-    color: #2c2c2a;
-    font-size: 27rpx;
-    font-weight: 500;
-}
-
-.footnote {
-    text-align: center;
-    color: #8b5e3c;
-    font-size: 26rpx;
-    padding: 24rpx 0;
 }
 
 /* 打卡日历 */
 .cal-card {
-    padding: 26rpx 30rpx 30rpx;
-    margin: 24rpx 0;
+    padding: 22rpx 24rpx 18rpx;
 }
 
 .cal-title {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin-bottom: 18rpx;
+    margin-bottom: 14rpx;
+    padding: 0 4rpx;
 }
 
 .cal-month {
-    font-size: 29rpx;
+    font-size: 27rpx;
     font-weight: 600;
 }
 
 .cal-count {
-    font-size: 24rpx;
+    font-size: 23rpx;
     color: #8b5e3c;
 }
 
 .cal-week {
     display: flex;
-    margin-bottom: 8rpx;
+    margin-bottom: 4rpx;
 }
 
 .cal-wd {
     flex: 1;
     text-align: center;
-    font-size: 22rpx;
-    color: #888780;
+    font-size: 20rpx;
+    color: #b0a394;
 }
 
 .cal-grid {
@@ -241,61 +241,118 @@
     flex-wrap: wrap;
 }
 
+/* 日历格子：64rpx 高保证可点区域 */
 .cal-cell {
+    position: relative;
     width: calc(100% / 7);
-    height: 76rpx;
+    height: 64rpx;
     display: flex;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
-    margin-bottom: 6rpx;
+    margin-bottom: 8rpx;
 }
 
-.cal-day {
-    font-size: 25rpx;
+.cal-num {
+    font-size: 23rpx;
     color: #2c2c2a;
 }
 
-.cal-cell.future .cal-day {
-    color: #c4c2ba;
+.cal-cell.future .cal-num {
+    color: #cdc8be;
 }
 
 .cal-cell.pooped {
-    background: #faeeda;
+    background: linear-gradient(135deg, #a9764f 0%, #8b5e3c 100%);
     border-radius: 14rpx;
-    margin: 0 4rpx 6rpx;
-    width: calc(100% / 7 - 8rpx);
+    width: calc(100% / 7 - 6rpx);
+    margin: 0 3rpx 8rpx;
+    box-shadow: 0 4rpx 10rpx rgba(139, 94, 60, 0.24);
 }
 
-.cal-cell.pooped .cal-pooped {
-    font-size: 36rpx;
-    line-height: 1;
+.cal-cell.pooped .cal-num {
+    color: #ffffff;
+    font-weight: 600;
 }
 
 .cal-cell.today {
     border: 2rpx solid #8b5e3c;
     border-radius: 14rpx;
-    margin: 0 4rpx 6rpx;
-    width: calc(100% / 7 - 8rpx);
+    width: calc(100% / 7 - 6rpx);
+    margin: 0 3rpx 8rpx;
+}
+
+.cal-cell.today.pooped {
+    border-color: #5e3f28;
+    box-shadow: 0 0 0 4rpx rgba(139, 94, 60, 0.16);
+}
+
+/* 同一天 2 次及以上的角标：贴在格子右上角内侧，避免跨到相邻格 */
+.cal-badge {
+    position: absolute;
+    top: -4rpx;
+    right: 2rpx;
+    min-width: 24rpx;
+    height: 24rpx;
+    line-height: 24rpx;
+    padding: 0 4rpx;
+    border-radius: 12rpx;
+    background: #f0b27a;
+    color: #ffffff;
+    font-size: 17rpx;
+    font-weight: 700;
+    text-align: center;
+    box-shadow: 0 2rpx 6rpx rgba(180, 120, 60, 0.35);
+}
+
+/* 最近一次 */
+.last-line {
+    display: flex;
+    align-items: center;
+    gap: 12rpx;
+    padding: 16rpx 8rpx 4rpx;
+}
+
+.last-k {
+    font-size: 22rpx;
+    color: #a0968a;
+    flex-shrink: 0;
+}
+
+.last-v {
+    font-size: 23rpx;
+    color: #5c4a38;
+    flex: 1;
+    text-align: right;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .ghost-btn {
     background: #ffffff;
     color: #8b5e3c;
     border: 1rpx solid #8b5e3c;
-    font-size: 32rpx;
+    font-size: 31rpx;
     font-weight: 500;
-    height: 104rpx;
-    line-height: 104rpx;
+    height: 96rpx;
+    line-height: 96rpx;
     padding: 0;
     width: 100% !important;
     box-sizing: border-box;
-    border-radius: 52rpx;
-    margin: 8rpx 0 0;
+    border-radius: 48rpx;
+    margin: 14rpx 0 0;
 }
 
 .ghost-btn::after {
     border: none;
+}
+
+.footnote {
+    text-align: center;
+    color: #8b5e3c;
+    font-size: 25rpx;
+    padding: 18rpx 0 4rpx;
 }
 
 /* 成就庆祝动画 */
@@ -439,80 +496,6 @@
     50% {
         transform: translateY(-26rpx) rotate(4deg);
     }
-}
-
-/* 隐私保护指引弹窗 */
-.privacy-mask {
-    position: fixed;
-    inset: 0;
-    background: rgba(26, 22, 18, 0.6);
-    z-index: 1200;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 48rpx;
-}
-
-.privacy-card {
-    width: 100%;
-    background: #ffffff;
-    border-radius: 28rpx;
-    padding: 36rpx 32rpx 28rpx;
-    box-sizing: border-box;
-}
-
-.privacy-title {
-    font-size: 34rpx;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 20rpx;
-}
-
-.privacy-body {
-    max-height: 300rpx;
-}
-
-.privacy-text {
-    font-size: 25rpx;
-    color: #444441;
-    line-height: 1.8;
-    white-space: pre-line;
-}
-
-.privacy-link {
-    font-size: 24rpx;
-    color: #8b5e3c;
-    text-align: center;
-    padding: 18rpx 0;
-}
-
-.privacy-agree {
-    background: #8b5e3c;
-    color: #ffffff;
-    font-size: 30rpx;
-    font-weight: 600;
-    border-radius: 20rpx;
-    margin-bottom: 14rpx;
-}
-
-.privacy-agree::after {
-    border: none;
-}
-
-.privacy-decline {
-    text-align: center;
-    font-size: 27rpx;
-    color: #888780;
-    padding: 8rpx 0 4rpx;
-}
-
-/* 分享海报画布：移出可视区域 */
-.share-canvas {
-    position: fixed;
-    left: -9999rpx;
-    top: -9999rpx;
-    width: 500px;
-    height: 400px;
 }
 
 /* 隐私保护指引弹窗 */

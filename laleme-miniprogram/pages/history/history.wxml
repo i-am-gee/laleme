@@ -1,22 +1,41 @@
 <view class="page">
+    <!-- 左滑引导（保留常驻） -->
+    <view class="hint {{hintDim ? 'dim' : ''}}">
+        <text class="hint-icon">←</text>
+        <text class="hint-text">左滑任意一条记录，可修改或删除</text>
+    </view>
+
     <block wx:if="{{empty}}">
         <view class="empty">还没有记录，去首页「记一次」开始吧</view>
     </block>
     <block wx:else>
-        <block wx:for="{{groups}}" wx:key="day" wx:for-item="group">
-            <view class="h-date">{{group.day}}</view>
-            <view
-                class="h-item"
-                wx:for="{{group.items}}"
-                wx:key="id"
-                data-id="{{item.id}}"
-                bindtap="editItem"
-            >
-                <view class="h-top">
-                    <text class="h-time">{{item.time}}</text>
-                    <text class="h-tag">点击编辑</text>
+        <block wx:for="{{groups}}" wx:key="key" wx:for-item="group" wx:for-index="gi">
+            <view class="h-date {{highlightKey === group.key ? 'hl' : ''}}" id="d-{{group.key}}">
+                <text class="h-date-t">{{group.day}}</text>
+                <text class="h-date-c">{{group.count}} 次</text>
+            </view>
+            <view class="h-swipe" wx:for="{{group.items}}" wx:key="id" wx:for-item="item" wx:for-index="ii">
+                <view class="h-actions">
+                    <view class="h-act act-edit" data-g="{{gi}}" data-i="{{ii}}" bindtap="onEdit">修改</view>
+                    <view class="h-act act-del" data-g="{{gi}}" data-i="{{ii}}" bindtap="onDelete">删除</view>
                 </view>
-                <view class="h-detail">{{item.detail}}</view>
+                <view
+                    class="h-item"
+                    style="transform: translateX({{item.x}}px);"
+                    data-g="{{gi}}"
+                    data-i="{{ii}}"
+                    bindtouchstart="onTouchStart"
+                    bindtouchmove="onTouchMove"
+                    bindtouchend="onTouchEnd"
+                    bindtouchcancel="onTouchEnd"
+                    bindtap="onItemTap"
+                >
+                    <view class="h-top">
+                        <text class="h-time">{{item.time}}</text>
+                        <text class="h-arrow">⋯</text>
+                    </view>
+                    <view class="h-detail">{{item.detail}}</view>
+                </view>
             </view>
         </block>
     </block>

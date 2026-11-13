@@ -1,15 +1,9 @@
-const { BRISTOL, streakDays, achievements, dayStr, todayStr, pad2 } = require('../../utils/constants.js');
+const { BRISTOL, BADGES, streakDays, dayStr } = require('../../utils/constants.js');
 const { createRecordStore } = require('../../utils/record-store.js');
+const haptics = require('../../utils/haptics.js');
 const share = require('../../utils/share.js');
 
 const store = createRecordStore();
-
-const ACH_LIST = [
-    { id: 'week', name: '七日全勤', desc: '连续记录 7 天' },
-    { id: 'flash', name: '闪电侠', desc: '单次用时 ≤ 3 分钟' },
-    { id: 'marathon', name: '马拉松选手', desc: '单次用时 ≥ 20 分钟' },
-    { id: 'collector', name: '收藏家', desc: '集齐布里斯托 1-7 型' },
-];
 
 // 自定义范围默认：近 30 天
 function defaultRange() {
@@ -29,6 +23,9 @@ function dateToMs(dateStr, endOfDay) {
     return new Date(y, m, d, 0, 0, 0, 0).getTime();
 }
 
+// 加载动画最短展示时长（ms），避免一闪而过
+const MIN_LOADING = 420;
+
 Page({
     data: {
         period: 'week', // week | month | custom
@@ -39,32 +36,46 @@ Page({
         avgText: '-',
         streakText: '0',
         dist: [],
-        achList: ACH_LIST.map(function (a) {
-            return { id: a.id, name: a.name, desc: a.desc, got: false };
+        achList: BADGES.map(function (b) {
+            return { id: b.id, name: b.name, desc: b.desc, icon: b.iconOff, got: false };
         }),
+        gotCount: 0,
         hasDist: false,
+        loading: true,
     },
 
     onShow() {
         const that = this;
         store.list().then(function (res) {
             if (!res.error) {
-                that._shareStats = {
-                    streak: streakDays(res.data),
-                    monthDays: monthDays(res.data),
-                };
+                that._shareStats = share.makeStats(res.data);
                 share.ensurePoster(that, that._shareStats);
             }
         });
         this.render(this.data.period);
     },
 
+    onReady() {
+        if (this._shareStats) {
+            share.ensurePoster(this, this._shareStats);
+        }
+    },
+
     onShareAppMessage() {
         return share.makeShareInfo(this._shareStats);
     },
 
+    // 分享按钮按下即震（主操作，双段强调）
+    onShareTouch() {
+        haptics.strong();
+    },
+
     setPeriod(event) {
         const period = event.currentTarget.dataset.period;
+        if (period === this.data.period) {
+            return;
+        }
+        haptics.tap();
         if (period === 'custom' && !this.data.rangeStart) {
             const range = defaultRange();
             this.setData({ rangeStart: range.start, rangeEnd: range.end });
@@ -73,20 +84,42 @@ Page({
     },
 
     onRangeStart(event) {
+        haptics.light();
         this.setData({ rangeStart: event.detail.value });
         this.render('custom');
     },
 
     onRangeEnd(event) {
+        haptics.light();
         this.setData({ rangeEnd: event.detail.value });
         this.render('custom');
     },
 
+    onBadgeTap(event) {
+        haptics.tap();
+        const id = event.currentTarget.dataset.id;
+        const item = this.data.achList.filter(function (a) { return a.id === id; })[0];
+        if (!item) {
+            return;
+        }
+        wx.showToast({
+            title: item.got ? '已点亮 · ' + item.name : item.desc,
+            icon: 'none',
+            duration: 1800,
+        });
+    },
+
     render(period) {
         const that = this;
+        const seq = (this._seq || 0) + 1;
+        this._seq = seq;
+        const startedAt = Date.now();
+        this.setData({ loading: true });
+
         store.list().then(function (res) {
             if (res.error) {
                 wx.showToast({ title: '读取失败，请重试', icon: 'none' });
+                that.setData({ loading: false });
                 return;
             }
             const records = res.data;
@@ -140,26 +173,48 @@ Page({
                 });
             });
 
-            const got = achievements(records);
-            const achList = ACH_LIST.map(function (a) {
+            const got = share.makeStats(records).badges;
+            const gotMap = {};
+            got.forEach(function (b) { gotMap[b.id] = b.on; });
+            let gotCount = 0;
+            const achList = BADGES.map(function (b) {
+                const on = !!gotMap[b.id];
+                if (on) {
+                    gotCount += 1;
+                }
                 return {
-                    id: a.id,
-                    name: a.name,
-                    desc: got[a.id] ? '已达成' : a.desc,
-                    got: got[a.id],
+                    id: b.id,
+                    name: b.name,
+                    desc: on ? '已点亮' : b.desc,
+                    icon: on ? b.iconOn : b.iconOff,
+                    got: on,
                 };
             });
 
-            that.setData({
-                period: period,
-                rangeLabel: rangeLabel,
-                countText: String(list.length),
-                avgText: avgText,
-                streakText: String(streakDays(records)),
-                dist: dist,
-                hasDist: dist.length > 0,
-                achList: achList,
-            });
+            const apply = function () {
+                if (that._seq !== seq) {
+                    return; // 已被更新的渲染覆盖
+                }
+                that.setData({
+                    period: period,
+                    rangeLabel: rangeLabel,
+                    countText: String(list.length),
+                    avgText: avgText,
+                    streakText: String(streakDays(records)),
+                    dist: dist,
+                    hasDist: dist.length > 0,
+                    achList: achList,
+                    gotCount: gotCount,
+                    loading: false,
+                });
+            };
+
+            const wait = Math.max(0, MIN_LOADING - (Date.now() - startedAt));
+            if (wait > 0) {
+                setTimeout(apply, wait);
+            } else {
+                apply();
+            }
         });
     },
 });
@@ -167,18 +222,4 @@ Page({
 function withinDays(records, days) {
     const start = Date.now() - days * 24 * 3600 * 1000;
     return records.filter(function (r) { return r.timestamp >= start; });
-}
-
-// 本月打卡天数（与首页日历口径一致）
-function monthDays(records) {
-    const now = new Date();
-    const prefix = now.getFullYear() + '-' + pad2(now.getMonth() + 1) + '-';
-    const seen = {};
-    records.forEach(function (r) {
-        const s = dayStr(r.timestamp);
-        if (s.indexOf(prefix) === 0) {
-            seen[s] = true;
-        }
-    });
-    return Object.keys(seen).length;
 }

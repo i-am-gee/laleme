@@ -6,7 +6,7 @@
     </view>
 
     <!-- 自定义时间范围 -->
-    <view class="range-bar" wx:if="{{period === 'custom'}}">
+    <view class="range-bar" wx:if="{{period === 'custom' && !loading}}">
         <picker mode="date" value="{{rangeStart}}" bindchange="onRangeStart">
             <view class="range-pick">{{rangeStart || '开始日期'}} <text class="range-arrow">▾</text></view>
         </picker>
@@ -17,42 +17,70 @@
         <text class="range-label" wx:if="{{rangeLabel}}">{{rangeLabel}}</text>
     </view>
 
-    <view class="metrics">
-        <view class="metric">
-            <view class="num">{{countText}}</view>
-            <view class="lbl">次数</view>
-        </view>
-        <view class="metric">
-            <view class="num">{{avgText}}</view>
-            <view class="lbl">平均时长</view>
-        </view>
-        <view class="metric">
-            <view class="num">{{streakText}}</view>
-            <view class="lbl">连续天数</view>
-        </view>
-    </view>
+    <!-- 加载动画 -->
+    <view class="loading" wx:if="{{loading}}">
+        <view class="load-poop">💩</view>
+        <view class="load-track"><view class="load-fill"></view></view>
+        <view class="load-text">正在整理你的肠道数据…</view>
 
-    <view class="card">
-        <view class="card-title">布里斯托性状分布</view>
-        <view wx:if="{{!hasDist}}" class="empty-small">该时段暂无性状数据</view>
-        <view class="bar-row" wx:for="{{dist}}" wx:key="label">
-            <text class="bar-label">{{item.label}}</text>
-            <view class="bar-track">
-                <view class="bar-fill level-{{item.level}}" style="width: {{item.pct}}%;"></view>
+        <view class="skeleton">
+            <view class="sk-metrics">
+                <view class="sk-metric" wx:for="{{[1,2,3]}}" wx:key="*this"></view>
             </view>
-            <text class="bar-pct">{{item.pct}}%</text>
+            <view class="sk-card">
+                <view class="sk-line w40"></view>
+                <view class="sk-line w90"></view>
+                <view class="sk-line w70"></view>
+                <view class="sk-line w85"></view>
+            </view>
+            <view class="sk-badges">
+                <view class="sk-badge" wx:for="{{[1,2,3,4]}}" wx:key="*this"></view>
+            </view>
         </view>
     </view>
 
-    <view class="section-title">成就墙</view>
-    <view class="ach-grid">
-        <view class="ach {{item.got ? 'got' : ''}}" wx:for="{{achList}}" wx:key="id">
-            <view class="a-name">{{item.name}}</view>
-            <view class="a-desc">{{item.desc}}</view>
+    <block wx:else>
+        <view class="metrics">
+            <view class="metric">
+                <view class="num">{{countText}}</view>
+                <view class="lbl">次数</view>
+            </view>
+            <view class="metric">
+                <view class="num">{{avgText}}</view>
+                <view class="lbl">平均时长</view>
+            </view>
+            <view class="metric">
+                <view class="num">{{streakText}}</view>
+                <view class="lbl">连续天数</view>
+            </view>
         </view>
-    </view>
 
-    <button class="share-btn" open-type="share">💩 挑战好友</button>
+        <view class="card">
+            <view class="card-title">布里斯托性状分布</view>
+            <view wx:if="{{!hasDist}}" class="empty-small">该时段暂无性状数据</view>
+            <view class="bar-row" wx:for="{{dist}}" wx:key="label">
+                <text class="bar-label">{{item.label}}</text>
+                <view class="bar-track">
+                    <view class="bar-fill level-{{item.level}}" style="width: {{item.pct}}%;"></view>
+                </view>
+                <text class="bar-pct">{{item.pct}}%</text>
+            </view>
+        </view>
+
+        <view class="section-row">
+            <text class="section-title">成就墙</text>
+            <text class="section-meta">已点亮 {{gotCount}} / 4</text>
+        </view>
+        <view class="ach-grid">
+            <view class="ach {{item.got ? 'got' : ''}}" wx:for="{{achList}}" wx:key="id" data-id="{{item.id}}" bindtap="onBadgeTap">
+                <image class="ach-icon" src="{{item.icon}}" mode="aspectFit" />
+                <view class="a-name">{{item.name}}</view>
+                <view class="a-desc">{{item.desc}}</view>
+            </view>
+        </view>
+
+        <button class="share-btn" open-type="share" bindtouchstart="onShareTouch">💩 挑战好友</button>
+    </block>
 </view>
 
 <!-- 分享海报绘制画布（不可见） -->

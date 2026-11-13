@@ -15,6 +15,14 @@ const CHEERS = ['顺风顺水！', '今天也畅通了！', '一身轻松！', '
 
 const STORAGE_KEY = 'laleme_records';
 
+// 成就徽章定义：同色系棕色图标，点亮/未点亮两套（与分享海报共用）
+const BADGES = [
+    { id: 'week', name: '七日全勤', desc: '连续记录 7 天', iconOn: '/assets/badges/week-on.png', iconOff: '/assets/badges/week-off.png' },
+    { id: 'flash', name: '闪电侠', desc: '单次用时 ≤ 3 分钟', iconOn: '/assets/badges/flash-on.png', iconOff: '/assets/badges/flash-off.png' },
+    { id: 'marathon', name: '马拉松选手', desc: '单次用时 ≥ 20 分钟', iconOn: '/assets/badges/marathon-on.png', iconOff: '/assets/badges/marathon-off.png' },
+    { id: 'collector', name: '收藏家', desc: '集齐布里斯托 1-7 型', iconOn: '/assets/badges/collector-on.png', iconOff: '/assets/badges/collector-off.png' },
+];
+
 const PRIVACY_TEXT = [
     '更新日期：2026-11-11　生效日期：2026-11-11',
     '「拉了么」（下称"本应用"）非常重视你的个人信息与隐私保护。请在使用前仔细阅读本指引，你点击"同意并继续"即表示已阅读并同意本指引全部内容。',
@@ -26,10 +34,10 @@ const PRIVACY_TEXT = [
     '1. 全部数据仅保存在你的设备本地，不上传服务器、不做云端同步。',
     '2. 你可随时在"我的"页清空全部数据，或通过删除小程序清除本地记录。',
     '三、分享功能',
-    '1. 仅当你主动点击"挑战好友"等分享按钮时，微信将向你选择的好友或朋友圈发送一条分享卡片，内容仅包含打卡统计（连续天数、本月次数）。',
+    '1. 仅当你主动点击"挑战好友"等分享按钮时，微信将向你选择的好友或朋友圈发送一条分享卡片，内容仅包含打卡统计（连续天数、本月次数、本月打卡日历图形、已点亮的成就徽章）。',
     '2. 本应用不会自动分享或外发任何信息。',
     '四、你的权利',
-    '1. 你可在"我的"页随时导出（复制到剪贴板）或清空全部数据。',
+    '1. 你可在"我的 - 数据备份与恢复"页随时导出（文件或剪贴板）、导入或清空全部数据，导入导出均只在本机完成。',
     '2. 你撤回同意后，本应用将无法继续提供记录功能。',
     '五、未成年人保护',
     '本应用面向成年人，不面向未成年人提供服务。',
@@ -122,11 +130,56 @@ function pickRecord(id, records) {
     return null;
 }
 
+// 本月日历（首页与分享海报共用同一口径）
+// 返回 cells（含 blank/day/count/today/future）、countMap、activeDays 等
+function monthCalendar(records, baseMs) {
+    const now = baseMs ? new Date(baseMs) : new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const countMap = {};
+    (records || []).forEach(function (r) {
+        const d = new Date(r.timestamp);
+        if (d.getFullYear() === year && d.getMonth() === month) {
+            countMap[d.getDate()] = (countMap[d.getDate()] || 0) + 1;
+        }
+    });
+    const offset = (new Date(year, month, 1).getDay() + 6) % 7; // 周一开头
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = now.getDate();
+    const cells = [];
+    for (let i = 0; i < offset; i += 1) {
+        cells.push({ blank: true, day: 0, count: 0, today: false, future: false });
+    }
+    for (let d = 1; d <= daysInMonth; d += 1) {
+        const count = countMap[d] || 0;
+        cells.push({
+            blank: false,
+            day: d,
+            count: count,
+            pooped: count > 0,
+            today: d === today,
+            future: d > today,
+        });
+    }
+    return {
+        cells: cells,
+        countMap: countMap,
+        activeDays: Object.keys(countMap).length,
+        offset: offset,
+        daysInMonth: daysInMonth,
+        today: today,
+        monthLabel: (month + 1) + ' 月',
+        year: year,
+        monthIndex: month,
+    };
+}
+
 module.exports = {
     BRISTOL: BRISTOL,
     MOOD_TEXT: MOOD_TEXT,
     CHEERS: CHEERS,
     STORAGE_KEY: STORAGE_KEY,
+    BADGES: BADGES,
     PRIVACY_TEXT: PRIVACY_TEXT,
     SHARE_TITLES: SHARE_TITLES,
     dayStr: dayStr,
@@ -137,6 +190,7 @@ module.exports = {
     bristolLabel: bristolLabel,
     streakDays: streakDays,
     achievements: achievements,
+    monthCalendar: monthCalendar,
     pickRecord: pickRecord,
     pad2: pad2,
 };

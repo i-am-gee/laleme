@@ -1,5 +1,6 @@
-const { fmtDT, fmtDur, bristolLabel, streakDays, dayStr, todayStr, CHEERS } = require('../../utils/constants.js');
+const { fmtDT, fmtDur, bristolLabel, dayStr, todayStr, CHEERS } = require('../../utils/constants.js');
 const { createRecordStore } = require('../../utils/record-store.js');
+const haptics = require('../../utils/haptics.js');
 const share = require('../../utils/share.js');
 
 const store = createRecordStore();
@@ -25,40 +26,6 @@ function buildConfetti() {
         });
     }
     return pieces;
-}
-
-function buildCalendar(records) {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    const pooped = {};
-    records.forEach(function (r) {
-        const d = new Date(r.timestamp);
-        if (d.getFullYear() === year && d.getMonth() === month) {
-            pooped[d.getDate()] = true;
-        }
-    });
-    const offset = (new Date(year, month, 1).getDay() + 6) % 7; // 周一开头
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const today = now.getDate();
-    const cells = [];
-    for (let i = 0; i < offset; i += 1) {
-        cells.push({ blank: true });
-    }
-    for (let d = 1; d <= daysInMonth; d += 1) {
-        cells.push({
-            blank: false,
-            day: d,
-            pooped: !!pooped[d],
-            today: d === today,
-            future: d > today,
-        });
-    }
-    return {
-        cells: cells,
-        monthLabel: (month + 1) + ' 月',
-        poopedCount: Object.keys(pooped).length,
-    };
 }
 
 Page({
@@ -117,7 +84,7 @@ Page({
                 that.setData({
                     statusClass: 'done',
                     statusTitle: '拉过了',
-                    statusSub: '今天已拉 ' + today.length + ' 次，继续保持',
+                    statusSub: '今天已拉 ' + today.length + ' 次',
                 });
             } else {
                 that.setData({
@@ -138,14 +105,13 @@ Page({
             }
             const monthAgo = Date.now() - 30 * 24 * 3600 * 1000;
             const monthCount = records.filter(function (r) { return r.timestamp >= monthAgo; }).length;
-            const streak = streakDays(records);
-            const calendar = buildCalendar(records);
-            that._stats = { streak: streak, monthDays: calendar.poopedCount };
+            const stats = share.makeStats(records);
+            that._stats = stats;
             that.setData({
                 lastText: lastText,
-                streakText: streak > 0 ? streak + ' 天' : '未开始',
+                streakText: stats.streak > 0 ? stats.streak + ' 天' : '未开始',
                 monthCountText: monthCount + ' 次',
-                calendar: calendar,
+                calendar: stats.calendar,
             }, function () {
                 share.ensurePoster(that, that._stats);
             });
@@ -169,11 +135,39 @@ Page({
         return info;
     },
 
+    /* ---- 日历：点某天看当日明细 ---- */
+    onDayTap(event) {
+        const day = Number(event.currentTarget.dataset.day);
+        const count = Number(event.currentTarget.dataset.count) || 0;
+        if (!day) {
+            return;
+        }
+        if (!count) {
+            haptics.light();
+            wx.showToast({ title: '这天没有记录', icon: 'none' });
+            return;
+        }
+        haptics.tap();
+        const cal = this.data.calendar;
+        const target = cal.year + '-' + pad2(cal.monthIndex + 1) + '-' + pad2(day);
+        const app = getApp();
+        if (app && app.globalData) {
+            app.globalData.historyTargetDay = target;
+        }
+        wx.switchTab({
+            url: '/pages/history/history',
+            fail: function () {
+                wx.showToast({ title: '打开历史失败', icon: 'none' });
+            },
+        });
+    },
+
     /* ---- 庆祝动画 ---- */
     maybeCelebrate() {
         const flag = wx.getStorageSync('laleme_celebrate_flag');
         if (flag && Date.now() - Number(flag) < 10000) {
             wx.removeStorageSync('laleme_celebrate_flag');
+            haptics.strong();
             const that = this;
             this.setData({
                 showCelebrate: true,
@@ -229,6 +223,7 @@ Page({
     onPrivacyAgree() {
         // bindagree（官方授权按钮回调）与 bindtap 双通道触发，这里做幂等保护
         if (!this.data.showPrivacy) return;
+        haptics.tap();
         wx.setStorageSync('laleme_privacy_agreed', Date.now());
         this.setData({ showPrivacy: false });
         this.resolvePendingPrivacy();
@@ -245,6 +240,7 @@ Page({
 
     onPrivacyDecline() {
         const that = this;
+        haptics.light();
         wx.showModal({
             title: '需要你的同意',
             content: '不同意《隐私保护指引》将无法使用记录功能。确定退出吗？',
@@ -269,27 +265,19 @@ Page({
     },
 
     goPrivacyPage() {
+        haptics.light();
         wx.navigateTo({ url: '/pages/privacy/privacy' });
     },
 
     /* ---- 其他 ---- */
     dismissChallenge() {
+        haptics.light();
         this.setData({ challenge: null });
     },
 
-    goRecord() {
-        wx.navigateTo({ url: '/pages/record/record' });
-    },
-
-    // 按下瞬间：手机震动反馈
+    // 按下瞬间：手机震动反馈（主操作，双段强调）
     onFabTouchStart() {
-        wx.vibrateShort({
-            type: 'medium',
-            fail: function () {
-                // 低版本不支持 type 参数时退回默认强度
-                wx.vibrateShort({ fail: function () {} });
-            },
-        });
+        haptics.strong();
     },
 
     // 主按钮点击：抖动/涟漪动画后跳转
@@ -320,6 +308,15 @@ Page({
     },
 
     goHistory() {
+        haptics.light();
+        const app = getApp();
+        if (app && app.globalData) {
+            app.globalData.historyTargetDay = '';
+        }
         wx.switchTab({ url: '/pages/history/history' });
     },
 });
+
+function pad2(n) {
+    return n < 10 ? '0' + n : '' + n;
+}

@@ -3,7 +3,7 @@
 > 一款极度克制的肠道健康记录小程序。
 > 数据只属于你，从未离开你的手机。
 
-[![Version](https://img.shields.io/badge/version-1.3.4-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
+[![Version](https://img.shields.io/badge/version-1.4.0-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
 
 ---
 
@@ -33,11 +33,12 @@
 - **快速记录**：计时器 / 手动时长 / 日期时间补记，单次上限 12 小时（超过该去挂号了）
 - **布里斯托 7 型分类**：附「不确定」选项，每型配医学描述与通俗提示
 - **健康统计**：周/月/自定义任意时间范围，频次、平均时长、性状分布
-- **打卡日历**：每月打卡一目了然，💩 标记每一次坚持
+- **打卡日历**：每月打卡一目了然，一天 2 次以上自动出角标；点某天直接跳历史并锚定高亮当天明细
 - **连续打卡与成就系统**：4 枚成就徽章（七日全勤/闪电侠/马拉松选手/收藏家），记录即奖励
 - **庆祝动画**：彩带 + 烟花 + 星星人，献给每一次如释重负
-- **挑战分享**：canvas 生成 5:4 专属海报，首页/统计/我的三处发出内容完全一致（纯分享机制，不读取任何好友数据）
-- **数据可携带**：CSV 导出成文件直接发给文件传输助手/好友，也支持从聊天文件一键导入（按时间+时长自动去重）
+- **挑战分享**：canvas 生成 5:4 专属海报——本月日历图形 + 已点亮徽章，一图看懂打卡节奏；首页/统计/我的三处发出内容完全一致（纯分享机制，不读取任何好友数据）
+- **数据可携带**：CSV 导出成文件 / 复制到剪贴板；恢复支持聊天文件、剪贴板、直接粘贴三条通道（按时间+时长自动去重）
+- **触感反馈**：全站按钮均有震动，主操作双段强化，震动只发生在手指按下的瞬间
 - **隐私授权**：符合微信平台规范的隐私告知与同意流程，拒绝即退出，绝不静默收集
 
 ## 技术实现
@@ -46,21 +47,29 @@
 laleme-miniprogram/       微信小程序（原生框架，零依赖）
 ├── app.js                全局配置 + onNeedPrivacyAuthorization 接入
 ├── pages/
-│   ├── index/            首页：状态卡 / 日历 / 庆祝动画 / 隐私弹窗 / 分享海报（canvas 2d）
+│   ├── index/            首页：hero 状态卡 + 圆形主按钮 / 可点日历 / 庆祝动画 / 隐私弹窗 / 分享海报
+│   ├── history/          历史：按天分组、左滑修改或删除、日历锚定高亮
 │   ├── record/           记录页：计时、布里斯托选择、编辑与删除
-│   ├── stats/            统计页：周月指标、分布图、成就墙
+│   ├── stats/            统计页：周月自定义指标、分布图、徽章成就墙、加载骨架
+│   ├── data/             数据备份与恢复：文件/剪贴板/粘贴三通道导入，导出与清空
 │   ├── privacy/          隐私保护指引全文
-│   └── me/               我的：数据概览、导出、清空
+│   └── me/               我的：数据概览、入口聚合
+├── assets/
+│   ├── tabbar/           四枚 tabBar 图标（双状态）
+│   └── badges/           四枚成就徽章图标（点亮/未点亮）
 └── utils/
-    ├── constants.js      布里斯托分类、成就规则、隐私文本
-    └── record-store.js   本地存储层（list/create/update/remove，含字段校验）
+    ├── constants.js      布里斯托分类、徽章定义、月历口径、隐私文本
+    ├── record-store.js   本地存储层（list/create/update/remove，含字段校验）
+    ├── share.js          分享信息统一 + 5:4 海报绘制（日历 + 徽章）
+    ├── csv.js            CSV 导出/解析（BOM、引号转义、多日期格式）
+    └── haptics.js        触感反馈三档封装
 ```
 
-- **原生小程序框架**，无第三方依赖，代码包 45KB
-- **canvas 2d** 动态绘制分享海报（600×960，dpr 适配）
+- **原生小程序框架**，无第三方依赖，代码包约 76KB
+- **canvas 2d** 动态绘制分享海报（500×400，5:4 与微信缩略图比例一致，dpr 适配，`canvas.createImage` 预加载徽章）
 - **隐私合规三层设计**：首启弹窗（`open-type="agreePrivacyAuthorization"`）→ 指引全文页 → 常驻入口，配合 `wx.onNeedPrivacyAuthorization` 动态应答
 - Web 版原型（`拉了么/index.html`）与产品设计文档（`拉了么-产品设计文档.md`）同仓库维护
-- **tabBar 图标**：PIL 脚本生成的扁平图标（`gen-tabbar-icons.py`），品牌色棕/灰双色
+- **图标资产**：PIL 脚本生成（`gen-tabbar-icons.py`、`gen-badge-icons.py`），同色系棕色，4x 超采样抗锯齿
 
 ## 本地运行
 

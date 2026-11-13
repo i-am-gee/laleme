@@ -5,6 +5,7 @@
     "pages/stats/stats",
     "pages/me/me",
     "pages/record/record",
+    "pages/data/data",
     "pages/privacy/privacy"
   ],
   "window": {

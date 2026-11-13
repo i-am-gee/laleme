@@ -5,12 +5,22 @@
         <view class="challenge-close" bindtap="dismissChallenge">✕</view>
     </view>
 
-    <view class="status-card {{statusClass}}">
-        <view class="big">{{statusTitle}}</view>
-        <view class="sub">{{statusSub}}</view>
-    </view>
-
-    <view class="fab-wrap">
+    <!-- 主视觉：状态 + 圆形记录按钮 -->
+    <view class="hero {{statusClass}}">
+        <view class="hero-main">
+            <view class="hero-title">{{statusTitle}}</view>
+            <view class="hero-sub">{{statusSub}}</view>
+            <view class="chips">
+                <view class="chip">
+                    <text class="chip-v">{{streakText}}</text>
+                    <text class="chip-k">连续记录</text>
+                </view>
+                <view class="chip">
+                    <text class="chip-v">{{monthCountText}}</text>
+                    <text class="chip-k">近 30 天</text>
+                </view>
+            </view>
+        </view>
         <view class="fab {{fabPressed ? 'fab-pressed' : ''}}" hover-class="fab-hover" bindtouchstart="onFabTouchStart" bindtap="onFabTap">
             <text class="fab-emoji">💩</text>
             <text class="fab-label">记一次</text>
@@ -18,40 +28,37 @@
         </view>
     </view>
 
-    <view class="card">
-        <view class="info-row">
-            <text class="label">最近一次</text>
-            <text class="value">{{lastText}}</text>
-        </view>
-        <view class="info-row">
-            <text class="label">连续记录</text>
-            <text class="value">{{streakText}}</text>
-        </view>
-        <view class="info-row">
-            <text class="label">近 30 天次数</text>
-            <text class="value">{{monthCountText}}</text>
-        </view>
-    </view>
-
-    <!-- 本月打卡日历 -->
+    <!-- 本月打卡日历：点某天看当日明细 -->
     <view class="card cal-card" wx:if="{{calendar}}">
         <view class="cal-title">
             <text class="cal-month">{{calendar.monthLabel}}打卡日历</text>
-            <text class="cal-count">已打 {{calendar.poopedCount}} 天</text>
+            <text class="cal-count">已打 {{calendar.activeDays}} 天</text>
         </view>
         <view class="cal-week">
             <text class="cal-wd">一</text><text class="cal-wd">二</text><text class="cal-wd">三</text><text class="cal-wd">四</text><text class="cal-wd">五</text><text class="cal-wd">六</text><text class="cal-wd">日</text>
         </view>
         <view class="cal-grid">
-            <view class="cal-cell {{item.blank ? 'blank' : ''}} {{item.pooped ? 'pooped' : ''}} {{item.today ? 'today' : ''}} {{item.future ? 'future' : ''}}" wx:for="{{calendar.cells}}" wx:key="index">
-                <text class="cal-pooped" wx:if="{{item.pooped}}">💩</text>
-                <text class="cal-day" wx:else>{{item.day}}</text>
+            <view
+                class="cal-cell {{item.blank ? 'blank' : ''}} {{item.pooped ? 'pooped' : ''}} {{item.today ? 'today' : ''}} {{item.future ? 'future' : ''}}"
+                wx:for="{{calendar.cells}}"
+                wx:key="index"
+                data-day="{{item.day}}"
+                data-count="{{item.count}}"
+                bindtap="onDayTap"
+            >
+                <text class="cal-num" wx:if="{{!item.blank}}">{{item.day}}</text>
+                <view class="cal-badge" wx:if="{{item.count > 1}}">{{item.count}}</view>
             </view>
         </view>
     </view>
 
+    <view class="last-line">
+        <text class="last-k">最近一次</text>
+        <text class="last-v">{{lastText}}</text>
+    </view>
+
     <!-- 挑战好友 -->
-    <button class="ghost-btn" open-type="share">💩 挑战好友</button>
+    <button class="ghost-btn" open-type="share" bindtouchstart="onFabTouchStart">💩 挑战好友</button>
 
     <view class="footnote" bindtap="goHistory">查看全部历史 ></view>
 </view>
@@ -95,4 +102,3 @@
 
 <!-- 分享海报绘制画布（不可见） -->
 <canvas type="2d" id="shareCanvas" class="share-canvas"></canvas>
-

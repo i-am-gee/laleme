@@ -1,13 +1,38 @@
 // 分享公共模块：5:4 分享卡片海报绘制（适配微信缩略图，不裁切）+ 三页统一分享内容
-// 海报缓存于模块级变量：同统计数据只绘制一次，index/stats/me 共用
-const { SHARE_TITLES } = require('./constants.js');
+// 海报内容 = 品牌名 + 口号 + 本月日历（图形化打卡记录）+ 已点亮徽章
+// 缓存于模块级变量：同统计数据只绘制一次，index/stats/me 共用
+
+const { SHARE_TITLES, BADGES, monthCalendar, streakDays, achievements } = require('./constants.js');
 
 let cachedPath = '';
 let cachedKey = '';
-const POSTER_VERSION = 2; // 视觉改版时递增，避免复用旧海报缓存
+const POSTER_VERSION = 3; // 视觉改版时递增，避免复用旧海报缓存
+
+// 分享用的统计数据：一次算好，三页共用
+function makeStats(records) {
+    const list = records || [];
+    const calendar = monthCalendar(list);
+    const got = achievements(list);
+    return {
+        streak: streakDays(list),
+        monthDays: calendar.activeDays,
+        calendar: calendar,
+        badges: BADGES.map(function (b) {
+            return { id: b.id, on: !!got[b.id] };
+        }),
+    };
+}
 
 function posterKey(stats) {
-    return POSTER_VERSION + '|' + (stats.streak || 0) + '|' + (stats.monthDays || 0);
+    const s = stats || {};
+    const badges = (s.badges || []).map(function (b) { return b.on ? '1' : '0'; }).join('');
+    return [
+        POSTER_VERSION,
+        s.streak || 0,
+        s.monthDays || 0,
+        (s.calendar && s.calendar.today) || 0,
+        badges,
+    ].join('|');
 }
 
 function makeTitle(streak, month) {
@@ -53,95 +78,211 @@ function ensurePoster(page, stats) {
         });
 }
 
+function getPosterPath() {
+    return cachedPath;
+}
+
+/* ---------------- 海报绘制 ---------------- */
+
+const W = 500;
+const H = 400; // 5:4，与微信分享卡片缩略图比例一致，完整展示不裁切
+const BROWN = '#8B5E3C';
+const CREAM = '#FAEEDA';
+const SOFT = '#D9BFA6';
+const DEEP = '#7A5230';
+
+// 预加载徽章图标（canvas 2d 必须走 canvas.createImage）
+function loadBadgeImages(canvas, badges, done) {
+    const list = badges || [];
+    if (!list.length) {
+        done({});
+        return;
+    }
+    const images = {};
+    let pending = list.length;
+    let finished = false;
+
+    function settle() {
+        pending -= 1;
+        if (pending <= 0 && !finished) {
+            finished = true;
+            done(images);
+        }
+    }
+
+    list.forEach(function (b) {
+        const meta = BADGES.filter(function (x) { return x.id === b.id; })[0];
+        if (!meta) {
+            settle();
+            return;
+        }
+        const img = canvas.createImage();
+        img.onload = function () {
+            images[b.id] = img;
+            settle();
+        };
+        img.onerror = function () {
+            settle();
+        };
+        img.src = b.on ? meta.iconOn : meta.iconOff;
+    });
+
+    // 兜底：1.2s 内没加载完也照常出图（缺的徽章跳过，用降级圆点）
+    setTimeout(function () {
+        if (!finished) {
+            finished = true;
+            done(images);
+        }
+    }, 1200);
+}
+
 function drawPoster(canvas, stats, done) {
+    loadBadgeImages(canvas, (stats && stats.badges) || [], function (images) {
+        paint(canvas, stats, images);
+        wx.canvasToTempFilePath({
+            canvas: canvas,
+            destWidth: W,
+            destHeight: H,
+            success: function (r) {
+                done(r.tempFilePath);
+            },
+            fail: function () {
+                // 海报失败不影响分享（回退为默认截图）
+            },
+        });
+    });
+}
+
+function paint(canvas, stats, images) {
     const ctx = canvas.getContext('2d');
-    const W = 500;
-    const H = 400; // 5:4，与微信分享卡片缩略图比例一致，完整展示不裁切
-    const dpr = Math.min(
-        (wx.getWindowInfo ? wx.getWindowInfo().pixelRatio : 2) || 2,
-        3
-    );
+    const dpr = Math.min((wx.getWindowInfo ? wx.getWindowInfo().pixelRatio : 2) || 2, 3);
     canvas.width = W * dpr;
     canvas.height = H * dpr;
     ctx.scale(dpr, dpr);
 
-    ctx.fillStyle = '#FAEEDA';
+    ctx.fillStyle = CREAM;
     ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#8B5E3C';
+    ctx.fillStyle = BROWN;
     ctx.fillRect(0, 0, W, 8);
     ctx.fillRect(0, H - 8, W, 8);
 
-    // ---- 品牌区（左上）：只出现标题里没有的内容 ----
+    // ---- 品牌区 ----
     ctx.textAlign = 'left';
-    ctx.fillStyle = '#8B5E3C';
-    ctx.font = 'bold 62px sans-serif';
-    ctx.fillText('拉了么', 38, 92);
-    ctx.fillStyle = '#7A5230';
-    ctx.font = '600 26px sans-serif';
-    ctx.fillText('记录每一次，读懂你的肠道', 40, 130);
-    // 品牌短横线
-    ctx.fillStyle = '#D9BFA6';
-    ctx.fillRect(40, 148, 58, 5);
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = BROWN;
+    ctx.font = 'bold 46px sans-serif';
+    ctx.fillText('拉了么', 30, 62);
+    ctx.fillStyle = DEEP;
+    ctx.font = '600 17px sans-serif';
+    ctx.fillText('记录每一次，读懂你的肠道', 31, 88);
+    ctx.fillStyle = SOFT;
+    ctx.fillRect(31, 98, 46, 4);
 
-    // ---- 图形化信息（不重复标题中的天数文字）----
-    const streak = Math.min((stats && stats.streak) || 0, 14);
-    const month = Math.min((stats && stats.monthDays) || 0, 28);
-    const SOLID = '#8B5E3C';
-    const HOLLOW = '#D9BFA6';
+    // ---- 本月日历（图形化打卡记录）----
+    drawCalendar(ctx, stats && stats.calendar);
 
-    // 1) 连续打卡：一排圆点，实心=已打卡（最多 14 天）
-    const dotR = 6;
-    const dotGap = 19;
-    for (let i = 0; i < 14; i += 1) {
-        const cx = 46 + i * dotGap;
-        const cy = 206;
-        ctx.beginPath();
-        ctx.arc(cx, cy, dotR, 0, Math.PI * 2);
-        if (i < streak) {
-            ctx.fillStyle = SOLID;
-            ctx.fill();
-        } else {
-            ctx.strokeStyle = HOLLOW;
-            ctx.lineWidth = 2;
-            ctx.stroke();
-        }
-    }
+    // ---- 右侧：徽章 + 品牌符号 ----
+    drawBadges(ctx, (stats && stats.badges) || [], images);
 
-    // 2) 本月打卡：7×4 方块网格，实心=已打卡
-    const cellSize = 16;
-    const cellGap = 8;
-    for (let i = 0; i < 28; i += 1) {
-        const col = i % 7;
-        const row = Math.floor(i / 7);
-        const x = 40 + col * (cellSize + cellGap);
-        const y = 246 + row * (cellSize + cellGap);
-        if (i < month) {
-            ctx.fillStyle = SOLID;
-            roundRect(ctx, x, y, cellSize, cellSize, 4);
-            ctx.fill();
-        } else {
-            ctx.strokeStyle = HOLLOW;
-            ctx.lineWidth = 2;
-            roundRect(ctx, x, y, cellSize, cellSize, 4);
-            ctx.stroke();
-        }
-    }
-
-    // 3) 品牌符号（右侧）
     ctx.textAlign = 'center';
-    ctx.font = '166px sans-serif';
-    ctx.fillText('💩', 408, 228);
+    ctx.font = '88px sans-serif';
+    ctx.fillText('💩', 392, 372);
+}
 
-    wx.canvasToTempFilePath({
-        canvas: canvas,
-        destWidth: W,
-        destHeight: H,
-        success: function (r) {
-            done(r.tempFilePath);
-        },
-        fail: function () {
-            // 海报失败不影响分享（回退为默认截图）
-        },
+function drawCalendar(ctx, calendar) {
+    if (!calendar) {
+        return;
+    }
+    const x0 = 26;
+    const cell = 32;
+    const gap = 5;
+    const step = cell + gap;
+    const startY = 172;
+    const rowStep = 34;
+
+    // 月份
+    ctx.textAlign = 'left';
+    ctx.fillStyle = BROWN;
+    ctx.font = '600 17px sans-serif';
+    ctx.fillText(calendar.monthLabel, x0, 138);
+
+    // 星期表头（周一开始）
+    const weeks = ['一', '二', '三', '四', '五', '六', '日'];
+    ctx.textAlign = 'center';
+    ctx.font = '13px sans-serif';
+    ctx.fillStyle = '#B08D6A';
+    weeks.forEach(function (w, i) {
+        ctx.fillText(w, x0 + i * step + cell / 2, 160);
+    });
+
+    const cells = calendar.cells || [];
+    cells.forEach(function (c, index) {
+        if (c.blank) {
+            return;
+        }
+        const col = index % 7;
+        const row = Math.floor(index / 7);
+        const x = x0 + col * step;
+        const y = startY + row * rowStep;
+        const filled = c.count > 0;
+
+        if (filled) {
+            ctx.fillStyle = BROWN;
+            roundRect(ctx, x, y, cell, cell, 9);
+            ctx.fill();
+        } else if (c.today) {
+            ctx.strokeStyle = BROWN;
+            ctx.lineWidth = 2;
+            roundRect(ctx, x + 1, y + 1, cell - 2, cell - 2, 8);
+            ctx.stroke();
+        }
+
+        ctx.font = (filled ? 'bold 13px' : '12px') + ' sans-serif';
+        if (filled) {
+            ctx.fillStyle = CREAM;
+        } else if (c.future) {
+            ctx.fillStyle = '#DCC9AE';
+        } else {
+            ctx.fillStyle = '#C0A588';
+        }
+        ctx.fillText(String(c.day), x + cell / 2, y + cell / 2 + 4);
+
+        // 两次及以上：右上角小角标
+        if (c.count > 1) {
+            ctx.beginPath();
+            ctx.arc(x + cell - 3, y + 3, 5, 0, Math.PI * 2);
+            ctx.fillStyle = '#F0B27A';
+            ctx.fill();
+        }
+    });
+}
+
+function drawBadges(ctx, badges, images) {
+    const size = 62;
+    const gapX = 10;
+    const gapY = 10;
+    const x0 = 325;
+    const y0 = 132;
+    badges.forEach(function (b, i) {
+        const col = i % 2;
+        const row = Math.floor(i / 2);
+        const x = x0 + col * (size + gapX);
+        const y = y0 + row * (size + gapY);
+        const img = images && images[b.id];
+        if (img) {
+            ctx.save();
+            if (!b.on) {
+                ctx.globalAlpha = 0.3;
+            }
+            ctx.drawImage(img, x, y, size, size);
+            ctx.restore();
+        } else {
+            // 图标未就绪时的降级：同色系圆点
+            ctx.beginPath();
+            ctx.arc(x + size / 2, y + size / 2, size / 2 - 2, 0, Math.PI * 2);
+            ctx.fillStyle = b.on ? BROWN : '#EFE4D2';
+            ctx.fill();
+        }
     });
 }
 
@@ -160,11 +301,8 @@ function roundRect(ctx, x, y, w, h, r) {
     ctx.closePath();
 }
 
-function getPosterPath() {
-    return cachedPath;
-}
-
 module.exports = {
+    makeStats: makeStats,
     makeShareInfo: makeShareInfo,
     ensurePoster: ensurePoster,
     getPosterPath: getPosterPath,

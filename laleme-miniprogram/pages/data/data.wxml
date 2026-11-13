@@ -1,0 +1,69 @@
+<view class="page">
+    <view class="summary">
+        <view class="sum-num">{{total}}</view>
+        <view class="sum-lbl">条记录保存在本机</view>
+    </view>
+
+    <!-- 导出 -->
+    <view class="sec-title">备份</view>
+    <view class="sec-card">
+        <view class="row" bindtap="exportFile">
+            <view class="row-main">
+                <view class="row-title">导出为文件</view>
+                <view class="row-sub">生成 .csv 文件，可直接发给好友或文件传输助手</view>
+            </view>
+            <view class="row-arrow">›</view>
+        </view>
+        <view class="row" bindtap="copyCsv">
+            <view class="row-main">
+                <view class="row-title">复制 CSV 到剪贴板</view>
+                <view class="row-sub">粘到备忘录、邮件或电脑上另存</view>
+            </view>
+            <view class="row-arrow">›</view>
+        </view>
+    </view>
+
+    <!-- 恢复 -->
+    <view class="sec-title">恢复</view>
+    <view class="sec-card">
+        <view class="row" bindtap="importFile">
+            <view class="row-main">
+                <view class="row-title">从聊天文件导入</view>
+                <view class="row-sub">只能选微信聊天里的文件，先把 CSV 发到「文件传输助手」</view>
+            </view>
+            <view class="row-arrow">›</view>
+        </view>
+        <view class="row" bindtap="importClipboard">
+            <view class="row-main">
+                <view class="row-title">从剪贴板导入</view>
+                <view class="row-sub">适合已复制过 CSV 内容的情况</view>
+            </view>
+            <view class="row-arrow">›</view>
+        </view>
+    </view>
+
+    <!-- 手动粘贴 -->
+    <view class="paste-card">
+        <view class="paste-title">粘贴内容导入</view>
+        <textarea
+            class="paste-box"
+            placeholder="把 CSV 内容粘贴到这里，首行：时间,时长(分钟),布里斯托类型,感觉"
+            placeholder-class="paste-ph"
+            value="{{pasteText}}"
+            bindinput="onPasteInput"
+            maxlength="-1"
+            auto-height
+            show-confirm-bar="{{false}}"
+        ></textarea>
+        <view class="paste-btn" hover-class="btn-hover" bindtap="importPasted">导入粘贴的内容</view>
+    </view>
+
+    <!-- 结果反馈 -->
+    <view class="status {{statusType}}" wx:if="{{status}}">{{status}}</view>
+
+    <view class="tip">
+        导入按「时间 + 时长」去重，重复的记录不会重复写入。数据全部只在本机，不会上传。
+    </view>
+
+    <view class="danger-link" bindtap="clearAll">清空全部数据</view>
+</view>

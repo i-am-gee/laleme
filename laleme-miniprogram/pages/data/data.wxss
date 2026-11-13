@@ -1,0 +1,164 @@
+.page {
+    padding: 24rpx 32rpx 60rpx;
+}
+
+.summary {
+    text-align: center;
+    padding: 30rpx 0 26rpx;
+}
+
+.sum-num {
+    font-size: 64rpx;
+    font-weight: 700;
+    color: #8b5e3c;
+    line-height: 1.1;
+}
+
+.sum-lbl {
+    font-size: 24rpx;
+    color: #a3978a;
+    margin-top: 6rpx;
+}
+
+.sec-title {
+    font-size: 25rpx;
+    color: #a3978a;
+    font-weight: 600;
+    margin: 26rpx 0 12rpx 8rpx;
+}
+
+.sec-card {
+    background: #ffffff;
+    border: 0.5rpx solid rgba(44, 44, 42, 0.12);
+    border-radius: 26rpx;
+    overflow: hidden;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    padding: 24rpx 26rpx;
+    border-bottom: 0.5rpx solid rgba(44, 44, 42, 0.08);
+}
+
+.row:last-child {
+    border-bottom: none;
+}
+
+.row:active {
+    background: #faf7f2;
+}
+
+.row-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.row-title {
+    font-size: 29rpx;
+    font-weight: 600;
+    color: #2c2c2a;
+}
+
+.row-sub {
+    font-size: 22rpx;
+    color: #a3978a;
+    margin-top: 6rpx;
+    line-height: 1.45;
+}
+
+.row-arrow {
+    font-size: 34rpx;
+    color: #cfc7bb;
+    margin-left: 12rpx;
+}
+
+.paste-card {
+    margin-top: 24rpx;
+    background: #ffffff;
+    border: 0.5rpx solid rgba(44, 44, 42, 0.12);
+    border-radius: 26rpx;
+    padding: 24rpx 26rpx 26rpx;
+}
+
+.paste-title {
+    font-size: 27rpx;
+    font-weight: 600;
+    color: #2c2c2a;
+    margin-bottom: 14rpx;
+}
+
+.paste-box {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 180rpx;
+    max-height: 360rpx;
+    background: #faf7f2;
+    border-radius: 18rpx;
+    padding: 18rpx 20rpx;
+    font-size: 23rpx;
+    color: #444441;
+    line-height: 1.6;
+}
+
+.paste-ph {
+    color: #b9b0a2;
+    font-size: 22rpx;
+}
+
+.paste-btn {
+    margin-top: 18rpx;
+    height: 88rpx;
+    line-height: 88rpx;
+    text-align: center;
+    border-radius: 44rpx;
+    background: linear-gradient(135deg, #a97750 0%, #8b5e3c 55%, #6f4b30 100%);
+    color: #ffffff;
+    font-size: 29rpx;
+    font-weight: 600;
+    box-shadow: 0 10rpx 24rpx rgba(139, 94, 60, 0.26);
+}
+
+.btn-hover {
+    transform: scale(0.98);
+    opacity: 0.92;
+}
+
+.status {
+    margin-top: 22rpx;
+    border-radius: 18rpx;
+    padding: 18rpx 22rpx;
+    font-size: 24rpx;
+    line-height: 1.6;
+}
+
+.status.info {
+    background: #f4f1ec;
+    color: #6b6359;
+}
+
+.status.ok {
+    background: #e7f6ef;
+    color: #0f6e56;
+}
+
+.status.warn {
+    background: #fdeeea;
+    color: #a8392f;
+}
+
+.tip {
+    margin-top: 26rpx;
+    font-size: 21rpx;
+    color: #b0a394;
+    line-height: 1.7;
+    padding: 0 6rpx;
+}
+
+.danger-link {
+    margin-top: 36rpx;
+    text-align: center;
+    font-size: 25rpx;
+    color: #c0766f;
+    padding: 14rpx 0;
+}

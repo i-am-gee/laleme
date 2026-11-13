@@ -1,5 +1,5 @@
 .page {
-    padding: 24rpx 32rpx 60rpx;
+    padding: 20rpx 32rpx 60rpx;
 }
 
 .seg {
@@ -8,15 +8,16 @@
     border: 0.5rpx solid rgba(44, 44, 42, 0.12);
     border-radius: 20rpx;
     overflow: hidden;
-    margin-bottom: 24rpx;
+    margin-bottom: 22rpx;
 }
 
 .seg-item {
     flex: 1;
     text-align: center;
-    padding: 20rpx 0;
-    font-size: 28rpx;
+    padding: 18rpx 0;
+    font-size: 27rpx;
     color: #888780;
+    transition: background 0.18s, color 0.18s;
 }
 
 .seg-item.active {
@@ -33,8 +34,8 @@
     background: #ffffff;
     border: 0.5rpx solid rgba(44, 44, 42, 0.12);
     border-radius: 20rpx;
-    padding: 16rpx 20rpx;
-    margin-bottom: 24rpx;
+    padding: 15rpx 20rpx;
+    margin-bottom: 22rpx;
 }
 
 .range-pick {
@@ -42,7 +43,7 @@
     color: #5c4a38;
     background: #f7f4ef;
     border-radius: 14rpx;
-    padding: 10rpx 18rpx;
+    padding: 8rpx 16rpx;
 }
 
 .range-arrow {
@@ -58,9 +59,129 @@
 }
 
 .range-label {
-    font-size: 24rpx;
+    font-size: 23rpx;
     color: #9b8f7d;
     margin-left: auto;
+}
+
+/* 加载动画 */
+.loading {
+    padding: 40rpx 0 20rpx;
+    text-align: center;
+}
+
+.load-poop {
+    font-size: 80rpx;
+    line-height: 1;
+    display: inline-block;
+    animation: poopSpin 1.1s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+@keyframes poopSpin {
+    0% { transform: translateY(0) rotate(-8deg) scale(1); }
+    40% { transform: translateY(-16rpx) rotate(6deg) scale(1.06); }
+    70% { transform: translateY(0) rotate(-4deg) scale(0.98); }
+    100% { transform: translateY(0) rotate(-8deg) scale(1); }
+}
+
+.load-track {
+    width: 220rpx;
+    height: 8rpx;
+    border-radius: 4rpx;
+    background: #f1e7d8;
+    margin: 22rpx auto 0;
+    overflow: hidden;
+}
+
+.load-fill {
+    width: 45%;
+    height: 100%;
+    border-radius: 4rpx;
+    background: linear-gradient(90deg, #d9bfa6, #8b5e3c, #d9bfa6);
+    animation: loadSlide 1.15s ease-in-out infinite;
+}
+
+@keyframes loadSlide {
+    0% { transform: translateX(-110%); }
+    100% { transform: translateX(230%); }
+}
+
+.load-text {
+    font-size: 23rpx;
+    color: #a3978a;
+    margin-top: 16rpx;
+}
+
+/* 骨架屏：按真实布局占位，避免布局跳动 */
+.skeleton {
+    margin-top: 30rpx;
+}
+
+.sk-metrics {
+    display: flex;
+    gap: 16rpx;
+}
+
+.sk-metric {
+    flex: 1;
+    height: 118rpx;
+    border-radius: 24rpx;
+}
+
+.sk-card {
+    margin-top: 24rpx;
+    background: #ffffff;
+    border-radius: 28rpx;
+    padding: 28rpx 30rpx;
+    box-shadow: 0 2rpx 10rpx rgba(139, 94, 60, 0.05);
+}
+
+.sk-line {
+    height: 20rpx;
+    border-radius: 10rpx;
+    margin-bottom: 18rpx;
+}
+
+.sk-line:last-child {
+    margin-bottom: 0;
+}
+
+.sk-line.w40 { width: 40%; }
+.sk-line.w70 { width: 70%; }
+.sk-line.w85 { width: 85%; }
+.sk-line.w90 { width: 90%; }
+
+.sk-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16rpx;
+    margin-top: 24rpx;
+}
+
+.sk-badge {
+    width: calc(50% - 8rpx);
+    height: 152rpx;
+    border-radius: 24rpx;
+    box-sizing: border-box;
+}
+
+.sk-metric,
+.sk-badge {
+    background: linear-gradient(100deg, #ffffff 25%, #f4eee4 50%, #ffffff 75%);
+    background-size: 300% 100%;
+    animation: shimmer 1.5s linear infinite;
+}
+
+/* 卡片内的横线需要比白底更深一档才看得见 */
+.sk-line {
+    background: linear-gradient(100deg, #efe7da 25%, #f8f3ea 50%, #efe7da 75%);
+    background-size: 300% 100%;
+    animation: shimmer 1.5s linear infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: 120% 0; }
+    100% { background-position: -120% 0; }
 }
 
 /* 隐藏分享画布 */
@@ -75,7 +196,7 @@
 .metrics {
     display: flex;
     gap: 16rpx;
-    margin-bottom: 24rpx;
+    margin-bottom: 22rpx;
 }
 
 .metric {
@@ -83,8 +204,22 @@
     background: #ffffff;
     border: 0.5rpx solid rgba(44, 44, 42, 0.12);
     border-radius: 24rpx;
-    padding: 26rpx 8rpx;
+    padding: 24rpx 8rpx;
     text-align: center;
+    animation: metricIn 0.32s ease-out both;
+}
+
+.metric:nth-child(2) {
+    animation-delay: 0.05s;
+}
+
+.metric:nth-child(3) {
+    animation-delay: 0.1s;
+}
+
+@keyframes metricIn {
+    0% { opacity: 0; transform: translateY(12rpx); }
+    100% { opacity: 1; transform: translateY(0); }
 }
 
 .metric .num {
@@ -148,6 +283,12 @@
     height: 100%;
     border-radius: 11rpx;
     background: #8b5e3c;
+    animation: barGrow 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+@keyframes barGrow {
+    0% { transform: scaleX(0); transform-origin: left center; }
+    100% { transform: scaleX(1); transform-origin: left center; }
 }
 
 .bar-fill.level-bad {
@@ -165,10 +306,21 @@
     color: #888780;
 }
 
+.section-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin: 30rpx 0 16rpx;
+}
+
 .section-title {
     font-size: 29rpx;
     font-weight: 600;
-    margin: 32rpx 0 18rpx;
+}
+
+.section-meta {
+    font-size: 22rpx;
+    color: #a3978a;
 }
 
 .ach-grid {
@@ -183,41 +335,53 @@
     background: #ffffff;
     border: 0.5rpx solid rgba(44, 44, 42, 0.12);
     border-radius: 24rpx;
-    padding: 26rpx;
+    padding: 22rpx 16rpx 20rpx;
     text-align: center;
-    opacity: 0.45;
+    transition: transform 0.12s ease;
 }
 
 .ach.got {
-    opacity: 1;
-    background: #faeeda;
-    border-color: #854f0b;
+    background: #fdf7ef;
+    border-color: rgba(139, 94, 60, 0.32);
+    box-shadow: 0 8rpx 22rpx rgba(139, 94, 60, 0.12);
+}
+
+.ach-icon {
+    width: 76rpx;
+    height: 76rpx;
+    display: block;
+    margin: 0 auto 10rpx;
 }
 
 .a-name {
-    font-size: 27rpx;
+    font-size: 26rpx;
     font-weight: 600;
+    color: #2c2c2a;
+}
+
+.ach.got .a-name {
+    color: #8b5e3c;
 }
 
 .a-desc {
-    font-size: 23rpx;
-    color: #888780;
-    margin-top: 6rpx;
+    font-size: 21rpx;
+    color: #a3978a;
+    margin-top: 4rpx;
 }
 
 .share-btn {
     background: linear-gradient(135deg, #a97750 0%, #8b5e3c 55%, #6f4b30 100%);
     color: #ffffff;
-    font-size: 34rpx;
+    font-size: 33rpx;
     font-weight: 700;
     letter-spacing: 2rpx;
-    height: 104rpx;
-    line-height: 104rpx;
+    height: 100rpx;
+    line-height: 100rpx;
     padding: 0;
     width: 100% !important;
     box-sizing: border-box;
-    border-radius: 52rpx;
-    margin-top: 32rpx;
+    border-radius: 50rpx;
+    margin-top: 30rpx;
     box-shadow: 0 12rpx 28rpx rgba(139, 94, 60, 0.3);
 }
 

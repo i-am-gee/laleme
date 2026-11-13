@@ -2,6 +2,8 @@ App({
     globalData: {
         appName: '拉了么',
         privacyResolve: null,
+        // 首页日历点击某天后，把目标日期交给历史页锚定（switchTab 无法带参数）
+        historyTargetDay: '',
     },
     onLaunch() {
         // 注册微信官方隐私授权监听：当使用到隐私接口时，弹出同意弹窗
