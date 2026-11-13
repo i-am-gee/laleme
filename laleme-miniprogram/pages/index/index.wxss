@@ -3,6 +3,31 @@
 }
 
 /* 好友挑战横幅 */
+/* 每日提醒横幅 */
+.reminder-banner {
+    display: flex;
+    align-items: center;
+    gap: 16rpx;
+    background: #fdf3e0;
+    border: 1rpx solid #e8a33d;
+    border-radius: 20rpx;
+    padding: 20rpx 24rpx;
+    margin-bottom: 20rpx;
+}
+
+.reminder-text {
+    flex: 1;
+    font-size: 26rpx;
+    color: #8a5a00;
+}
+
+.reminder-go {
+    font-size: 26rpx;
+    font-weight: 600;
+    color: #b57300;
+    flex-shrink: 0;
+}
+
 .challenge-banner {
     display: flex;
     align-items: center;
@@ -416,8 +441,8 @@
     position: fixed;
     left: -9999rpx;
     top: -9999rpx;
-    width: 600px;
-    height: 960px;
+    width: 500px;
+    height: 400px;
 }
 
 /* 隐私保护指引弹窗 */
@@ -490,6 +515,6 @@
     position: fixed;
     left: -9999rpx;
     top: -9999rpx;
-    width: 600px;
-    height: 960px;
+    width: 500px;
+    height: 400px;
 }

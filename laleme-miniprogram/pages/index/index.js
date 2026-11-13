@@ -1,5 +1,6 @@
-const { fmtDT, fmtDur, bristolLabel, streakDays, dayStr, todayStr, CHEERS, SHARE_TITLES } = require('../../utils/constants.js');
+const { fmtDT, fmtDur, bristolLabel, streakDays, dayStr, todayStr, CHEERS, REMINDER_TIME_KEY, REMINDER_ON_KEY, pad2 } = require('../../utils/constants.js');
 const { createRecordStore } = require('../../utils/record-store.js');
+const share = require('../../utils/share.js');
 
 const store = createRecordStore();
 
@@ -60,12 +61,17 @@ function buildCalendar(records) {
     };
 }
 
-function makeShareTitle(streak, month) {
-    if (streak <= 0 && month <= 0) {
-        return '拉了么？来记录你的肠道健康💩';
+// 今日提醒：开关开启、当前时间已过设定时间、今天尚未打卡
+function shouldShowReminder(todayCount) {
+    if (!wx.getStorageSync(REMINDER_ON_KEY) || todayCount > 0) {
+        return false;
     }
-    const tpl = SHARE_TITLES[Math.floor(Math.random() * SHARE_TITLES.length)];
-    return tpl.replace('{s}', String(streak)).replace('{m}', String(month));
+    const t = String(wx.getStorageSync(REMINDER_TIME_KEY) || '08:00');
+    const parts = t.split(':');
+    const target = (parseInt(parts[0], 10) || 0) * 60 + (parseInt(parts[1], 10) || 0);
+    const now = new Date();
+    const cur = now.getHours() * 60 + now.getMinutes();
+    return cur >= target;
 }
 
 Page({
@@ -78,13 +84,13 @@ Page({
         monthCountText: '0 次',
         challenge: null,
         calendar: null,
+        reminderShow: false,
         showCelebrate: false,
         celebrateText: '',
         confetti: [],
         showPrivacy: false,
         privacySummary: PRIVACY_SUMMARY,
         privacyContractName: '《小程序隐私保护指引》',
-        shareImagePath: '',
     },
 
     onLoad(options) {
@@ -106,8 +112,8 @@ Page({
 
     onReady() {
         // 数据早于画布就绪时，补绘分享海报
-        if (this._stats && !this.data.shareImagePath) {
-            this.drawSharePoster();
+        if (this._stats) {
+            share.ensurePoster(this, this._stats);
         }
     },
 
@@ -146,111 +152,35 @@ Page({
             const monthAgo = Date.now() - 30 * 24 * 3600 * 1000;
             const monthCount = records.filter(function (r) { return r.timestamp >= monthAgo; }).length;
             const streak = streakDays(records);
-            that._stats = { streak: streak, monthDays: that.data.calendar ? that.data.calendar.poopedCount : 0 };
+            const calendar = buildCalendar(records);
+            that._stats = { streak: streak, monthDays: calendar.poopedCount };
             that.setData({
                 lastText: lastText,
                 streakText: streak > 0 ? streak + ' 天' : '未开始',
                 monthCountText: monthCount + ' 次',
-                calendar: buildCalendar(records),
+                calendar: calendar,
+                reminderShow: shouldShowReminder(today.length),
             }, function () {
-                that._stats = { streak: streak, monthDays: that.data.calendar.poopedCount };
-                if (!that.data.shareImagePath) {
-                    that.drawSharePoster();
-                }
+                share.ensurePoster(that, that._stats);
             });
         });
     },
 
-    /* ---- 分享海报 ---- */
-    drawSharePoster() {
-        const that = this;
-        wx.createSelectorQuery()
-            .select('#shareCanvas')
-            .fields({ node: true, size: true })
-            .exec(function (res) {
-                if (!res || !res[0] || !res[0].node) {
-                    return; // 画布未就绪，onReady 会补绘
-                }
-                const canvas = res[0].node;
-                const ctx = canvas.getContext('2d');
-                const W = 600;
-                const H = 960;
-                const dpr = Math.min(
-                    (wx.getWindowInfo ? wx.getWindowInfo().pixelRatio : wx.getSystemInfoSync().pixelRatio) || 2,
-                    3
-                );
-                canvas.width = W * dpr;
-                canvas.height = H * dpr;
-                ctx.scale(dpr, dpr);
-
-                ctx.fillStyle = '#FAEEDA';
-                ctx.fillRect(0, 0, W, H);
-                ctx.fillStyle = '#8B5E3C';
-                ctx.fillRect(0, 0, W, 12);
-                ctx.fillRect(0, H - 12, W, 12);
-
-                ctx.textAlign = 'center';
-                ctx.fillStyle = '#8B5E3C';
-                ctx.font = 'bold 72px sans-serif';
-                ctx.fillText('拉了么', W / 2, 150);
-                ctx.font = '28px sans-serif';
-                ctx.fillStyle = '#854F0B';
-                ctx.fillText('肠道健康打卡', W / 2, 198);
-
-                ctx.font = '240px sans-serif';
-                ctx.fillText('💩', W / 2, 500);
-
-                const stats = that._stats || { streak: 0, monthDays: 0 };
-                ctx.font = 'bold 46px sans-serif';
-                ctx.fillStyle = '#2C2C2A';
-                ctx.fillText('连续打卡 ' + stats.streak + ' 天', W / 2, 630);
-                ctx.font = '40px sans-serif';
-                ctx.fillStyle = '#444441';
-                ctx.fillText('本月打卡 ' + stats.monthDays + ' 天', W / 2, 698);
-
-                ctx.font = 'bold 44px sans-serif';
-                ctx.fillStyle = '#0F6E56';
-                ctx.fillText('来挑战我吧！', W / 2, 820);
-                ctx.font = '24px sans-serif';
-                ctx.fillStyle = '#888780';
-                ctx.fillText('记录每一次，读懂你的肠道', W / 2, 866);
-
-                wx.canvasToTempFilePath({
-                    canvas: canvas,
-                    success: function (r) {
-                        that.setData({ shareImagePath: r.tempFilePath });
-                    },
-                    fail: function () {
-                        // 海报失败不影响分享，使用默认截图
-                    },
-                });
-            });
-    },
-
     onShareAppMessage() {
-        const stats = this._stats || { streak: 0, monthDays: 0 };
-        const streak = stats.streak || 0;
-        const month = stats.monthDays || 0;
-        const share = {
-            title: makeShareTitle(streak, month),
-            path: '/pages/index/index?challenge=1&streak=' + streak + '&month=' + month,
-        };
-        if (this.data.shareImagePath) {
-            share.imageUrl = this.data.shareImagePath;
-        }
-        return share;
+        return share.makeShareInfo(this._stats);
     },
 
     onShareTimeline() {
         const stats = this._stats || { streak: 0, monthDays: 0 };
         const streak = stats.streak || 0;
-        const share = {
+        const info = {
             title: '我在「拉了么」连续打卡 ' + streak + ' 天啦，你也来记录肠道健康！',
         };
-        if (this.data.shareImagePath) {
-            share.imageUrl = this.data.shareImagePath;
+        const path = share.getPosterPath();
+        if (path) {
+            info.imageUrl = path;
         }
-        return share;
+        return info;
     },
 
     /* ---- 庆祝动画 ---- */

@@ -3,7 +3,7 @@
 > 一款极度克制的肠道健康记录小程序。
 > 数据只属于你，从未离开你的手机。
 
-[![Version](https://img.shields.io/badge/version-1.2.0-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
+[![Version](https://img.shields.io/badge/version-1.3.0-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
 
 ---
 
@@ -32,13 +32,14 @@
 
 - **快速记录**：计时器 / 手动时长 / 日期时间补记，单次上限 12 小时（超过该去挂号了）
 - **布里斯托 7 型分类**：附「不确定」选项，每型配医学描述与通俗提示
-- **健康统计**：周/月视图，频次、时长分布、满意度趋势
+- **健康统计**：周/月/自定义任意时间范围，频次、平均时长、性状分布
 - **打卡日历**：每月打卡一目了然，💩 标记每一次坚持
-- **连续打卡与成就系统**：13 枚成就徽章，记录即奖励
+- **连续打卡与成就系统**：4 枚成就徽章（七日全勤/闪电侠/马拉松选手/收藏家），记录即奖励
 - **庆祝动画**：彩带 + 烟花 + 星星人，献给每一次如释重负
-- **挑战分享**：canvas 生成专属海报，把连续记录发给好友发起挑战（纯分享机制，不读取任何好友数据）
-- **数据可携带**：一键导出 CSV 到剪贴板，你的数据随时可以带走
+- **挑战分享**：canvas 生成 5:4 专属海报，首页/统计/我的三处发出内容完全一致（纯分享机制，不读取任何好友数据）
+- **数据可携带**：CSV 导出成文件直接发给文件传输助手/好友，也支持从聊天文件一键导入（按时间+时长自动去重）
 - **隐私授权**：符合微信平台规范的隐私告知与同意流程，拒绝即退出，绝不静默收集
+- **每日提醒**：自定义提醒时间，到点打开小程序首页置顶提醒（已预留微信订阅消息通道）
 
 ## 技术实现
 
@@ -60,6 +61,7 @@ laleme-miniprogram/       微信小程序（原生框架，零依赖）
 - **canvas 2d** 动态绘制分享海报（600×960，dpr 适配）
 - **隐私合规三层设计**：首启弹窗（`open-type="agreePrivacyAuthorization"`）→ 指引全文页 → 常驻入口，配合 `wx.onNeedPrivacyAuthorization` 动态应答
 - Web 版原型（`拉了么/index.html`）与产品设计文档（`拉了么-产品设计文档.md`）同仓库维护
+- **tabBar 图标**：PIL 脚本生成的扁平图标（`gen-tabbar-icons.py`），品牌色棕/灰双色
 
 ## 本地运行
 

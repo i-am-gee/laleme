@@ -1,4 +1,10 @@
 <view class="page">
+    <!-- 每日提醒横幅 -->
+    <view class="reminder-banner" wx:if="{{reminderShow}}" bindtap="goRecord">
+        <text class="reminder-text">⏰ 到点啦，肠道在等你打卡！去完成今日份 💩</text>
+        <text class="reminder-go">去记录 ›</text>
+    </view>
+
     <!-- 好友挑战横幅 -->
     <view class="challenge-banner" wx:if="{{challenge}}">
         <view class="challenge-text">💩 一位好友向你发起挑战：连续打卡 {{challenge.streak}} 天，本月 {{challenge.month}} 次。接招！</view>

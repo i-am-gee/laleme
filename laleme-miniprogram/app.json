@@ -15,15 +15,15 @@
     "backgroundTextStyle": "light"
   },
   "tabBar": {
-    "color": "#888780",
+    "color": "#9B9184",
     "selectedColor": "#8B5E3C",
     "backgroundColor": "#ffffff",
     "borderStyle": "white",
     "list": [
-      { "pagePath": "pages/index/index", "text": "首页" },
-      { "pagePath": "pages/history/history", "text": "历史" },
-      { "pagePath": "pages/stats/stats", "text": "统计" },
-      { "pagePath": "pages/me/me", "text": "我的" }
+      { "pagePath": "pages/index/index", "text": "首页", "iconPath": "assets/tabbar/home.png", "selectedIconPath": "assets/tabbar/home-active.png" },
+      { "pagePath": "pages/history/history", "text": "历史", "iconPath": "assets/tabbar/history.png", "selectedIconPath": "assets/tabbar/history-active.png" },
+      { "pagePath": "pages/stats/stats", "text": "统计", "iconPath": "assets/tabbar/stats.png", "selectedIconPath": "assets/tabbar/stats-active.png" },
+      { "pagePath": "pages/me/me", "text": "我的", "iconPath": "assets/tabbar/me.png", "selectedIconPath": "assets/tabbar/me-active.png" }
     ]
   },
   "style": "v2",

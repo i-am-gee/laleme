@@ -25,6 +25,53 @@
     font-weight: 600;
 }
 
+/* 自定义时间范围 */
+.range-bar {
+    display: flex;
+    align-items: center;
+    gap: 12rpx;
+    background: #ffffff;
+    border: 0.5rpx solid rgba(44, 44, 42, 0.12);
+    border-radius: 20rpx;
+    padding: 16rpx 20rpx;
+    margin-bottom: 24rpx;
+}
+
+.range-pick {
+    font-size: 26rpx;
+    color: #5c4a38;
+    background: #f7f4ef;
+    border-radius: 14rpx;
+    padding: 10rpx 18rpx;
+}
+
+.range-arrow {
+    font-size: 22rpx;
+    color: #9b8f7d;
+    margin-left: 4rpx;
+}
+
+.range-dash {
+    font-size: 26rpx;
+    color: #888780;
+    flex-shrink: 0;
+}
+
+.range-label {
+    font-size: 24rpx;
+    color: #9b8f7d;
+    margin-left: auto;
+}
+
+/* 隐藏分享画布 */
+.share-canvas {
+    position: fixed;
+    left: -9999rpx;
+    top: -9999rpx;
+    width: 500px;
+    height: 400px;
+}
+
 .metrics {
     display: flex;
     gap: 16rpx;

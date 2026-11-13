@@ -15,6 +15,14 @@ const CHEERS = ['顺风顺水！', '今天也畅通了！', '一身轻松！', '
 
 const STORAGE_KEY = 'laleme_records';
 
+// 提醒功能
+const REMINDER_TIME_KEY = 'laleme_reminder_time'; // 'HH:mm'
+const REMINDER_ON_KEY = 'laleme_reminder_on'; // true/false
+const REMINDER_DEFAULT_TIME = '08:00';
+// 订阅消息模板 ID：需在微信公众平台「订阅消息」申请「打卡提醒」类模板后填入。
+// 为空时订阅按钮会给出申请指引；纯本地版无服务端，仅预留合规通道。
+const REMINDER_TMPL_ID = '';
+
 const PRIVACY_TEXT = [
     '更新日期：2026-11-11　生效日期：2026-11-11',
     '「拉了么」（下称"本应用"）非常重视你的个人信息与隐私保护。请在使用前仔细阅读本指引，你点击"同意并继续"即表示已阅读并同意本指引全部内容。',
@@ -129,6 +137,10 @@ module.exports = {
     STORAGE_KEY: STORAGE_KEY,
     PRIVACY_TEXT: PRIVACY_TEXT,
     SHARE_TITLES: SHARE_TITLES,
+    REMINDER_TIME_KEY: REMINDER_TIME_KEY,
+    REMINDER_ON_KEY: REMINDER_ON_KEY,
+    REMINDER_DEFAULT_TIME: REMINDER_DEFAULT_TIME,
+    REMINDER_TMPL_ID: REMINDER_TMPL_ID,
     dayStr: dayStr,
     todayStr: todayStr,
     fmtTime: fmtTime,

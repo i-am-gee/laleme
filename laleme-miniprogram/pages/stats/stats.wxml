@@ -2,6 +2,19 @@
     <view class="seg">
         <view class="seg-item {{period === 'week' ? 'active' : ''}}" data-period="week" bindtap="setPeriod">近 7 天</view>
         <view class="seg-item {{period === 'month' ? 'active' : ''}}" data-period="month" bindtap="setPeriod">近 30 天</view>
+        <view class="seg-item {{period === 'custom' ? 'active' : ''}}" data-period="custom" bindtap="setPeriod">自定义</view>
+    </view>
+
+    <!-- 自定义时间范围 -->
+    <view class="range-bar" wx:if="{{period === 'custom'}}">
+        <picker mode="date" value="{{rangeStart}}" bindchange="onRangeStart">
+            <view class="range-pick">{{rangeStart || '开始日期'}} <text class="range-arrow">▾</text></view>
+        </picker>
+        <text class="range-dash">至</text>
+        <picker mode="date" value="{{rangeEnd}}" bindchange="onRangeEnd">
+            <view class="range-pick">{{rangeEnd || '结束日期'}} <text class="range-arrow">▾</text></view>
+        </picker>
+        <text class="range-label" wx:if="{{rangeLabel}}">{{rangeLabel}}</text>
     </view>
 
     <view class="metrics">
@@ -41,3 +54,6 @@
 
     <button class="share-btn" open-type="share">💩 挑战好友</button>
 </view>
+
+<!-- 分享海报绘制画布（不可见） -->
+<canvas type="2d" id="shareCanvas" class="share-canvas"></canvas>
