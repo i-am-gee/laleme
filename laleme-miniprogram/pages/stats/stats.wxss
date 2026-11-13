@@ -214,6 +214,8 @@
     height: 104rpx;
     line-height: 104rpx;
     padding: 0;
+    width: 100% !important;
+    box-sizing: border-box;
     border-radius: 52rpx;
     margin-top: 32rpx;
     box-shadow: 0 12rpx 28rpx rgba(139, 94, 60, 0.3);

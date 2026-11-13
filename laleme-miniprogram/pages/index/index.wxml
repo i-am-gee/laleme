@@ -10,7 +10,12 @@
         <view class="sub">{{statusSub}}</view>
     </view>
 
-    <button class="primary-btn" bindtap="goRecord">💩 记一次</button>
+    <view class="fab-wrap">
+        <view class="fab" hover-class="fab-hover" bindtap="goRecord">
+            <text class="fab-emoji">💩</text>
+            <text class="fab-label">记一次</text>
+        </view>
+    </view>
 
     <view class="card">
         <view class="info-row">

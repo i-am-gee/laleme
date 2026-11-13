@@ -69,22 +69,52 @@
     color: #0f6e56;
 }
 
-.primary-btn {
-    background: linear-gradient(135deg, #a97750 0%, #8b5e3c 55%, #6f4b30 100%);
-    color: #ffffff;
-    font-size: 44rpx;
-    font-weight: 700;
-    letter-spacing: 4rpx;
-    border-radius: 48rpx;
-    height: 136rpx;
-    line-height: 136rpx;
-    padding: 0;
-    margin: 24rpx 0 36rpx;
-    box-shadow: 0 14rpx 32rpx rgba(139, 94, 60, 0.35);
+/* 主视觉：圆形记录按钮 */
+.fab-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 24rpx 0 40rpx;
 }
 
-.primary-btn::after {
-    border: none;
+.fab {
+    width: 268rpx;
+    height: 268rpx;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(150deg, #b47e56 0%, #8b5e3c 55%, #6b4830 100%);
+    box-shadow: 0 18rpx 40rpx rgba(139, 94, 60, 0.36), 0 0 0 10rpx rgba(139, 94, 60, 0.09);
+    animation: fabPulse 3.2s ease-in-out infinite;
+}
+
+.fab-hover {
+    transform: scale(0.95);
+    opacity: 0.92;
+}
+
+.fab-emoji {
+    font-size: 96rpx;
+    line-height: 1;
+}
+
+.fab-label {
+    display: block;
+    margin-top: 14rpx;
+    font-size: 32rpx;
+    font-weight: 700;
+    letter-spacing: 4rpx;
+    color: #ffffff;
+}
+
+@keyframes fabPulse {
+    0%, 100% {
+        box-shadow: 0 18rpx 40rpx rgba(139, 94, 60, 0.36), 0 0 0 10rpx rgba(139, 94, 60, 0.09);
+    }
+    50% {
+        box-shadow: 0 22rpx 50rpx rgba(139, 94, 60, 0.44), 0 0 0 20rpx rgba(139, 94, 60, 0.05);
+    }
 }
 
 .card {
@@ -211,6 +241,8 @@
     height: 104rpx;
     line-height: 104rpx;
     padding: 0;
+    width: 100% !important;
+    box-sizing: border-box;
     border-radius: 52rpx;
     margin: 8rpx 0 0;
 }
