@@ -29,7 +29,7 @@ Page({
 
     // 分享按钮按下即震
     onShareTouch() {
-        haptics.strong();
+        haptics.tap();
     },
 
     goPrivacy() {
@@ -72,7 +72,7 @@ Page({
             wx.showToast({ title: '暂无数据', icon: 'none' });
             return;
         }
-        haptics.strong();
+        haptics.tap();
         wx.showModal({
             title: '清空全部数据',
             content: '将删除本机全部记录且不可恢复，建议先导出备份。',

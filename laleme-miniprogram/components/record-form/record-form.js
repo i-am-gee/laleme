@@ -199,7 +199,7 @@ Component({
         },
 
         submit() {
-            haptics.strong();
+            haptics.tap();
             const manual = parseInt(this.data.manualMin, 10);
             let duration;
             if (!isNaN(manual) && manual > 0) {
@@ -261,7 +261,7 @@ Component({
         },
 
         removeThis() {
-            haptics.strong();
+            haptics.tap();
             const that = this;
             const id = this.editId;
             wx.showModal({

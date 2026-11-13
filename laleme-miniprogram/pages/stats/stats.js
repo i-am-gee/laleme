@@ -64,7 +64,7 @@ Page({
 
     // 分享按钮按下即震（主操作，双段强调）
     onShareTouch() {
-        haptics.strong();
+        haptics.tap();
     },
 
     setPeriod(event) {
@@ -153,6 +153,9 @@ Page({
                     distTotal += 1;
                 }
             });
+            // key 带上本次渲染序号：节点会被重建，进度条 0→数值 的动画才能重播
+            const barSeq = (that._barSeq || 0) + 1;
+            that._barSeq = barSeq;
             const dist = [];
             BRISTOL.forEach(function (b) {
                 const c = counts[b.t] || 0;
@@ -160,6 +163,7 @@ Page({
                     return;
                 }
                 dist.push({
+                    key: barSeq + '-' + b.t,
                     label: b.t + ' ' + b.name,
                     pct: Math.round(c / distTotal * 100),
                     level: b.level,

@@ -174,7 +174,7 @@ Page({
         const flag = wx.getStorageSync('laleme_celebrate_flag');
         if (flag && Date.now() - Number(flag) < 10000) {
             wx.removeStorageSync('laleme_celebrate_flag');
-            haptics.strong();
+            haptics.tap();
             const that = this;
             this.setData({
                 showCelebrate: true,
@@ -282,9 +282,14 @@ Page({
         this.setData({ challenge: null });
     },
 
-    // 按下瞬间：手机震动反馈（主操作，双段强调）
+    // 按下瞬间：唯一使用强触感的入口（设备最长时间震动）
     onFabTouchStart() {
         haptics.strong();
+    },
+
+    // 分享等次级主操作：与数据备份页一致的 standard 触感
+    onShareTouch() {
+        haptics.tap();
     },
 
     // 主按钮点击：抖动/涟漪动画后从底部拉起记录抽屉

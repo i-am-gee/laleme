@@ -207,7 +207,7 @@ Page({
         const that = this;
         const ds = event.currentTarget.dataset;
         const item = this.data.groups[ds.g].items[ds.i];
-        haptics.strong();
+        haptics.tap();
         wx.showModal({
             title: '删除这条记录',
             content: '删除后不可恢复。',

@@ -26,17 +26,10 @@
     <!-- 恢复 -->
     <view class="sec-title">恢复</view>
     <view class="sec-card">
-        <view class="row" bindtap="importFile">
-            <view class="row-main">
-                <view class="row-title">从聊天文件导入</view>
-                <view class="row-sub">只能选微信聊天里的文件，先把 CSV 发到「文件传输助手」</view>
-            </view>
-            <view class="row-arrow">›</view>
-        </view>
         <view class="row" bindtap="importClipboard">
             <view class="row-main">
                 <view class="row-title">从剪贴板导入</view>
-                <view class="row-sub">适合已复制过 CSV 内容的情况</view>
+                <view class="row-sub">先在电脑或备忘录里复制 CSV 内容，再回到这里</view>
             </view>
             <view class="row-arrow">›</view>
         </view>

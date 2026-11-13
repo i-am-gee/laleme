@@ -78,45 +78,6 @@ Page({
     },
 
     /* -------- 导入 -------- */
-    importFile() {
-        const that = this;
-        haptics.tap();
-        wx.chooseMessageFile({
-            count: 1,
-            // 不加 extension 过滤：微信在部分版本里会因过滤而给出空列表
-            type: 'all',
-            success: function (res) {
-                const file = res.tempFiles && res.tempFiles[0];
-                if (!file) {
-                    that.setStatus('没有选到文件，请重试。', 'warn');
-                    return;
-                }
-                let text = '';
-                try {
-                    text = wx.getFileSystemManager().readFileSync(file.path, 'utf8');
-                } catch (e) {
-                    that.setStatus('文件读取失败：' + ((e && e.message) || '未知错误'), 'warn');
-                    return;
-                }
-                that.importText(String(text), '文件「' + (file.name || '未命名') + '」');
-            },
-            fail: function (err) {
-                const msg = (err && err.errMsg) || '';
-                if (msg.indexOf('cancel') !== -1) {
-                    that.setStatus('已取消选择文件。', 'info');
-                    return;
-                }
-                that.setStatus('打不开文件选择器：' + msg, 'warn');
-                wx.showModal({
-                    title: '文件导入说明',
-                    content: '微信只允许从「聊天记录」里选文件。请先把 CSV 发送到「文件传输助手」，再从聊天里选中它。如果还不行，用下面的「从剪贴板导入」或「粘贴内容导入」。',
-                    showCancel: false,
-                    confirmText: '知道了',
-                });
-            },
-        });
-    },
-
     importClipboard() {
         const that = this;
         haptics.tap();
@@ -189,7 +150,7 @@ Page({
                 }
                 const summary = '识别 ' + rows.length + ' 条 · 新增 ' + added + ' 条 · 跳过 ' + skipped + ' 条';
                 if (added > 0) {
-                    haptics.strong();
+                    haptics.tap();
                 }
                 that.setStatus('来自' + sourceLabel + '：' + summary + (skipped > 0 ? '（跳过的是与现有记录重复或格式不完整的数据）' : ''), added > 0 ? 'ok' : 'warn');
                 that.setData({ pasteText: '' });
@@ -209,7 +170,7 @@ Page({
             wx.showToast({ title: '暂无数据', icon: 'none' });
             return;
         }
-        haptics.strong();
+        haptics.tap();
         wx.showModal({
             title: '清空全部数据',
             content: '将删除本机全部 ' + this.data.total + ' 条记录且不可恢复，建议先导出备份。',

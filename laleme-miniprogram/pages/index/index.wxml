@@ -65,7 +65,7 @@
     </view>
 
     <!-- 挑战好友 -->
-    <button class="ghost-btn" open-type="share" bindtouchstart="onFabTouchStart">💩 挑战好友</button>
+    <button class="ghost-btn" open-type="share" bindtouchstart="onShareTouch">💩 挑战好友</button>
 
     <view class="footnote" bindtap="goHistory">查看全部历史 ></view>
 </view>
