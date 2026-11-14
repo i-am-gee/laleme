@@ -5,6 +5,8 @@
 
 [![Version](https://img.shields.io/badge/version-1.7.9-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
 
+> **接手开发请先读 [CLAUDE.md](./CLAUDE.md)** —— 项目结构、数据层、设计令牌、踩坑清单与发布流程都在那里，读完即可上手。
+
 ---
 
 ## 为什么做它
@@ -36,8 +38,9 @@
 - **打卡日历**：💩 图标标记每一次打卡，一天 2 次以上自动出角标；点某天直接跳历史并锚定高亮当天明细
 - **连续打卡与成就系统**：4 枚成就徽章（七日全勤/闪电侠/马拉松选手/收藏家），记录即奖励
 - **庆祝动画**：彩带 + 烟花 + 星星人，献给每一次如释重负
-- **挑战分享**：canvas 生成 5:4 专属海报——本月日历图形 + 已点亮徽章，一图看懂打卡节奏；首页/统计/我的三处发出内容完全一致（纯分享机制，不读取任何好友数据）
-- **数据可携带**：CSV 导出成文件 / 复制到剪贴板；恢复支持剪贴板导入与直接粘贴导入两条通道（按时间+时长自动去重）
+- **转发给你在乎的人**：分享三次解锁「黄金大屎官」——主按钮转黑金、日历里每一坨便便同步镀金，还能手动切回普通身份对比着看
+- **分享海报**：canvas 生成 5:4 专属海报——本月日历图形 + 已点亮徽章，一图看懂打卡节奏；首页/统计/我的三处发出内容完全一致（纯分享机制，不读取任何好友数据）
+- **数据可携带**：CSV 导出成文件 / 复制到剪贴板，备份里连分享进度和称号一起带走；**导入前先列出差异（新增几条、跳过几条、进度变化），确认后才真正写入**
 - **触感反馈**：全站按钮（含底部导航）均有震动，主操作走设备上限强度，只在手指按下瞬间触发
 - **隐私授权**：符合微信平台规范的隐私告知与同意流程，拒绝即退出，绝不静默收集
 - **iOS 设计语言**：Dynamic Type 字号标度、语义色分层、Large Title 自定义导航、inset grouped 卡片、弹簧按压反馈（v1.6）
@@ -74,7 +77,8 @@ laleme-miniprogram/       微信小程序（原生框架，零依赖）
 ├── custom-tab-bar/       自定义底部导航（原生 tabBar 无法加震动反馈）
 ├── components/
 │   ├── record-form/      记录表单：首页抽屉与编辑页共用
-│   └── roll-number/      拉霸滚动数字：逐位竖排滚动，三段式 setData 保证每次重播
+│   ├── roll-number/      拉霸滚动数字：逐位竖排滚动，三段式 setData 保证每次重播
+│   └── challenge-btn/    分享入口：首页与统计页共用，含三次进度与黄金大屎官
 ├── assets/
 │   ├── tabbar/           四枚 tabBar 图标（双状态）
 │   ├── badges/           四枚成就徽章图标（点亮/未点亮）
@@ -82,13 +86,13 @@ laleme-miniprogram/       微信小程序（原生框架，零依赖）
 └── utils/
     ├── constants.js      布里斯托分类、徽章定义、月历口径、隐私文本
     ├── record-store.js   本地存储层（list/create/update/remove，含字段校验）
-    ├── share.js          分享信息统一 + 5:4 海报绘制（日历 + 徽章）
-    ├── csv.js            CSV 导出/解析（BOM、引号转义、多日期格式）
+    ├── share.js          分享信息统一 + 5:4 海报绘制 + 分享计数与「黄金大屎官」称号
+    ├── csv.js            CSV 导出/解析（BOM、引号转义、多日期格式、末尾 # 附属状态行）
     ├── nav.js            iOS Large Title 顶部安全距离（适配状态栏与胶囊按钮）
     └── haptics.js        触感反馈三档封装
 ```
 
-- **原生小程序框架**，无第三方依赖，源码约 356KB（含 78KB 图片资产），上传包体约 136KB
+- **原生小程序框架**，无第三方依赖，源码约 416KB（含 78KB 图片资产），上传包体约 154KB
 - **canvas 2d** 动态绘制分享海报（500×400，5:4 与微信缩略图比例一致，dpr 适配，`canvas.createImage` 预加载徽章）
 - **隐私合规三层设计**：首启弹窗（`open-type="agreePrivacyAuthorization"`）→ 指引全文页 → 常驻入口，配合 `wx.onNeedPrivacyAuthorization` 动态应答
 - Web 版原型（`拉了么/index.html`）与产品设计文档（`拉了么-产品设计文档.md`）同仓库维护
