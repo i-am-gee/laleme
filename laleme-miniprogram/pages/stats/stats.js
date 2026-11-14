@@ -188,7 +188,8 @@ Page({
                 return {
                     id: b.id,
                     name: b.name,
-                    desc: on ? '已点亮' : b.desc,
+                    // 点亮与否已经由卡片面色与图标表达，副标题始终说明达成条件
+                    desc: b.desc,
                     icon: on ? b.iconOn : b.iconOff,
                     got: on,
                 };

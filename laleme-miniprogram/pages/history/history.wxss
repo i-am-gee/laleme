@@ -110,6 +110,9 @@
     top: 0;
     bottom: 0;
     display: flex;
+    /* 与卡片同圆角，避免操作区方角在卡片圆角处露出暖色 */
+    border-radius: var(--r-md);
+    overflow: hidden;
 }
 
 /* 宽度需与 history.js 的 ACTION_W（68px）保持一致 */

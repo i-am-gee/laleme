@@ -2,7 +2,7 @@
     <!-- iOS Large Title：日期与今日状态合并成一行副标题 -->
     <view class="nav-bar {{statusClass}}" style="padding-top: {{navTop}}px;">
         <view class="nav-title">拉了么</view>
-        <view class="nav-sub">{{dateText}} · {{statusSub}}</view>
+        <view class="nav-sub">{{dateText}} · <text class="nav-state {{statusClass}}">{{statusSub}}</text></view>
     </view>
 
     <!-- 好友挑战横幅 -->

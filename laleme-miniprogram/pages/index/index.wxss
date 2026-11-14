@@ -31,9 +31,14 @@
     padding: 4rpx 8rpx;
 }
 
-/* ---------- 副标题随状态变色 ---------- */
-.nav-bar.done .nav-sub {
+/* ---------- 副标题里的状态词随状态变色，日期保持中性 ---------- */
+.nav-state.done {
     color: #248a63;
+    font-weight: 500;
+}
+
+.nav-state.notyet {
+    color: var(--tint-strong);
     font-weight: 500;
 }
 
