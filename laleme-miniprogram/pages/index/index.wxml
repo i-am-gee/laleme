@@ -1,14 +1,10 @@
 <view class="page">
-    <!-- iOS Large Title + 标题行右侧的挑战好友入口 -->
+    <!-- iOS Large Title -->
     <view class="nav-bar {{statusClass}}" style="padding-top: {{navTop}}px;">
         <view class="nav-main">
             <view class="nav-title">拉了么</view>
             <view class="nav-sub">{{dateText}} · <text class="nav-state {{statusClass}}">{{statusSub}}</text></view>
         </view>
-        <button class="nav-share" hover-class="nav-share-hover" open-type="share" bindtouchstart="onShareTouch">
-            <image class="nav-share-icon" src="/assets/actions/share-white.png" mode="aspectFit" />
-            <text class="nav-share-text">喊好友挑战</text>
-        </button>
     </view>
 
     <!-- 好友挑战横幅 -->
@@ -92,6 +88,19 @@
             </view>
         </view>
     </view>
+
+    <!-- 喊好友挑战：日历下方的通栏入口 -->
+    <button
+        class="challenge-btn"
+        hover-class="challenge-btn-hover"
+        open-type="share"
+        bindtouchstart="onShareTouch"
+    >
+        <view class="challenge-btn-inner">
+            <image class="challenge-btn-icon" src="/assets/actions/share-white.png" mode="aspectFit" />
+            <text class="challenge-btn-text">喊好友挑战</text>
+        </view>
+    </button>
 </view>
 
 <!-- 隐私保护指引弹窗 -->

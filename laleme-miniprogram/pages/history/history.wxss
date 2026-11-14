@@ -3,7 +3,7 @@
    ============================================================ */
 
 .page {
-    padding: 0 var(--sp-4) calc(env(safe-area-inset-bottom) + 130rpx);
+    padding: 0 var(--sp-4) calc(env(safe-area-inset-bottom) + 170rpx);
 }
 
 /* 左滑引导：内嵌在首条记录卡右侧，随首次左滑消失 */
@@ -61,10 +61,26 @@
     font-variant-numeric: tabular-nums;
 }
 
+/* 逐条飞入：日期标题随后面的卡片一起淡入上浮 */
+.h-date {
+    animation: dateIn 0.34s var(--ease-sheet) backwards;
+}
+
+@keyframes dateIn {
+    0% {
+        opacity: 0;
+        transform: translateY(12rpx);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* 从首页日历锚定过来的当天高亮 */
 .h-date.hl {
     background: var(--tint-soft);
-    animation: dateFlash 1.4s var(--ease-sheet) 2;
+    animation: dateIn 0.34s var(--ease-sheet) backwards, dateFlash 1.4s var(--ease-sheet) 2;
 }
 
 .h-date.hl .h-date-t {
@@ -92,6 +108,19 @@
     border-radius: var(--r-md);
     margin-bottom: var(--sp-2);
     background: transparent;
+    /* 从左侧带一点下沉与缩放飞入，落定后完全静止（不干扰侧滑的 transform） */
+    animation: swipeFlyIn 0.46s cubic-bezier(0.22, 0.9, 0.25, 1) backwards;
+}
+
+@keyframes swipeFlyIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-52rpx) translateY(22rpx) scale(0.94);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) translateY(0) scale(1);
+    }
 }
 
 .h-actions {

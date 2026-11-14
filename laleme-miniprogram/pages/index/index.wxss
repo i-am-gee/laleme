@@ -7,7 +7,7 @@
     padding: 0 var(--sp-4) calc(env(safe-area-inset-bottom) + 200rpx);
 }
 
-/* ---------- 标题行：左标题 + 右「挑战」胶囊 ---------- */
+/* ---------- 标题行 ---------- */
 .nav-bar {
     display: flex;
     align-items: flex-start;
@@ -20,44 +20,50 @@
     min-width: 0;
 }
 
-/* 挑战入口：实心品牌棕胶囊，纯白图标与文字，在浅色页面上第一眼就能看到 */
-.nav-share {
-    display: flex;
-    align-items: center;
-    gap: 8rpx;
+/* ---------- 喊好友挑战：通栏召唤按钮 ---------- */
+.challenge-btn {
     /* 微信 button 默认宽度 184px，必须显式覆盖 */
-    width: auto !important;
-    height: 64rpx;
-    margin-top: 10rpx;
-    padding: 0 22rpx 0 18rpx;
-    border-radius: var(--r-full);
+    width: 100% !important;
+    height: 84rpx;
+    margin-top: 12rpx;
+    padding: 0;
+    border-radius: var(--r-md);
     background: var(--tint);
-    box-shadow: 0 8rpx 20rpx rgba(139, 94, 60, 0.26);
-    flex-shrink: 0;
+    box-shadow: 0 10rpx 24rpx rgba(139, 94, 60, 0.22);
     line-height: 1;
-    transition: transform 0.2s var(--ease-spring), box-shadow 0.2s ease, background-color 0.12s ease;
+    transition: transform 0.2s var(--ease-spring), background-color 0.12s ease, box-shadow 0.2s ease;
 }
 
-.nav-share::after {
+.challenge-btn::after {
     border: none;
 }
 
-.nav-share-icon {
-    width: 26rpx;
-    height: 26rpx;
+.challenge-btn-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12rpx;
+    width: 100%;
+    height: 100%;
 }
 
-.nav-share-text {
-    font-size: var(--t-footnote);
+.challenge-btn-icon {
+    width: 30rpx;
+    height: 30rpx;
+}
+
+.challenge-btn-text {
+    font-size: var(--t-headline);
     font-weight: 600;
     color: #ffffff;
-    letter-spacing: 0.5rpx;
+    letter-spacing: 2rpx;
+    text-indent: 2rpx;
 }
 
-.nav-share-hover {
+.challenge-btn-hover {
     background: var(--tint-strong);
-    transform: scale(0.95);
-    box-shadow: 0 4rpx 12rpx rgba(139, 94, 60, 0.22);
+    transform: scale(0.985);
+    box-shadow: 0 4rpx 12rpx rgba(139, 94, 60, 0.18);
 }
 
 /* ---------- 好友挑战横幅：淡填充，无描边 ---------- */
@@ -100,14 +106,14 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 8rpx 0 0;
+    padding: 0;
 }
 
 /* 圆按钮容器 */
 .fab-wrap {
     position: relative;
-    width: 312rpx;
-    height: 312rpx;
+    width: 296rpx;
+    height: 296rpx;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -116,8 +122,8 @@
 /* 引导光晕：呼吸式外扩，把视线引向主按钮 */
 .fab-halo {
     position: absolute;
-    width: 288rpx;
-    height: 288rpx;
+    width: 272rpx;
+    height: 272rpx;
     border-radius: 50%;
     background: var(--tint-soft);
     animation: haloBreathe 3s ease-in-out infinite;
@@ -138,8 +144,8 @@
 .fab {
     position: relative;
     overflow: hidden;
-    width: 264rpx;
-    height: 264rpx;
+    width: 248rpx;
+    height: 248rpx;
     border-radius: 50%;
     display: flex;
     flex-direction: column;
@@ -221,8 +227,8 @@
     width: 100%;
     background: var(--bg-card);
     border-radius: var(--r-lg);
-    margin-top: var(--sp-2);
-    padding: var(--sp-2) 0;
+    margin-top: 12rpx;
+    padding: 8rpx 0;
 }
 
 .chip {
@@ -260,8 +266,8 @@
 
 /* ---------- 日历卡 ---------- */
 .cal-card {
-    padding: var(--sp-3) var(--sp-3) 0;
-    margin-top: var(--sp-2);
+    padding: 12rpx var(--sp-3) 0;
+    margin-top: 12rpx;
 }
 
 .cal-title {
@@ -346,7 +352,7 @@
 .cal-cell {
     position: relative;
     width: calc(100% / 7);
-    height: 72rpx;
+    height: 68rpx;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -413,7 +419,7 @@
     display: flex;
     align-items: center;
     gap: var(--sp-2);
-    min-height: 72rpx;
+    min-height: 64rpx;
     /* 负 margin 抵消卡片左右内边距，让分隔线拉满整卡宽度 */
     margin: var(--sp-2) calc(var(--sp-3) * -1) 0;
     padding: 0 var(--sp-4);

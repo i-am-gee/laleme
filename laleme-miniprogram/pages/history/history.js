@@ -23,6 +23,8 @@ Page({
 
     onShow() {
         syncTabBar(this, 1);
+        // 每次进入都重播「逐条飞入」：animKey 带上递增值，节点重建才会重跑动画
+        this._animSeq = (this._animSeq || 0) + 1;
         const app = getApp();
         const target = app && app.globalData ? app.globalData.historyTargetDay : '';
         if (app && app.globalData) {
@@ -64,6 +66,18 @@ Page({
                     time: fmtTime(r.timestamp),
                     detail: fmtDur(r.durationMin) + ' · ' + bristolLabel(r.bristol) + (r.mood ? ' · ' + MOOD_TEXT[r.mood] : ''),
                     x: 0,
+                });
+            });
+            // 逐条飞入：最近的一条先飞，后面每条晚 50ms 跟进；排到第 13 条后不再叠加延迟
+            const seq = that._animSeq || 0;
+            let order = 0;
+            groups.forEach(function (g) {
+                g.delay = Math.min(order, 12) * 50;
+                g.animKey = g.key + '#' + seq;
+                g.items.forEach(function (it) {
+                    it.delay = Math.min(order, 12) * 50;
+                    it.animKey = it.id + '#' + seq;
+                    order += 1;
                 });
             });
             that.setData({ groups: groups, empty: records.length === 0 }, function () {

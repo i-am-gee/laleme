@@ -18,7 +18,7 @@
 
 .tab {
     flex: 1;
-    height: 96rpx;
+    height: 118rpx;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -32,14 +32,14 @@
 }
 
 .tab-icon {
-    width: 44rpx;
-    height: 44rpx;
+    width: 56rpx;
+    height: 56rpx;
 }
 
 .tab-text {
-    font-size: 20rpx;
+    font-size: 24rpx;
     color: var(--label-3);
-    margin-top: 2rpx;
+    margin-top: 4rpx;
     line-height: 1.2;
     letter-spacing: 0.2rpx;
 }
