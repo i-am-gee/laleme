@@ -454,6 +454,118 @@
 }
 
 /* ============================================================
+   分享致谢（瞬时态）
+   ============================================================ */
+.thanks-mask {
+    position: fixed;
+    /* 同样避开 inset 简写，保证各基础库都能铺满 */
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(18, 16, 14, 0.34);
+    animation: thanksFade 0.22s ease both;
+}
+
+.thanks-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40rpx 48rpx 36rpx;
+    border-radius: var(--r-lg);
+    /* 自承深色底：不依赖遮罩加深，文字就不会和底下的日历打架 */
+    background: rgba(30, 26, 22, 0.9);
+    box-shadow: 0 24rpx 64rpx rgba(0, 0, 0, 0.34);
+    animation: thanksPop 0.52s var(--ease-spring) both;
+}
+
+.thanks-badge {
+    position: relative;
+    width: 180rpx;
+    height: 180rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 一圈金色光晕，扩散两次就够，不喧宾夺主 */
+.thanks-ring {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 180rpx;
+    height: 180rpx;
+    margin: -90rpx 0 0 -90rpx;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 214, 130, 0.62) 0%, rgba(255, 214, 130, 0) 70%);
+    animation: thanksRing 1.8s ease-out 2;
+}
+
+.thanks-poop {
+    position: relative;
+    display: block;
+    font-size: 88rpx;
+    line-height: 1;
+    filter: sepia(1) saturate(3.4) hue-rotate(-14deg) brightness(1.18)
+        drop-shadow(0 6rpx 18rpx rgba(255, 214, 130, 0.55));
+}
+
+.thanks-title {
+    margin-top: var(--sp-3);
+    font-size: var(--t-title3);
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 1rpx;
+    text-align: center;
+    line-height: 1.35;
+}
+
+.thanks-sub {
+    margin-top: var(--sp-2);
+    font-size: var(--t-footnote);
+    color: rgba(255, 255, 255, 0.58);
+    letter-spacing: 0.5rpx;
+}
+
+@keyframes thanksFade {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes thanksPop {
+    0% {
+        opacity: 0;
+        transform: scale(0.84) translateY(24rpx);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes thanksRing {
+    0% {
+        transform: scale(0.55);
+        opacity: 0;
+    }
+    32% {
+        opacity: 0.85;
+    }
+    100% {
+        transform: scale(1.55);
+        opacity: 0;
+    }
+}
+
+/* ============================================================
    成就庆祝（瞬时态，允许一点情绪，但不破坏克制）
    ============================================================ */
 .celebrate-mask {

@@ -74,9 +74,11 @@ function shareBadge() {
 }
 
 // 每次拉起分享调用一次；返回本次之后的进度，earned 标记是否「刚好达成」
-// 达成时留一个时间戳，首页 onShow 读到就放庆祝（分享面板正盖着，当场看不见）
+// 分享面板当时正盖着页面，所以只留标记，等回到首页再播动效
 function trackShare() {
     if (shareBadge()) {
+        // 已解锁后继续分享，同样给一次致谢
+        wx.setStorageSync('laleme_thanks_flag', Date.now());
         return { count: shareCount(), earned: false, badge: true };
     }
     const next = shareCount() + 1;
@@ -84,8 +86,11 @@ function trackShare() {
     if (next >= SHARE_BADGE_TARGET) {
         wx.setStorageSync(SHARE_BADGE_KEY, 1);
         wx.setStorageSync('laleme_badge_flag', Date.now());
+        // 称号庆祝更隆重，别让致谢跟在后面再来一场
+        wx.removeStorageSync('laleme_thanks_flag');
         return { count: next, earned: true, badge: true };
     }
+    wx.setStorageSync('laleme_thanks_flag', Date.now());
     return { count: next, earned: false, badge: false };
 }
 

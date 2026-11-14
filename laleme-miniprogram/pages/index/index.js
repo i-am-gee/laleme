@@ -46,6 +46,7 @@ Page({
         fabPressed: false,
         sheetShow: false,
         showCelebrate: false,
+        showThanks: false,
         celebrateText: '',
         celebrateTitle: '打卡成功！',
         celebrateGrand: false,
@@ -300,6 +301,15 @@ Page({
             );
             return;
         }
+
+        // 其次：转发之后的致谢，比称号庆祝轻，一闪即走
+        const thanksFlag = wx.getStorageSync('laleme_thanks_flag');
+        if (thanksFlag && Date.now() - Number(thanksFlag) < 60000) {
+            wx.removeStorageSync('laleme_thanks_flag');
+            this.playThanks();
+            return;
+        }
+
         const flag = wx.getStorageSync('laleme_celebrate_flag');
         if (flag && Date.now() - Number(flag) < 10000) {
             wx.removeStorageSync('laleme_celebrate_flag');
@@ -313,8 +323,30 @@ Page({
         }
     },
 
-    playCelebrate(title, text, grand, duration) {
+    // 分享后的肯定反馈：一张轻卡片，2.4 秒后自己走
+    playThanks() {
         const that = this;
+        haptics.tap();
+        if (this._thanksTimer) {
+            clearTimeout(this._thanksTimer);
+            this._thanksTimer = null;
+        }
+        this.setData({ showThanks: true });
+        this._thanksTimer = setTimeout(function () {
+            that.setData({ showThanks: false });
+            that._thanksTimer = null;
+        }, 2400);
+    },
+
+    hideThanks() {
+        if (this._thanksTimer) {
+            clearTimeout(this._thanksTimer);
+            this._thanksTimer = null;
+        }
+        this.setData({ showThanks: false });
+    },
+
+    playCelebrate(title, text, grand, duration) {        const that = this;
         if (this._celebrateTimer) {
             clearTimeout(this._celebrateTimer);
             this._celebrateTimer = null;

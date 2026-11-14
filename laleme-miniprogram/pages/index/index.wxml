@@ -97,6 +97,18 @@
     </view>
 </view>
 
+<!-- 分享致谢：轻量的一闪，比称号庆祝克制 -->
+<view class="thanks-mask" wx:if="{{showThanks}}" bindtap="hideThanks">
+    <view class="thanks-card">
+        <view class="thanks-badge">
+            <view class="thanks-ring"></view>
+            <text class="thanks-poop">💩</text>
+        </view>
+        <view class="thanks-title">感谢你让更多朋友闪闪发光</view>
+        <view class="thanks-sub">这份关心，已经送到了</view>
+    </view>
+</view>
+
 <!-- 成就庆祝动画：打卡成功 / 获得称号 -->
 <view class="celebrate-mask {{celebrateGrand ? 'grand' : ''}}" wx:if="{{showCelebrate}}" bindtap="hideCelebrate">
     <view
