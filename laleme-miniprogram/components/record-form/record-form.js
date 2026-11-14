@@ -143,7 +143,6 @@ Component({
             wx.setStorageSync(DRAFT_KEY, {
                 bristol: this.selBristol,
                 mood: this.selMood,
-                manualMin: this.data.manualMin,
                 savedAt: Date.now(),
             });
         },
@@ -152,8 +151,8 @@ Component({
             wx.removeStorageSync(DRAFT_KEY);
         },
 
-        // 优先用草稿，其次沿用上一条记录
-        restoreSelection(restoreMinutes) {
+        // 优先用草稿，其次沿用上一条记录；时长不参与，每次都由这次计时决定
+        restoreSelection() {
             const that = this;
             const draft = this.readDraft();
             if (draft) {
@@ -163,13 +162,13 @@ Component({
                     bristolOptions: bristolOptions(this.selBristol),
                     bristolHint: this.selBristol ? BRISTOL[this.selBristol - 1].hint : '',
                     moodOptions: moodOptions(this.selMood),
-                    manualMin: restoreMinutes ? draft.manualMin || '' : '',
                 });
                 return;
             }
             store.list().then(function (res) {
                 const list = res.data || [];
-                const last = list.length ? list[list.length - 1] : null;
+                // readRecords 按时间倒序返回，第一条才是最近一次
+                const last = list.length ? list[0] : null;
                 if (!last) {
                     return;
                 }
@@ -200,7 +199,7 @@ Component({
             });
 
             // 草稿优先，其次沿用上一次的性状与感受
-            this.restoreSelection(true);
+            this.restoreSelection();
 
             // 已经有在跑的计时就接着走，不重新起算
             if (timer.running()) {

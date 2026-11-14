@@ -20,7 +20,7 @@
             <view class="fab {{fabPressed ? 'fab-pressed' : ''}}" hover-class="fab-hover" bindtouchstart="onFabTouchStart" bindtap="onFabTap">
                 <text class="fab-emoji" wx:if="{{!ticking}}">💩</text>
                 <text class="fab-time" wx:else>{{timerText}}</text>
-                <text class="fab-label">{{ticking ? '轻触结束' : '记一次'}}</text>
+                <text class="fab-label">{{ticking ? '计时中' : '记一次'}}</text>
                 <view class="fab-ripple" wx:if="{{fabPressed}}"></view>
             </view>
         </view>

@@ -579,6 +579,7 @@ Page({
             that._fabLock = false;
             that.setData({ fabPressed: false, sheetShow: true }, function () {
                 that.openSheetForm();
+                that.syncTiming();
             });
         }, 190);
     },
@@ -589,6 +590,8 @@ Page({
         const that = this;
         this.setData({ sheetShow: true }, function () {
             that.openSheetForm();
+            // 浮层里可能刚起表，按钮要跟着变成计时态
+            that.syncTiming();
         });
     },
 
