@@ -1,25 +1,33 @@
 <view class="cb-wrap">
+    <!-- 还没集齐：三个可点的转发位，第三个是金色便便，点它就是最后一步 -->
+    <block wx:if="{{!badge}}">
+        <view class="cb-slots">
+            <button
+                class="cb-slot {{i < count ? 'on' : ''}} {{i === 2 ? 'gold' : ''}}"
+                wx:for="{{[0, 1, 2]}}"
+                wx:key="*this"
+                wx:for-index="i"
+                open-type="share"
+                hover-class="cb-slot-hover"
+                hover-stay-time="80"
+                bindtouchstart="onTouch"
+            >
+                <text class="cb-slot-icon">💩</text>
+            </button>
+        </view>
+        <view class="cb-caption">转发给你在乎的人</view>
+    </block>
+
+    <!-- 集齐之后：收成一枚金色按钮，不再显示进度 -->
     <button
-        class="cb {{badge ? 'is-badge' : ''}}"
+        wx:else
+        class="cb is-badge"
         hover-class="cb-hover"
         hover-stay-time="80"
         open-type="share"
         bindtouchstart="onTouch"
     >
         <image class="cb-icon" src="/assets/actions/share-white.png" mode="aspectFit" />
-        <text class="cb-text">{{badge ? '大屎官 · 继续分享' : '喊好友挑战'}}</text>
+        <text class="cb-text">转发给你在乎的人</text>
     </button>
-
-    <!-- 进度独立成行：三段细条，比在按钮里塞图标更克制 -->
-    <view class="cb-meta">
-        <view class="cb-track">
-            <view
-                class="cb-seg {{badge || i < count ? 'on' : ''}}"
-                wx:for="{{[0, 1, 2]}}"
-                wx:key="*this"
-                wx:for-index="i"
-            ></view>
-        </view>
-        <text class="cb-hint {{badge ? 'gold' : ''}}">{{badge ? '已解锁 · 金色传说' : '再分享 ' + left + ' 次，解锁「大屎官」'}}</text>
-    </view>
 </view>

@@ -37,7 +37,7 @@ function posterKey(stats) {
 
 function makeTitle(streak, month) {
     if (streak <= 0 && month <= 0) {
-        return '拉了么？来记录你的肠道健康💩';
+        return '今天拉了么？我们一起开始记吧';
     }
     const tpl = SHARE_TITLES[Math.floor(Math.random() * SHARE_TITLES.length)];
     return tpl.replace('{s}', String(streak)).replace('{m}', String(month));

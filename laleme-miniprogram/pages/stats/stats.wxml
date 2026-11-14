@@ -68,7 +68,7 @@
         </view>
 
         <!-- 与首页同一个分享组件，进度与称号共享 -->
-        <view class="cb-slot">
+        <view class="cb-area">
             <challenge-btn id="challengeBtn" />
         </view>
 </view>

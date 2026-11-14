@@ -184,7 +184,7 @@ Page({
         const stats = this._stats || { streak: 0, monthDays: 0 };
         const streak = stats.streak || 0;
         const info = {
-            title: '我在「拉了么」连续打卡 ' + streak + ' 天啦，你也来记录肠道健康！',
+            title: '今天拉了么？我已经连续 ' + streak + ' 天了',
         };
         const path = share.getPosterPath();
         if (path) {

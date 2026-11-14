@@ -90,7 +90,7 @@
     </view>
 
     <!-- 喊好友挑战：日历下方，与统计页共用同一个组件 -->
-    <view class="cb-slot">
+    <view class="cb-area">
         <challenge-btn id="challengeBtn" />
     </view>
 </view>
