@@ -148,7 +148,6 @@ Component({
                     bristolOptions: bristolOptions(that.selBristol),
                     bristolHint: that.selBristol ? BRISTOL[that.selBristol - 1].hint : '',
                     moodOptions: moodOptions(that.selMood),
-                    manualMin: String(last.durationMin || ''),
                 });
             });
 
@@ -158,6 +157,39 @@ Component({
             } else {
                 this.startTimer();
             }
+        },
+
+        // 结束计时后打开：时长已定，只补性状与感受
+        openFinish(minutes) {
+            const that = this;
+            const now = Date.now();
+            this.selBristol = null;
+            this.selMood = null;
+            this.stopTimer();
+            this.setData({
+                isEdit: false,
+                manualMin: String(minutes),
+                dateValue: dateValueOf(now),
+                timeValue: timeValueOf(now),
+                bristolOptions: bristolOptions(null),
+                bristolHint: '',
+                moodOptions: moodOptions(null),
+                timerText: '00:00',
+            });
+            store.list().then(function (res) {
+                const list = res.data || [];
+                const last = list.length ? list[list.length - 1] : null;
+                if (!last) {
+                    return;
+                }
+                that.selBristol = last.bristol === undefined ? null : last.bristol;
+                that.selMood = last.mood === undefined ? null : last.mood;
+                that.setData({
+                    bristolOptions: bristolOptions(that.selBristol),
+                    bristolHint: that.selBristol ? BRISTOL[that.selBristol - 1].hint : '',
+                    moodOptions: moodOptions(that.selMood),
+                });
+            });
         },
 
         close() {

@@ -18,8 +18,7 @@
         <view class="fab-wrap">
             <view class="fab-halo"></view>
             <view class="fab {{fabPressed ? 'fab-pressed' : ''}}" hover-class="fab-hover" bindtouchstart="onFabTouchStart" bindtap="onFabTap">
-                <text class="fab-emoji" wx:if="{{!ticking}}">💩</text>
-                <text class="fab-time" wx:else>{{timerText}}</text>
+                <text class="fab-emoji">💩</text>
                 <text class="fab-label">{{ticking ? '轻触结束' : '记一次'}}</text>
                 <view class="fab-ripple" wx:if="{{fabPressed}}"></view>
             </view>
@@ -94,6 +93,29 @@
             <text class="last-seg">{{lastTime}}</text>
             <text class="last-seg" wx:if="{{lastDur}}">{{lastDur}}</text>
             <text class="last-seg" wx:if="{{lastShape}}">{{lastShape}}</text>
+        </view>
+    </view>
+</view>
+
+<!-- 被分享者的第一屏：一屏烟花 + 一句关心，然后请他记下第一次 -->
+<view class="welcome-mask" wx:if="{{showWelcome}}" bindtap="closeWelcome">
+    <view
+        class="confetti-piece {{item.round ? 'round' : ''}}"
+        wx:for="{{welcomeConfetti}}"
+        wx:key="index"
+        style="left: {{item.left}}%; width: {{item.size}}rpx; height: {{item.round ? item.size : item.size * 2}}rpx; background: {{item.color}}; animation-delay: {{item.delay}}s; animation-duration: {{item.duration}}s;"
+    ></view>
+    <view class="fw fw1"></view>
+    <view class="fw fw2"></view>
+    <view class="fw fw3"></view>
+
+    <view class="welcome-body" catchtap="noop">
+        <text class="welcome-poop">💩</text>
+        <view class="welcome-title">有人在关心你</view>
+        <view class="welcome-sub">这份小记录，是一位朋友刚刚分享来的</view>
+        <view class="welcome-actions">
+            <button class="welcome-primary" hover-class="welcome-primary-hover" catchtap="startFromWelcome">记下第一次</button>
+            <button class="welcome-ghost" open-type="share" hover-class="none">把这份关心传下去</button>
         </view>
     </view>
 </view>
@@ -175,6 +197,9 @@
         <record-form id="recordForm" bind:saved="onSheetSaved" bind:deleted="onSheetSaved" />
     </view>
 </page-container>
+
+<!-- 计时浮条：首页也有一份，可上拉回到记录 -->
+<timer-bar />
 
 <!-- 分享海报绘制画布（不可见） -->
 <canvas type="2d" id="shareCanvas" class="share-canvas"></canvas>

@@ -66,6 +66,13 @@ Component({
         // 回到首页并让抽屉自己弹出来
         onTap() {
             haptics.tap();
+            const pages = getCurrentPages();
+            const cur = pages[pages.length - 1];
+            // 已经站在首页，直接开抽屉，省一次 switchTab
+            if (cur && cur.route === 'pages/index/index' && typeof cur.openTimerSheet === 'function') {
+                cur.openTimerSheet();
+                return;
+            }
             const app = getApp();
             if (app && app.globalData) {
                 app.globalData.openTimer = true;

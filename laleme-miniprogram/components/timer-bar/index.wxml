@@ -1,6 +1,8 @@
 <view class="tb" wx:if="{{show}}" hover-class="tb-hover" hover-stay-time="60" bindtap="onTap">
-    <view class="tb-pulse"></view>
-    <text class="tb-time">{{text}}</text>
-    <text class="tb-label">计时中</text>
-    <view class="tb-arrow"></view>
+    <view class="tb-grabber"></view>
+    <view class="tb-row">
+        <view class="tb-pulse"></view>
+        <text class="tb-time">{{text}}</text>
+    </view>
+    <text class="tb-label">计时中 · 上拉继续记录</text>
 </view>

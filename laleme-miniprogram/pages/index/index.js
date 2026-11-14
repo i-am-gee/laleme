@@ -67,6 +67,8 @@ Page({
         showCelebrate: false,
         showThanks: false,
         ticking: false,
+        showWelcome: false,
+        welcomeConfetti: [],
         timerText: '00:00',
         thanksConfetti: [],
         celebrateText: '',
@@ -85,8 +87,19 @@ Page({
     },
 
     onLoad(options) {
-        wx.setStorageSync('laleme_thanks_flag', Date.now());
         this.setData({ navTop: getNavTop() });
+        // 从别人的分享点进来：先给一屏烟花，再请他记下第一次
+        if (options && options.welcome === '1') {
+            const that0 = this;
+            this.setData({
+                showWelcome: true,
+                welcomeConfetti: buildThanksConfetti(),
+            });
+            // tabBar 是独立节点，等它挂载后再压暗
+            setTimeout(function () {
+                that0.setTabBarDim(true);
+            }, 120);
+        }
         if (options && options.challenge === '1') {
             this.setData({
                 challenge: {
@@ -121,10 +134,7 @@ Page({
         // 从其他页的计时浮条跳回来，直接把抽屉弹出来
         if (app && app.globalData && app.globalData.openTimer) {
             app.globalData.openTimer = false;
-            const that = this;
-            this.setData({ sheetShow: true }, function () {
-                that.openSheetForm();
-            });
+            this.openTimerSheet();
         }
     },
 
@@ -550,32 +560,35 @@ Page({
         }
     },
 
-    // 按钮上再按一下：结束本次计时，按上次的性状与感受收下
+    // 按钮上再按一下：停表，带着已定的时长打开浮层去补性状与感受
     finishTiming() {
-        const that = this;
         const min = timer.elapsedMin();
         timer.stop();
         this.stopTick();
-        this.setData({ ticking: false, timerText: '00:00' });
         haptics.tap();
-        store.list().then(function (res) {
-            const list = res.data || [];
-            const last = list.length ? list[list.length - 1] : null;
-            return store.create({
-                timestamp: Date.now(),
-                durationMin: min,
-                bristol: last ? last.bristol : null,
-                mood: last ? last.mood : null,
-            });
-        }).then(function (res) {
-            if (res && res.error) {
-                wx.showToast({ title: '没有存下来，稍后再试', icon: 'none' });
-                return;
+        this.setData({ ticking: false, timerText: '00:00', sheetShow: true }, () => {
+            const form = this.selectComponent('#recordForm');
+            if (form) {
+                form.openFinish(min);
             }
-            wx.setStorageSync('laleme_celebrate_flag', Date.now());
-            that.refresh();
-            that.maybeCelebrate();
         });
+    },
+
+    noop() {},
+
+    closeWelcome() {
+        this.setData({ showWelcome: false });
+        this.setTabBarDim(false);
+    },
+
+    // 关掉欢迎层，直接进入记录
+    startFromWelcome() {
+        if (!this.data.showWelcome) {
+            return;
+        }
+        this.setData({ showWelcome: false });
+        this.setTabBarDim(false);
+        this.onFabTap();
     },
 
     onFabTouchStart() {
@@ -612,6 +625,14 @@ Page({
     },
 
     // 抽屉里的表单可能晚一帧才渲染，取不到就再试一次
+    // 从计时浮条回到记录：开抽屉并接着计时
+    openTimerSheet() {
+        const that = this;
+        this.setData({ sheetShow: true }, function () {
+            that.openSheetForm();
+        });
+    },
+
     openSheetForm() {
         const form = this.selectComponent('#recordForm');
         if (form) {

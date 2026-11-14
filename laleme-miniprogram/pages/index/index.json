@@ -3,6 +3,7 @@
   "usingComponents": {
     "record-form": "/components/record-form/record-form",
     "roll-number": "/components/roll-number/roll-number",
-    "challenge-btn": "/components/challenge-btn/index"
+    "challenge-btn": "/components/challenge-btn/index",
+    "timer-bar": "/components/timer-bar/index"
   }
 }
