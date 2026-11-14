@@ -2,6 +2,7 @@ const { fmtDT, fmtDur, bristolLabel, dayStr, todayStr, CHEERS } = require('../..
 const { createRecordStore } = require('../../utils/record-store.js');
 const haptics = require('../../utils/haptics.js');
 const share = require('../../utils/share.js');
+const { getNavTop } = require('../../utils/nav.js');
 
 const store = createRecordStore();
 
@@ -46,9 +47,11 @@ Page({
         showPrivacy: false,
         privacySummary: PRIVACY_SUMMARY,
         privacyContractName: '《小程序隐私保护指引》',
+        navTop: 72,
     },
 
     onLoad(options) {
+        this.setData({ navTop: getNavTop() });
         if (options && options.challenge === '1') {
             this.setData({
                 challenge: {
@@ -114,10 +117,15 @@ Page({
             const monthCount = records.filter(function (r) { return r.timestamp >= monthAgo; }).length;
             const stats = share.makeStats(records);
             that._stats = stats;
+            const now = new Date();
+            const WD = ['日', '一', '二', '三', '四', '五', '六'];
+            const dateText = (now.getMonth() + 1) + ' 月 ' + now.getDate() + ' 日 · 星期' + WD[now.getDay()];
             that.setData({
                 lastText: lastText,
                 streakText: stats.streak > 0 ? stats.streak + ' 天' : '未开始',
                 monthCountText: monthCount + ' 次',
+                dateText: dateText,
+                todayCount: today.length,
                 calendar: stats.calendar,
             }, function () {
                 share.ensurePoster(that, that._stats);

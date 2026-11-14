@@ -2,6 +2,7 @@ const { dayStr, streakDays } = require('../../utils/constants.js');
 const { createRecordStore } = require('../../utils/record-store.js');
 const haptics = require('../../utils/haptics.js');
 const share = require('../../utils/share.js');
+const { getNavTop } = require('../../utils/nav.js');
 
 const store = createRecordStore();
 
@@ -10,6 +11,11 @@ Page({
         countText: '0 条',
         firstText: '-',
         streakText: '未开始',
+        navTop: 72,
+    },
+
+    onLoad() {
+        this.setData({ navTop: getNavTop() });
     },
 
     onShow() {

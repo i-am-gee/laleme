@@ -1,11 +1,279 @@
+/* ============================================================
+   拉了么 · 设计系统（参照 iOS / Apple Design Language）
+   换算基准：1pt = 2rpx（750 设计稿 / 375pt）
+   原则：
+     1. 层级用「面」不用「线」——systemGroupedBackground → 白卡 → 填充块
+     2. 字号锁死 Dynamic Type 11 档，不自创档位
+     3. 颜色只用语义令牌，不写十六进制
+     4. 圆角三档，间距走 8 栅格
+     5. 无常驻装饰动画，只用 spring 按压
+   ============================================================ */
+
 page {
+    /* ---- 色彩：iOS 语义层（暖中性化，保留品牌温度） ---- */
+    --bg: #f2f1ee;                      /* systemGroupedBackground */
+    --bg-card: #ffffff;                 /* secondarySystemGroupedBackground */
+    --bg-sunken: #e9e7e2;               /* 更下层的凹槽 */
+    --fill-1: rgba(120, 104, 88, 0.07); /* tertiarySystemFill 浅填充块 */
+    --fill-2: rgba(120, 104, 88, 0.13); /* secondarySystemFill 中填充 */
+    --fill-3: rgba(120, 104, 88, 0.20); /* quaternarySystemFill 按下态 */
+
+    --label: #1c1c1e;                              /* label */
+    --label-2: rgba(60, 58, 55, 0.60);             /* secondaryLabel */
+    --label-3: rgba(60, 58, 55, 0.32);             /* tertiaryLabel */
+    --label-4: rgba(60, 58, 55, 0.16);             /* quaternaryLabel */
+    --sep: rgba(60, 58, 55, 0.12);                 /* separator */
+
+    --tint: #8b5e3c;                    /* tintColor：品牌棕 */
+    --tint-strong: #6f4b30;
+    --tint-soft: rgba(139, 94, 60, 0.10);
+    --tint-fill: rgba(139, 94, 60, 0.16);
+
+    --red: #ff3b30;                     /* systemRed */
+    --green: #34c759;                   /* systemGreen */
+    --orange: #ff9500;                  /* systemOrange */
+
+    /* ---- 字体：Dynamic Type × 2 ---- */
+    --t-large: 68rpx;      /* largeTitle  34pt */
+    --t-title1: 56rpx;     /* title1      28pt */
+    --t-title2: 44rpx;     /* title2      22pt */
+    --t-title3: 40rpx;     /* title3      20pt */
+    --t-headline: 34rpx;   /* headline    17pt semibold */
+    --t-body: 34rpx;       /* body        17pt */
+    --t-callout: 32rpx;    /* callout     16pt */
+    --t-subhead: 30rpx;    /* subheadline 15pt */
+    --t-footnote: 26rpx;   /* footnote    13pt */
+    --t-caption: 24rpx;    /* caption1    12pt */
+    --t-caption2: 22rpx;   /* caption2    11pt */
+
+    /* ---- 圆角：三档 ---- */
+    --r-sm: 16rpx;         /*  8pt 小元素 */
+    --r-md: 24rpx;         /* 12pt 列表单元 */
+    --r-lg: 32rpx;         /* 16pt 卡片 */
+    --r-full: 999rpx;
+
+    /* ---- 间距：8 栅格 ---- */
+    --sp-1: 8rpx;
+    --sp-2: 16rpx;
+    --sp-3: 24rpx;
+    --sp-4: 32rpx;
+    --sp-5: 48rpx;
+    --sp-6: 64rpx;
+
+    /* ---- 动效：iOS 曲线 ---- */
+    --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
     min-height: 100%;
-    background: #f7f4ef;
-    color: #2c2c2a;
+    background: var(--bg);
+    color: var(--label);
     font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
-    font-size: 28rpx;
+    font-size: var(--t-body);
+    -webkit-font-smoothing: antialiased;
 }
 
+/* 全局去掉 button 的原生外观，交给各处自行定义 */
 button {
-    border-radius: 24rpx;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    font-size: inherit;
+    line-height: normal;
+    border-radius: var(--r-md);
+}
+
+button::after {
+    border: none;
+}
+
+/* ============================================================
+   共用版式
+   ============================================================ */
+
+/* 页面容器：inset grouped 的左右留白 */
+.page {
+    padding: var(--sp-2) var(--sp-4) calc(env(safe-area-inset-bottom) + 140rpx);
+}
+
+/* ---- 大标题区（Large Title） ---- */
+.nav-bar {
+    display: block;
+}
+
+.nav-title {
+    font-size: var(--t-large);
+    font-weight: 700;
+    letter-spacing: -0.5rpx;
+    line-height: 1.18;
+    color: var(--label);
+    padding: 0;
+}
+
+.nav-sub {
+    font-size: var(--t-subhead);
+    color: var(--label-2);
+    padding: 6rpx 0 0;
+    line-height: 1.45;
+}
+
+/* 分组标题（Grouped Header），全大写小字，iOS 特有 */
+.group-header {
+    font-size: var(--t-footnote);
+    color: var(--label-2);
+    padding: var(--sp-4) var(--sp-4) var(--sp-1);
+    letter-spacing: 0.5rpx;
+}
+
+.group-footer {
+    font-size: var(--t-footnote);
+    color: var(--label-2);
+    padding: var(--sp-2) var(--sp-4) 0;
+    line-height: 1.5;
+}
+
+/* ---- 卡片（inset grouped）：无描边，纯靠面色分层 ---- */
+.card {
+    background: var(--bg-card);
+    border-radius: var(--r-lg);
+}
+
+.card-pad {
+    padding: var(--sp-4);
+}
+
+/* ---- 列表行（iOS Table Row）：88rpx 高，内缩分隔线 ---- */
+.list {
+    background: var(--bg-card);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+}
+
+.list-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    min-height: 88rpx;
+    padding: var(--sp-2) var(--sp-4);
+    box-sizing: border-box;
+    position: relative;
+    transition: background-color 0.12s ease;
+}
+
+/* 分隔线内缩 32rpx，从文字起始处开始 —— iOS 的标志性细节 */
+.list-row + .list-row::before {
+    content: "";
+    position: absolute;
+    left: var(--sp-4);
+    right: 0;
+    top: 0;
+    height: 0.5rpx;
+    background: var(--sep);
+    transform: scaleY(0.5);
+}
+
+.list-row-press {
+    background: var(--fill-1);
+}
+
+.list-label {
+    flex: 1;
+    font-size: var(--t-body);
+    color: var(--label);
+    line-height: 1.4;
+}
+
+.list-value {
+    font-size: var(--t-body);
+    color: var(--label-2);
+    text-align: right;
+}
+
+/* iOS 右侧箭头 */
+.chevron {
+    width: 14rpx;
+    height: 14rpx;
+    border-right: 3rpx solid var(--label-3);
+    border-bottom: 3rpx solid var(--label-3);
+    transform: rotate(-45deg);
+    flex-shrink: 0;
+    margin-left: 2rpx;
+}
+
+/* ---- 按钮 ---- */
+/* 主按钮：实心胶囊，iOS 不用渐变 */
+.btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100rpx;
+    border-radius: var(--r-full);
+    background: var(--tint);
+    color: #ffffff;
+    font-size: var(--t-body);
+    font-weight: 600;
+    letter-spacing: 0.5rpx;
+    transition: transform 0.18s var(--ease-spring), opacity 0.12s ease;
+}
+
+.btn-primary-press {
+    transform: scale(0.97);
+    opacity: 0.86;
+}
+
+/* 次级按钮：淡填充胶囊，这是 iOS 最常见的次要操作样式 */
+.btn-secondary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 96rpx;
+    border-radius: var(--r-full);
+    background: var(--tint-soft);
+    color: var(--tint);
+    font-size: var(--t-body);
+    font-weight: 500;
+}
+
+.btn-secondary-press {
+    background: var(--tint-fill);
+    transform: scale(0.98);
+}
+
+/* 纯文字按钮（tint 色） */
+.btn-text {
+    font-size: var(--t-body);
+    color: var(--tint);
+    padding: var(--sp-2) 0;
+}
+
+/* ---- 分段控件（Segmented Control） ---- */
+.segmented {
+    display: flex;
+    gap: 4rpx;
+    background: var(--fill-1);
+    border-radius: var(--r-sm);
+    padding: 4rpx;
+}
+
+.segmented-item {
+    flex: 1;
+    height: 60rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12rpx;
+    font-size: var(--t-footnote);
+    color: var(--label);
+    transition: background-color 0.2s var(--ease-sheet), box-shadow 0.2s ease;
+}
+
+.segmented-item.on {
+    background: var(--bg-card);
+    font-weight: 600;
+    box-shadow: 0 1rpx 4rpx rgba(60, 50, 40, 0.10);
+}
+
+/* ---- 数字：等宽，让数字不跳动 ---- */
+.num {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
 }

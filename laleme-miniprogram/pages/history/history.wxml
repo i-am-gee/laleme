@@ -1,4 +1,9 @@
 <view class="page">
+    <!-- iOS Large Title -->
+    <view class="nav-bar" style="padding-top: {{navTop}}px;">
+        <view class="nav-title">历史</view>
+    </view>
+
     <!-- 左滑引导：图形化（动画双箭头），不用文字 -->
     <view class="hint {{hintDim ? 'dim' : ''}}">
         <image class="hint-icon" src="/assets/actions/swipe.png" mode="aspectFit" />

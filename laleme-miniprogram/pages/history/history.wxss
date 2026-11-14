@@ -1,5 +1,9 @@
+/* ============================================================
+   历史 · iOS 体例
+   ============================================================ */
+
 .page {
-    padding: 20rpx 32rpx calc(env(safe-area-inset-bottom) + 130rpx);
+    padding: 0 var(--sp-4) calc(env(safe-area-inset-bottom) + 130rpx);
 }
 
 /* 左滑引导：只有图形，箭头循环向左滑出提示手势 */
@@ -7,82 +11,96 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 10rpx 0 14rpx;
-    margin-bottom: 4rpx;
-    transition: opacity 0.3s;
+    padding: var(--sp-2) 0 var(--sp-3);
+    transition: opacity 0.3s ease;
 }
 
 .hint-icon {
     width: 96rpx;
     height: 52rpx;
-    animation: swipeHint 1.8s ease-in-out infinite;
+    animation: swipeHint 2.4s var(--ease-sheet) infinite;
 }
 
 @keyframes swipeHint {
-    0%, 100% { transform: translateX(6rpx); opacity: 0.45; }
-    45% { transform: translateX(-10rpx); opacity: 0.95; }
-    70% { transform: translateX(6rpx); opacity: 0.45; }
+    0%, 100% {
+        transform: translateX(6rpx);
+        opacity: 0.35;
+    }
+    45% {
+        transform: translateX(-10rpx);
+        opacity: 0.9;
+    }
+    70% {
+        transform: translateX(6rpx);
+        opacity: 0.35;
+    }
 }
 
 .hint.dim {
-    opacity: 0.5;
+    opacity: 0.45;
 }
-
-.hint-icon {
-    font-size: 24rpx;
-    color: #b07a4a;
-}
-
-
 
 .empty {
     text-align: center;
-    color: #888780;
-    font-size: 27rpx;
-    padding: 120rpx 40rpx;
+    color: var(--label-3);
+    font-size: var(--t-subhead);
+    padding: 140rpx var(--sp-5);
+    line-height: 1.7;
 }
 
+/* ---------- 日期分组标题 ---------- */
 .h-date {
     display: flex;
     align-items: baseline;
-    gap: 10rpx;
-    margin: 26rpx 0 12rpx;
-    padding: 2rpx 6rpx;
+    gap: var(--sp-2);
+    margin: var(--sp-4) var(--sp-1) var(--sp-2);
+    padding: 2rpx var(--sp-1);
     border-radius: 12rpx;
 }
 
 .h-date-t {
-    color: #888780;
-    font-size: 24rpx;
+    color: var(--label-2);
+    font-size: var(--t-footnote);
     font-weight: 600;
+    letter-spacing: 0.3rpx;
 }
 
 .h-date-c {
-    color: #b0a394;
-    font-size: 21rpx;
+    color: var(--label-3);
+    font-size: var(--t-caption);
+    font-variant-numeric: tabular-nums;
 }
 
 /* 从首页日历锚定过来的当天高亮 */
 .h-date.hl {
-    background: #faeeda;
-    animation: dateFlash 1.4s ease-out 2;
+    background: var(--tint-soft);
+    animation: dateFlash 1.4s var(--ease-sheet) 2;
 }
 
 .h-date.hl .h-date-t {
-    color: #8b5e3c;
+    color: var(--tint);
+}
+
+.h-date.hl .h-date-c {
+    color: var(--tint);
+    opacity: 0.7;
 }
 
 @keyframes dateFlash {
-    0% { background: #f7e0bd; }
-    100% { background: #faeeda; }
+    0% {
+        background: var(--tint-fill);
+    }
+    100% {
+        background: var(--tint-soft);
+    }
 }
 
-/* 左滑容器 */
+/* ---------- 左滑容器 ---------- */
 .h-swipe {
     position: relative;
     overflow: hidden;
-    border-radius: 24rpx;
-    margin-bottom: 14rpx;
+    border-radius: var(--r-md);
+    margin-bottom: var(--sp-2);
     background: transparent;
 }
 
@@ -107,21 +125,23 @@
     height: 42rpx;
 }
 
+/* iOS 侧滑动作：中性灰 + 系统红，图标一律白 */
 .act-edit {
-    background: #a9764f;
+    background: #8e8e93;
 }
 
 .act-del {
-    background: #d9534f;
+    background: var(--red);
 }
 
+/* ---------- 记录卡片 ---------- */
 .h-item {
     position: relative;
-    background: #ffffff;
-    border: 0.5rpx solid rgba(44, 44, 42, 0.12);
-    border-radius: 24rpx;
-    padding: 22rpx 28rpx;
-    transition: transform 0.22s cubic-bezier(0.22, 0.61, 0.36, 1);
+    background: var(--bg-card);
+    border: none;
+    border-radius: var(--r-md);
+    padding: var(--sp-3) var(--sp-4);
+    transition: transform 0.26s var(--ease-sheet);
     will-change: transform;
 }
 
@@ -129,21 +149,26 @@
     display: flex;
     justify-content: space-between;
     align-items: baseline;
+    gap: var(--sp-2);
 }
 
 .h-time {
-    font-size: 30rpx;
+    font-size: var(--t-body);
     font-weight: 600;
+    color: var(--label);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.2rpx;
 }
 
 .h-arrow {
-    font-size: 26rpx;
-    color: #c4bcb0;
+    font-size: var(--t-subhead);
+    color: var(--label-4);
     letter-spacing: 2rpx;
 }
 
 .h-detail {
-    font-size: 26rpx;
-    color: #888780;
-    margin-top: 8rpx;
+    font-size: var(--t-footnote);
+    color: var(--label-2);
+    margin-top: 6rpx;
+    line-height: 1.45;
 }

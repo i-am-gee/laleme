@@ -2,6 +2,7 @@ const { BRISTOL, BADGES, streakDays, dayStr } = require('../../utils/constants.j
 const { createRecordStore } = require('../../utils/record-store.js');
 const haptics = require('../../utils/haptics.js');
 const share = require('../../utils/share.js');
+const { getNavTop } = require('../../utils/nav.js');
 
 const store = createRecordStore();
 
@@ -38,6 +39,11 @@ Page({
         }),
         gotCount: 0,
         hasDist: false,
+        navTop: 72,
+    },
+
+    onLoad() {
+        this.setData({ navTop: getNavTop() });
     },
 
     onShow() {

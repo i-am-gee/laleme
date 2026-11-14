@@ -1,66 +1,75 @@
+/* ============================================================
+   统计 · iOS 体例
+   ============================================================ */
+
 .page {
-    padding: 20rpx 32rpx calc(env(safe-area-inset-bottom) + 130rpx);
+    padding: 0 var(--sp-4) calc(env(safe-area-inset-bottom) + 130rpx);
 }
 
+/* ---------- 分段控件 ---------- */
 .seg {
     display: flex;
-    background: #ffffff;
-    border: 0.5rpx solid rgba(44, 44, 42, 0.12);
-    border-radius: 20rpx;
-    overflow: hidden;
-    margin-bottom: 22rpx;
+    gap: 4rpx;
+    background: var(--fill-1);
+    border-radius: var(--r-sm);
+    padding: 4rpx;
+    margin: var(--sp-3) 0 var(--sp-3);
 }
 
 .seg-item {
     flex: 1;
-    text-align: center;
-    padding: 18rpx 0;
-    font-size: 27rpx;
-    color: #888780;
-    transition: background 0.18s, color 0.18s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 64rpx;
+    border-radius: 12rpx;
+    font-size: var(--t-footnote);
+    color: var(--label);
+    transition: background-color 0.2s var(--ease-sheet), box-shadow 0.2s ease;
 }
 
 .seg-item.active {
-    background: #8b5e3c;
-    color: #ffffff;
+    background: var(--bg-card);
+    color: var(--label);
     font-weight: 600;
+    box-shadow: 0 1rpx 4rpx rgba(60, 50, 40, 0.10);
 }
 
-/* 自定义时间范围 */
+/* ---------- 自定义时间范围 ---------- */
 .range-bar {
     display: flex;
     align-items: center;
-    gap: 12rpx;
-    background: #ffffff;
-    border: 0.5rpx solid rgba(44, 44, 42, 0.12);
-    border-radius: 20rpx;
-    padding: 15rpx 20rpx;
-    margin-bottom: 22rpx;
+    gap: var(--sp-2);
+    background: var(--bg-card);
+    border-radius: var(--r-lg);
+    padding: var(--sp-2) var(--sp-3);
+    margin-bottom: var(--sp-3);
 }
 
 .range-pick {
-    font-size: 26rpx;
-    color: #5c4a38;
-    background: #f7f4ef;
-    border-radius: 14rpx;
-    padding: 8rpx 16rpx;
+    font-size: var(--t-footnote);
+    color: var(--label);
+    background: var(--fill-1);
+    border-radius: 12rpx;
+    padding: 10rpx var(--sp-2);
+    font-variant-numeric: tabular-nums;
 }
 
 .range-arrow {
-    font-size: 22rpx;
-    color: #9b8f7d;
+    font-size: var(--t-caption2);
+    color: var(--label-3);
     margin-left: 4rpx;
 }
 
 .range-dash {
-    font-size: 26rpx;
-    color: #888780;
+    font-size: var(--t-footnote);
+    color: var(--label-3);
     flex-shrink: 0;
 }
 
 .range-label {
-    font-size: 23rpx;
-    color: #9b8f7d;
+    font-size: var(--t-caption);
+    color: var(--label-3);
     margin-left: auto;
 }
 
@@ -73,20 +82,24 @@
     height: 400px;
 }
 
+/* ---------- 三栏指标：一张卡，竖向分隔 ---------- */
 .metrics {
     display: flex;
-    gap: 16rpx;
-    margin-bottom: 22rpx;
+    align-items: stretch;
+    background: var(--bg-card);
+    border-radius: var(--r-lg);
+    padding: var(--sp-3) 0;
+    margin-bottom: var(--sp-2);
 }
 
 .metric {
     flex: 1;
-    background: #ffffff;
-    border: 0.5rpx solid rgba(44, 44, 42, 0.12);
-    border-radius: 24rpx;
-    padding: 24rpx 8rpx;
     text-align: center;
-    animation: metricIn 0.32s ease-out both;
+    animation: metricIn 0.34s var(--ease-sheet) both;
+}
+
+.metric + .metric {
+    border-left: 0.5rpx solid var(--sep);
 }
 
 .metric:nth-child(2) {
@@ -98,47 +111,57 @@
 }
 
 @keyframes metricIn {
-    0% { opacity: 0; transform: translateY(12rpx); }
-    100% { opacity: 1; transform: translateY(0); }
+    0% {
+        opacity: 0;
+        transform: translateY(10rpx);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .metric .num {
-    font-size: 40rpx;
-    font-weight: 700;
-    color: #8b5e3c;
+    font-size: var(--t-title2);
+    font-weight: 600;
+    color: var(--label);
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
 }
 
 .metric .lbl {
-    font-size: 23rpx;
-    color: #888780;
+    font-size: var(--t-footnote);
+    color: var(--label-2);
     margin-top: 4rpx;
 }
 
+/* ---------- 卡片 ---------- */
 .card {
-    background: #ffffff;
-    border: 0.5rpx solid rgba(44, 44, 42, 0.12);
-    border-radius: 28rpx;
-    padding: 30rpx;
+    background: var(--bg-card);
+    border-radius: var(--r-lg);
+    padding: var(--sp-4);
 }
 
 .card-title {
-    font-size: 29rpx;
+    font-size: var(--t-headline);
     font-weight: 600;
-    margin-bottom: 22rpx;
+    margin-bottom: var(--sp-3);
+    color: var(--label);
 }
 
 .empty-small {
-    color: #888780;
-    font-size: 26rpx;
+    color: var(--label-3);
+    font-size: var(--t-footnote);
     text-align: center;
-    padding: 20rpx 0;
+    padding: var(--sp-3) 0;
 }
 
+/* ---------- 分布条 ---------- */
 .bar-row {
     display: flex;
     align-items: center;
-    gap: 16rpx;
-    margin-bottom: 16rpx;
+    gap: var(--sp-2);
+    margin-bottom: var(--sp-2);
 }
 
 .bar-row:last-child {
@@ -146,84 +169,100 @@
 }
 
 .bar-label {
-    width: 128rpx;
-    font-size: 24rpx;
+    width: 132rpx;
+    font-size: var(--t-caption);
+    color: var(--label-2);
     flex-shrink: 0;
 }
 
 .bar-track {
     flex: 1;
-    height: 22rpx;
-    background: #f1efe8;
-    border-radius: 11rpx;
+    height: 20rpx;
+    background: var(--fill-1);
+    border-radius: var(--r-full);
     overflow: hidden;
 }
 
 .bar-fill {
     height: 100%;
-    border-radius: 11rpx;
-    background: #8b5e3c;
-    animation: barGrow 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    border-radius: var(--r-full);
+    background: var(--tint);
+    animation: barGrow 0.5s cubic-bezier(0.32, 0.72, 0, 1) both;
 }
 
 @keyframes barGrow {
-    0% { transform: scaleX(0); transform-origin: left center; }
-    100% { transform: scaleX(1); transform-origin: left center; }
+    0% {
+        transform: scaleX(0);
+        transform-origin: left center;
+    }
+    100% {
+        transform: scaleX(1);
+        transform-origin: left center;
+    }
 }
 
 .bar-fill.level-bad {
-    background: #e24b4a;
+    background: var(--red);
 }
 
 .bar-fill.level-warn {
-    background: #ba7517;
+    background: var(--orange);
 }
 
 .bar-pct {
     width: 76rpx;
-    font-size: 24rpx;
+    font-size: var(--t-caption);
     text-align: right;
-    color: #888780;
+    color: var(--label-2);
+    font-variant-numeric: tabular-nums;
 }
 
+/* ---------- 区块标题 ---------- */
 .section-row {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin: 30rpx 0 16rpx;
+    margin: var(--sp-5) var(--sp-1) var(--sp-2);
 }
 
 .section-title {
-    font-size: 29rpx;
+    font-size: var(--t-title3);
     font-weight: 600;
+    color: var(--label);
+    letter-spacing: -0.2rpx;
 }
 
 .section-meta {
-    font-size: 22rpx;
-    color: #a3978a;
+    font-size: var(--t-footnote);
+    color: var(--label-2);
+    font-variant-numeric: tabular-nums;
 }
 
+/* ---------- 成就墙：未点亮凹槽，点亮浮起 ---------- */
 .ach-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 16rpx;
+    gap: var(--sp-2);
 }
 
 .ach {
     width: calc(50% - 8rpx);
     box-sizing: border-box;
-    background: #ffffff;
-    border: 0.5rpx solid rgba(44, 44, 42, 0.12);
-    border-radius: 24rpx;
-    padding: 22rpx 16rpx 20rpx;
+    background: var(--fill-1);
+    border: none;
+    border-radius: var(--r-md);
+    padding: var(--sp-3) var(--sp-2);
     text-align: center;
-    transition: transform 0.12s ease;
+    transition: transform 0.2s var(--ease-spring), background-color 0.2s ease;
+}
+
+.ach:active {
+    transform: scale(0.97);
 }
 
 .ach.got {
-    background: #fdf7ef;
-    border-color: rgba(139, 94, 60, 0.32);
-    box-shadow: 0 8rpx 22rpx rgba(139, 94, 60, 0.12);
+    background: var(--bg-card);
+    box-shadow: 0 4rpx 16rpx rgba(80, 50, 20, 0.08);
 }
 
 .ach-icon {
@@ -234,37 +273,48 @@
 }
 
 .a-name {
-    font-size: 26rpx;
+    font-size: var(--t-footnote);
     font-weight: 600;
-    color: #2c2c2a;
+    color: var(--label-2);
 }
 
 .ach.got .a-name {
-    color: #8b5e3c;
+    color: var(--label);
 }
 
 .a-desc {
-    font-size: 21rpx;
-    color: #a3978a;
-    margin-top: 4rpx;
+    font-size: var(--t-caption2);
+    color: var(--label-3);
+    margin-top: 2rpx;
+    line-height: 1.4;
 }
 
+/* ---------- 分享按钮 ---------- */
 .share-btn {
-    background: linear-gradient(135deg, #a97750 0%, #8b5e3c 55%, #6f4b30 100%);
-    color: #ffffff;
-    font-size: 33rpx;
-    font-weight: 700;
-    letter-spacing: 2rpx;
-    height: 100rpx;
-    line-height: 100rpx;
-    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100% !important;
+    height: 100rpx;
+    margin-top: var(--sp-5);
+    padding: 0;
+    border: none;
+    border-radius: var(--r-full);
+    background: var(--tint);
+    color: #ffffff;
+    font-size: var(--t-body);
+    font-weight: 600;
+    letter-spacing: 0.5rpx;
     box-sizing: border-box;
-    border-radius: 50rpx;
-    margin-top: 30rpx;
-    box-shadow: 0 12rpx 28rpx rgba(139, 94, 60, 0.3);
+    box-shadow: 0 10rpx 28rpx rgba(139, 94, 60, 0.22);
+    transition: transform 0.2s var(--ease-spring), opacity 0.12s ease;
 }
 
 .share-btn::after {
     border: none;
+}
+
+.share-hover {
+    transform: scale(0.97);
+    opacity: 0.9;
 }

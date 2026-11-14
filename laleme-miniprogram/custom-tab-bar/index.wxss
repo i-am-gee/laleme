@@ -1,9 +1,19 @@
+/* ============================================================
+   自定义 tabBar · iOS Tab Bar 体例
+   ============================================================ */
+
 .tabbar {
+    /* 自定义 tabBar 独立渲染，这里本地兜底一份令牌，避免继承不到 */
+    --sep: rgba(60, 58, 55, 0.12);
+    --label-3: rgba(60, 58, 55, 0.32);
+    --tint: #8b5e3c;
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
     display: flex;
     background: #ffffff;
-    border-top: 0.5rpx solid rgba(44, 44, 42, 0.08);
+    /* iOS 用一条 0.5px 发丝线分隔，不用投影 */
+    border-top: 0.5rpx solid var(--sep);
     padding-bottom: env(safe-area-inset-bottom);
-    box-shadow: 0 -4rpx 20rpx rgba(139, 94, 60, 0.06);
 }
 
 .tab {
@@ -13,11 +23,12 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: transform 0.14s ease;
+    transition: transform 0.18s var(--ease-spring), opacity 0.12s ease;
 }
 
 .tab.pressed {
-    transform: scale(0.9);
+    transform: scale(0.92);
+    opacity: 0.72;
 }
 
 .tab-icon {
@@ -27,12 +38,13 @@
 
 .tab-text {
     font-size: 20rpx;
-    color: #9b9184;
+    color: var(--label-3);
     margin-top: 2rpx;
     line-height: 1.2;
+    letter-spacing: 0.2rpx;
 }
 
 .tab.active .tab-text {
-    color: #8b5e3c;
+    color: var(--tint);
     font-weight: 600;
 }

@@ -3,7 +3,7 @@
 > 一款极度克制的肠道健康记录小程序。
 > 数据只属于你，从未离开你的手机。
 
-[![Version](https://img.shields.io/badge/version-1.5.1-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
+[![Version](https://img.shields.io/badge/version-1.6.0-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
 
 ---
 
@@ -37,21 +37,38 @@
 - **连续打卡与成就系统**：4 枚成就徽章（七日全勤/闪电侠/马拉松选手/收藏家），记录即奖励
 - **庆祝动画**：彩带 + 烟花 + 星星人，献给每一次如释重负
 - **挑战分享**：canvas 生成 5:4 专属海报——本月日历图形 + 已点亮徽章，一图看懂打卡节奏；首页/统计/我的三处发出内容完全一致（纯分享机制，不读取任何好友数据）
-- **数据可携带**：CSV 导出成文件 / 复制到剪贴板；恢复支持剪贴板与直接粘贴两条通道（按时间+时长自动去重）
+- **数据可携带**：CSV 导出成文件 / 复制到剪贴板；恢复支持剪贴板导入与直接粘贴导入两条通道（按时间+时长自动去重）
 - **触感反馈**：全站按钮（含底部导航）均有震动，主操作走设备上限强度，只在手指按下瞬间触发
 - **隐私授权**：符合微信平台规范的隐私告知与同意流程，拒绝即退出，绝不静默收集
+- **iOS 设计语言**：Dynamic Type 字号标度、语义色分层、Large Title 自定义导航、inset grouped 卡片、弹簧按压反馈（v1.6）
+
+## 设计系统
+
+视觉语言参照 iOS / Apple Design Language，所有取值集中在 `app.wxss` 顶部的 CSS 变量里。
+
+| 维度 | 规则 |
+|---|---|
+| 换算 | 苹果 1pt = 小程序 2rpx（750 设计稿 / 375pt） |
+| 字体 | 锁死 Dynamic Type 11 档：68 / 56 / 44 / 40 / 34 / 32 / 30 / 26 / 24 / 22rpx |
+| 色彩 | 只用语义词：`--bg` `--bg-card` `--fill-1/2/3` `--label/2/3/4` `--sep` `--tint` |
+| 层级 | 靠面色分层（底灰 → 白卡 → 浅填充块），全站不用描边 |
+| 圆角 | 三档：16rpx 小元素 / 24rpx 列表单元 / 32rpx 卡片，胶囊 999rpx |
+| 间距 | 8 栅格：8 / 16 / 24 / 32 / 48 / 64rpx |
+| 动效 | 只用两条曲线：`--ease-sheet` 进入、`--ease-spring` 按压；无常驻装饰动画 |
+| 数字 | 一律 `font-variant-numeric: tabular-nums`，防止数值跳动 |
 
 ## 技术实现
 
 ```
 laleme-miniprogram/       微信小程序（原生框架，零依赖）
+├── app.wxss              设计系统：iOS 语义令牌 + Dynamic Type + 共用卡片/列表/按钮
 ├── app.js                全局配置 + onNeedPrivacyAuthorization 接入
 ├── pages/
-│   ├── index/            首页：hero 状态卡 + 圆形主按钮 / 可点日历 / 庆祝动画 / 隐私弹窗 / 分享海报
+│   ├── index/            首页：Large Title + 大圆按钮 / 可点日历 / 庆祝动画 / 隐私弹窗 / 分享海报
 │   ├── history/          历史：按天分组、左滑修改或删除、日历锚定高亮
-│   ├── record/           记录页：计时、布里斯托选择、编辑与删除
-│   ├── stats/            统计页：周月自定义指标、分布图、徽章成就墙、加载骨架
-│   ├── data/             数据备份与恢复：文件/剪贴板/粘贴三通道导入，导出与清空
+│   ├── record/           记录页：独立编辑入口（薄壳，复用 record-form）
+│   ├── stats/            统计页：周月自定义指标、分布图、徽章成就墙
+│   ├── data/             数据备份与恢复：剪贴板与粘贴两条导入通道，导出与清空
 │   ├── privacy/          隐私保护指引全文
 │   └── me/               我的：数据概览、入口聚合
 ├── custom-tab-bar/       自定义底部导航（原生 tabBar 无法加震动反馈）
@@ -66,10 +83,11 @@ laleme-miniprogram/       微信小程序（原生框架，零依赖）
     ├── record-store.js   本地存储层（list/create/update/remove，含字段校验）
     ├── share.js          分享信息统一 + 5:4 海报绘制（日历 + 徽章）
     ├── csv.js            CSV 导出/解析（BOM、引号转义、多日期格式）
+    ├── nav.js            iOS Large Title 顶部安全距离（适配状态栏与胶囊按钮）
     └── haptics.js        触感反馈三档封装
 ```
 
-- **原生小程序框架**，无第三方依赖，代码包约 110KB
+- **原生小程序框架**，无第三方依赖，源码约 344KB（含 76KB 图片资产），上传包体约 120KB
 - **canvas 2d** 动态绘制分享海报（500×400，5:4 与微信缩略图比例一致，dpr 适配，`canvas.createImage` 预加载徽章）
 - **隐私合规三层设计**：首启弹窗（`open-type="agreePrivacyAuthorization"`）→ 指引全文页 → 常驻入口，配合 `wx.onNeedPrivacyAuthorization` 动态应答
 - Web 版原型（`拉了么/index.html`）与产品设计文档（`拉了么-产品设计文档.md`）同仓库维护

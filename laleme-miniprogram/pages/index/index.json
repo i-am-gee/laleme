@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "拉了么",
+  "navigationStyle": "custom",
   "usingComponents": {
     "record-form": "/components/record-form/record-form"
   }

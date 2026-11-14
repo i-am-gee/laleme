@@ -12,11 +12,11 @@
     "navigationBarTitleText": "拉了么",
     "navigationBarBackgroundColor": "#ffffff",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#f7f4ef",
+    "backgroundColor": "#f2f1ee",
     "backgroundTextStyle": "light"
   },
   "tabBar": {
-    "color": "#9B9184",
+    "color": "#9a958e",
     "selectedColor": "#8B5E3C",
     "backgroundColor": "#ffffff",
     "borderStyle": "white",

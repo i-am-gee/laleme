@@ -1,6 +1,7 @@
 const { dayStr, todayStr, fmtTime, fmtDur, bristolLabel, MOOD_TEXT } = require('../../utils/constants.js');
 const { createRecordStore } = require('../../utils/record-store.js');
 const haptics = require('../../utils/haptics.js');
+const { getNavTop } = require('../../utils/nav.js');
 
 const store = createRecordStore();
 
@@ -13,6 +14,11 @@ Page({
         empty: false,
         hintDim: false,
         highlightKey: '',
+        navTop: 72,
+    },
+
+    onLoad() {
+        this.setData({ navTop: getNavTop() });
     },
 
     onShow() {

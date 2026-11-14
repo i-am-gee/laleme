@@ -1,91 +1,111 @@
+/* ============================================================
+   数据备份与恢复 · iOS 体例
+   ============================================================ */
+
 .page {
-    padding: 24rpx 32rpx 60rpx;
+    padding: var(--sp-3) var(--sp-4) var(--sp-6);
 }
 
 .summary {
     text-align: center;
-    padding: 30rpx 0 26rpx;
+    padding: var(--sp-3) 0 var(--sp-4);
 }
 
 .sum-num {
-    font-size: 64rpx;
+    font-size: var(--t-large);
     font-weight: 700;
-    color: #8b5e3c;
+    color: var(--label);
     line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -1rpx;
 }
 
 .sum-lbl {
-    font-size: 24rpx;
-    color: #a3978a;
+    font-size: var(--t-footnote);
+    color: var(--label-2);
     margin-top: 6rpx;
 }
 
+/* 分组标题：iOS Grouped Header */
 .sec-title {
-    font-size: 25rpx;
-    color: #a3978a;
-    font-weight: 600;
-    margin: 26rpx 0 12rpx 8rpx;
+    font-size: var(--t-footnote);
+    color: var(--label-2);
+    font-weight: 400;
+    margin: var(--sp-4) var(--sp-2) var(--sp-1);
+    letter-spacing: 0.4rpx;
 }
 
 .sec-card {
-    background: #ffffff;
-    border: 0.5rpx solid rgba(44, 44, 42, 0.12);
-    border-radius: 26rpx;
+    background: var(--bg-card);
+    border-radius: var(--r-lg);
     overflow: hidden;
 }
 
 .row {
     display: flex;
     align-items: center;
-    padding: 24rpx 26rpx;
-    border-bottom: 0.5rpx solid rgba(44, 44, 42, 0.08);
+    gap: var(--sp-3);
+    min-height: 88rpx;
+    padding: var(--sp-2) var(--sp-4);
+    position: relative;
+    box-sizing: border-box;
+    transition: background-color 0.12s ease;
 }
 
-.row:last-child {
-    border-bottom: none;
+.row + .row::before {
+    content: "";
+    position: absolute;
+    left: var(--sp-4);
+    right: 0;
+    top: 0;
+    height: 0.5rpx;
+    background: var(--sep);
+    transform: scaleY(0.5);
 }
 
 .row:active {
-    background: #faf7f2;
+    background: var(--fill-1);
 }
 
 .row-main {
     flex: 1;
     min-width: 0;
+    padding: var(--sp-2) 0;
 }
 
 .row-title {
-    font-size: 29rpx;
-    font-weight: 600;
-    color: #2c2c2a;
+    font-size: var(--t-body);
+    font-weight: 400;
+    color: var(--label);
+    line-height: 1.4;
 }
 
 .row-sub {
-    font-size: 22rpx;
-    color: #a3978a;
-    margin-top: 6rpx;
+    font-size: var(--t-footnote);
+    color: var(--label-2);
+    margin-top: 4rpx;
     line-height: 1.45;
 }
 
 .row-arrow {
-    font-size: 34rpx;
-    color: #cfc7bb;
-    margin-left: 12rpx;
+    font-size: var(--t-subhead);
+    color: var(--label-4);
+    margin-left: var(--sp-2);
 }
 
+/* ---------- 粘贴导入 ---------- */
 .paste-card {
-    margin-top: 24rpx;
-    background: #ffffff;
-    border: 0.5rpx solid rgba(44, 44, 42, 0.12);
-    border-radius: 26rpx;
-    padding: 24rpx 26rpx 26rpx;
+    margin-top: var(--sp-3);
+    background: var(--bg-card);
+    border-radius: var(--r-lg);
+    padding: var(--sp-4);
 }
 
 .paste-title {
-    font-size: 27rpx;
+    font-size: var(--t-headline);
     font-weight: 600;
-    color: #2c2c2a;
-    margin-bottom: 14rpx;
+    color: var(--label);
+    margin-bottom: var(--sp-2);
 }
 
 .paste-box {
@@ -93,72 +113,76 @@
     box-sizing: border-box;
     min-height: 180rpx;
     max-height: 360rpx;
-    background: #faf7f2;
-    border-radius: 18rpx;
-    padding: 18rpx 20rpx;
-    font-size: 23rpx;
-    color: #444441;
+    background: var(--fill-1);
+    border-radius: var(--r-sm);
+    padding: var(--sp-2) var(--sp-3);
+    font-size: var(--t-caption);
+    color: var(--label);
     line-height: 1.6;
 }
 
 .paste-ph {
-    color: #b9b0a2;
-    font-size: 22rpx;
+    color: var(--label-3);
+    font-size: var(--t-caption);
 }
 
 .paste-btn {
-    margin-top: 18rpx;
-    height: 88rpx;
-    line-height: 88rpx;
-    text-align: center;
-    border-radius: 44rpx;
-    background: linear-gradient(135deg, #a97750 0%, #8b5e3c 55%, #6f4b30 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: var(--sp-3);
+    height: 96rpx;
+    border-radius: var(--r-full);
+    background: var(--tint);
     color: #ffffff;
-    font-size: 29rpx;
+    font-size: var(--t-callout);
     font-weight: 600;
-    box-shadow: 0 10rpx 24rpx rgba(139, 94, 60, 0.26);
+    letter-spacing: 0.5rpx;
+    box-shadow: 0 8rpx 22rpx rgba(139, 94, 60, 0.20);
+    transition: transform 0.2s var(--ease-spring), opacity 0.12s ease;
 }
 
 .btn-hover {
     transform: scale(0.98);
-    opacity: 0.92;
+    opacity: 0.9;
 }
 
+/* ---------- 结果条 ---------- */
 .status {
-    margin-top: 22rpx;
-    border-radius: 18rpx;
-    padding: 18rpx 22rpx;
-    font-size: 24rpx;
+    margin-top: var(--sp-3);
+    border-radius: var(--r-sm);
+    padding: var(--sp-2) var(--sp-3);
+    font-size: var(--t-footnote);
     line-height: 1.6;
 }
 
 .status.info {
-    background: #f4f1ec;
-    color: #6b6359;
+    background: var(--fill-1);
+    color: var(--label-2);
 }
 
 .status.ok {
-    background: #e7f6ef;
-    color: #0f6e56;
+    background: rgba(52, 199, 89, 0.12);
+    color: #1f7a45;
 }
 
 .status.warn {
-    background: #fdeeea;
-    color: #a8392f;
+    background: rgba(255, 59, 48, 0.10);
+    color: #b3261e;
 }
 
 .tip {
-    margin-top: 26rpx;
-    font-size: 21rpx;
-    color: #b0a394;
+    margin-top: var(--sp-4);
+    font-size: var(--t-caption);
+    color: var(--label-3);
     line-height: 1.7;
-    padding: 0 6rpx;
+    padding: 0 var(--sp-1);
 }
 
 .danger-link {
-    margin-top: 36rpx;
+    margin-top: var(--sp-5);
     text-align: center;
-    font-size: 25rpx;
-    color: #c0766f;
-    padding: 14rpx 0;
+    font-size: var(--t-subhead);
+    color: var(--red);
+    padding: var(--sp-2) 0;
 }

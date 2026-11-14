@@ -50,6 +50,6 @@
         </picker>
     </view>
 
-    <button class="primary-btn" bindtap="submit">{{isEdit ? '保存修改' : '完成记录'}}</button>
+    <button class="primary-btn" hover-class="primary-hover" bindtap="submit">{{isEdit ? '保存修改' : '完成记录'}}</button>
     <view class="danger-link" wx:if="{{isEdit}}" bindtap="removeThis">删除这条记录</view>
 </view>

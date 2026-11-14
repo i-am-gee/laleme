@@ -1,95 +1,141 @@
+/* ============================================================
+   我的 · iOS 设置页体例
+   ============================================================ */
+
 .page {
-    padding: 24rpx 32rpx calc(env(safe-area-inset-bottom) + 120rpx);
+    padding: 0 var(--sp-4) calc(env(safe-area-inset-bottom) + 130rpx);
 }
 
+/* 列表容器：无描边，行内缩分隔线 */
 .card {
-    background: #ffffff;
-    border: 0.5rpx solid rgba(44, 44, 42, 0.12);
-    border-radius: 28rpx;
-    padding: 10rpx 30rpx;
-    margin-bottom: 28rpx;
+    background: var(--bg-card);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    margin-bottom: var(--sp-3);
 }
 
 .info-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 26rpx 0;
-    border-bottom: 0.5rpx solid rgba(44, 44, 42, 0.08);
+    gap: var(--sp-3);
+    min-height: 88rpx;
+    padding: var(--sp-2) var(--sp-4);
+    position: relative;
+    box-sizing: border-box;
+    transition: background-color 0.12s ease;
 }
 
-.info-row:last-child {
-    border-bottom: none;
+.info-row + .info-row::before {
+    content: "";
+    position: absolute;
+    left: var(--sp-4);
+    right: 0;
+    top: 0;
+    height: 0.5rpx;
+    background: var(--sep);
+    transform: scaleY(0.5);
+}
+
+.info-row:active {
+    background: var(--fill-1);
 }
 
 .label {
-    color: #888780;
-    font-size: 27rpx;
+    color: var(--label);
+    font-size: var(--t-body);
+    flex-shrink: 0;
 }
 
 .value {
-    color: #2c2c2a;
-    font-size: 27rpx;
-    font-weight: 500;
+    color: var(--label-2);
+    font-size: var(--t-body);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
-/* 主按钮：与首页「记一次」同视觉 */
+.link-row .value {
+    display: flex;
+    align-items: center;
+}
+
+/* 主按钮：实心胶囊，与首页同一套语言 */
 .primary-btn {
-    background: linear-gradient(135deg, #a97750 0%, #8b5e3c 55%, #6f4b30 100%);
-    color: #ffffff;
-    font-size: 36rpx;
-    font-weight: 700;
-    letter-spacing: 2rpx;
-    border-radius: 52rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100% !important;
-    box-sizing: border-box;
-    height: 104rpx;
-    line-height: 104rpx;
+    height: 100rpx;
+    margin: 0 0 var(--sp-2);
     padding: 0;
-    margin: 8rpx 0 24rpx;
-    box-shadow: 0 12rpx 28rpx rgba(139, 94, 60, 0.3);
+    border: none;
+    border-radius: var(--r-full);
+    background: var(--tint);
+    color: #ffffff;
+    font-size: var(--t-body);
+    font-weight: 600;
+    letter-spacing: 0.5rpx;
+    box-shadow: 0 10rpx 28rpx rgba(139, 94, 60, 0.22);
+    transition: transform 0.2s var(--ease-spring), opacity 0.12s ease;
+    box-sizing: border-box;
 }
 
 .primary-btn::after {
     border: none;
 }
 
-/* 次级按钮 */
+.primary-hover {
+    transform: scale(0.97);
+    opacity: 0.9;
+}
+
+/* 次级按钮：淡填充 */
 .ghost-btn {
-    background: #ffffff;
-    color: #8b5e3c;
-    border: 1rpx solid #8b5e3c;
-    font-size: 30rpx;
-    font-weight: 500;
-    height: 96rpx;
-    line-height: 96rpx;
-    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100% !important;
+    height: 96rpx;
+    margin: 0 0 var(--sp-2);
+    padding: 0;
+    border: none;
+    border-radius: var(--r-full);
+    background: var(--tint-soft);
+    color: var(--tint);
+    font-size: var(--t-body);
+    font-weight: 500;
+    transition: transform 0.2s var(--ease-spring), background-color 0.12s ease;
     box-sizing: border-box;
-    border-radius: 48rpx;
-    margin-bottom: 24rpx;
 }
 
 .ghost-btn::after {
     border: none;
 }
 
-/* 清空：降级为小号文字链接，弱化危险操作 */
+.ghost-hover {
+    background: var(--tint-fill);
+    transform: scale(0.98);
+}
+
+/* 清空：降级为系统红文字链接，弱化危险操作 */
 .danger-link {
     text-align: center;
-    font-size: 26rpx;
-    color: #c0766f;
-    padding: 8rpx 0 32rpx;
+    font-size: var(--t-subhead);
+    color: var(--red);
+    padding: var(--sp-3) 0 var(--sp-5);
 }
 
 .about {
-    padding: 26rpx 30rpx;
+    padding: var(--sp-4);
 }
 
 .about-text {
-    font-size: 25rpx;
-    color: #888780;
-    line-height: 1.7;
+    font-size: var(--t-footnote);
+    color: var(--label-2);
+    line-height: 1.72;
     white-space: pre-line;
 }
 

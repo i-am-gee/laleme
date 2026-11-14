@@ -1,4 +1,9 @@
 <view class="page">
+    <!-- iOS Large Title -->
+    <view class="nav-bar" style="padding-top: {{navTop}}px;">
+        <view class="nav-title">统计</view>
+    </view>
+
     <view class="seg">
         <view class="seg-item {{period === 'week' ? 'active' : ''}}" data-period="week" bindtap="setPeriod">近 7 天</view>
         <view class="seg-item {{period === 'month' ? 'active' : ''}}" data-period="month" bindtap="setPeriod">近 30 天</view>
@@ -56,7 +61,7 @@
             </view>
         </view>
 
-        <button class="share-btn" open-type="share" bindtouchstart="onShareTouch">💩 挑战好友</button>
+        <button class="share-btn" hover-class="share-hover" open-type="share" bindtouchstart="onShareTouch">挑战好友</button>
 </view>
 
 <!-- 分享海报绘制画布（不可见） -->

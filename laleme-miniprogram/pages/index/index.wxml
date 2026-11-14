@@ -1,18 +1,18 @@
 <view class="page">
+    <!-- iOS Large Title：日期与今日状态合并成一行副标题 -->
+    <view class="nav-bar {{statusClass}}" style="padding-top: {{navTop}}px;">
+        <view class="nav-title">拉了么</view>
+        <view class="nav-sub">{{dateText}} · {{statusSub}}</view>
+    </view>
+
     <!-- 好友挑战横幅 -->
     <view class="challenge-banner" wx:if="{{challenge}}">
-        <view class="challenge-text">💩 一位好友向你发起挑战：连续打卡 {{challenge.streak}} 天，本月 {{challenge.month}} 次。接招！</view>
+        <view class="challenge-text">一位好友向你发起挑战：连续打卡 {{challenge.streak}} 天，本月 {{challenge.month}} 次。接招！</view>
         <view class="challenge-close" bindtap="dismissChallenge">✕</view>
     </view>
 
     <!-- 主视觉：居中的大圆按钮 -->
     <view class="hero {{statusClass}}">
-        <view class="hero-status">
-            <text class="hero-title">{{statusTitle}}</text>
-            <text class="hero-sep">·</text>
-            <text class="hero-sub">{{statusSub}}</text>
-        </view>
-
         <view class="fab-wrap">
             <view class="fab-halo"></view>
             <view class="fab {{fabPressed ? 'fab-pressed' : ''}}" hover-class="fab-hover" bindtouchstart="onFabTouchStart" bindtap="onFabTap">
@@ -22,6 +22,7 @@
             </view>
         </view>
 
+        <!-- iOS 分组统计 -->
         <view class="chips">
             <view class="chip">
                 <text class="chip-v">{{streakText}}</text>
@@ -37,7 +38,7 @@
     <!-- 本月打卡日历：点某天看当日明细 -->
     <view class="card cal-card" wx:if="{{calendar}}">
         <view class="cal-title">
-            <text class="cal-month">{{calendar.monthLabel}}打卡日历</text>
+            <text class="cal-month">{{calendar.monthLabel}}</text>
             <text class="cal-count">已打 {{calendar.activeDays}} 天</text>
         </view>
         <view class="cal-week">
@@ -59,15 +60,17 @@
         </view>
     </view>
 
-    <view class="last-line">
+    <!-- 最近一次：iOS 列表行 -->
+    <view class="last-line" hover-class="list-row-press" bindtap="goHistory">
         <text class="last-k">最近一次</text>
         <text class="last-v">{{lastText}}</text>
+        <view class="chevron"></view>
     </view>
 
     <!-- 挑战好友 -->
-    <button class="ghost-btn" open-type="share" bindtouchstart="onShareTouch">💩 挑战好友</button>
+    <button class="ghost-btn" hover-class="ghost-btn-hover" open-type="share" bindtouchstart="onShareTouch">挑战好友</button>
 
-    <view class="footnote" bindtap="goHistory">查看全部历史 ></view>
+    <view class="footnote" bindtap="goHistory">查看全部历史</view>
 </view>
 
 <!-- 成就庆祝动画 -->
@@ -116,7 +119,7 @@
     duration="{{300}}"
     z-index="{{800}}"
     close-on-slide-down="{{true}}"
-    custom-style="background:#ffffff;border-radius:28rpx 28rpx 0 0;"
+    custom-style="background:#ffffff;border-radius:32rpx 32rpx 0 0;"
     bind:beforeleave="onSheetLeave"
     bind:clickoverlay="onSheetOverlay"
 >
