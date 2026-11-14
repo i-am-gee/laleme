@@ -551,30 +551,19 @@ Page({
     },
 
     // 按钮上再按一下：结束本次计时，按上次的性状与感受收下
+    // 按钮上再按一下：停表，带着已算好的时长打开浮层补性状与感受
     finishTiming() {
-        const that = this;
+        // 先取秒数再停表，浮层里要显示这次到底计了多久
+        const sec = timer.elapsedSec();
         const min = timer.elapsedMin();
         timer.stop();
         this.stopTick();
-        this.setData({ ticking: false, timerText: '00:00' });
         haptics.tap();
-        store.list().then(function (res) {
-            const list = res.data || [];
-            const last = list.length ? list[list.length - 1] : null;
-            return store.create({
-                timestamp: Date.now(),
-                durationMin: min,
-                bristol: last ? last.bristol : null,
-                mood: last ? last.mood : null,
-            });
-        }).then(function (res) {
-            if (res && res.error) {
-                wx.showToast({ title: '没有存下来，稍后再试', icon: 'none' });
-                return;
+        this.setData({ ticking: false, timerText: '00:00', sheetShow: true }, () => {
+            const form = this.selectComponent('#recordForm');
+            if (form) {
+                form.openFinish(min, sec);
             }
-            wx.setStorageSync('laleme_celebrate_flag', Date.now());
-            that.refresh();
-            that.maybeCelebrate();
         });
     },
 

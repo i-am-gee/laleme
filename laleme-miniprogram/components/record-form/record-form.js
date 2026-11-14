@@ -7,6 +7,12 @@ const timer = require('../../utils/timer.js');
 
 const store = createRecordStore();
 
+// 计时结束后的展示时间：优先用真实秒数，退化到分钟
+function finishText(seconds, minutes) {
+    const total = Number.isFinite(Number(seconds)) && Number(seconds) > 0 ? Number(seconds) : (minutes || 0) * 60;
+    return pad2(Math.floor(total / 60)) + ':' + pad2(Math.floor(total % 60));
+}
+
 function dateValueOf(ms) {
     const d = new Date(ms);
     return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
@@ -148,7 +154,6 @@ Component({
                     bristolOptions: bristolOptions(that.selBristol),
                     bristolHint: that.selBristol ? BRISTOL[that.selBristol - 1].hint : '',
                     moodOptions: moodOptions(that.selMood),
-                    manualMin: String(last.durationMin || ''),
                 });
             });
 
@@ -158,6 +163,40 @@ Component({
             } else {
                 this.startTimer();
             }
+        },
+
+        // 结束计时后打开：时长已经由计时算好，只需要补性状与感受
+        openFinish(minutes, seconds) {
+            const that = this;
+            const now = Date.now();
+            this.selBristol = null;
+            this.selMood = null;
+            this.stopTimer();
+            this.setData({
+                isEdit: false,
+                manualMin: String(minutes),
+                dateValue: dateValueOf(now),
+                timeValue: timeValueOf(now),
+                bristolOptions: bristolOptions(null),
+                bristolHint: '',
+                moodOptions: moodOptions(null),
+                // 显示这次计时的真实结果，和输入框里的数字对得上
+                timerText: finishText(seconds, minutes),
+            });
+            store.list().then(function (res) {
+                const list = res.data || [];
+                const last = list.length ? list[list.length - 1] : null;
+                if (!last) {
+                    return;
+                }
+                that.selBristol = last.bristol === undefined ? null : last.bristol;
+                that.selMood = last.mood === undefined ? null : last.mood;
+                that.setData({
+                    bristolOptions: bristolOptions(that.selBristol),
+                    bristolHint: that.selBristol ? BRISTOL[that.selBristol - 1].hint : '',
+                    moodOptions: moodOptions(that.selMood),
+                });
+            });
         },
 
         close() {
