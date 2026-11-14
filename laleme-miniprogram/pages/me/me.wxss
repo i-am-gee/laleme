@@ -141,8 +141,7 @@
 
 .thanks-text {
     font-size: var(--t-footnote);
-    /* 比上面的条款略深一档：这是正文，不是免责声明 */
-    color: rgba(60, 58, 55, 0.86);
+    color: var(--label-2);
     line-height: 1.9;
     margin-bottom: var(--sp-3);
 }

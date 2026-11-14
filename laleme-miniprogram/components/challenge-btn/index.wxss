@@ -1,0 +1,129 @@
+/* ============================================================
+   喊好友挑战 · 与全局大按钮同规格（96rpx / 胶囊 / 实色 tint）
+   ============================================================ */
+
+.cb {
+    /* 组件样式隔离，本地兜底一份用到的令牌 */
+    --tint: #8b5e3c;
+    --tint-strong: #6f4b30;
+    --r-full: 999rpx;
+    --t-headline: 34rpx;
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12rpx;
+    /* 微信 button 默认宽度 184px，必须显式覆盖 */
+    width: 100% !important;
+    height: 96rpx;
+    margin: 0;
+    padding: 0;
+    border-radius: var(--r-full);
+    background: var(--tint);
+    box-shadow: 0 10rpx 24rpx rgba(139, 94, 60, 0.22);
+    line-height: 1;
+    transition: transform 0.2s var(--ease-spring), background-color 0.12s ease, box-shadow 0.2s ease;
+}
+
+.cb::after {
+    border: none;
+}
+
+.cb-hover {
+    background: var(--tint-strong);
+    transform: scale(0.985);
+    box-shadow: 0 4rpx 12rpx rgba(139, 94, 60, 0.18);
+}
+
+.cb-icon {
+    width: 30rpx;
+    height: 30rpx;
+}
+
+.cb-text {
+    font-size: var(--t-headline);
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 1.5rpx;
+}
+
+/* ---------- 三次进度：三个大便，未凑齐的做灰 ---------- */
+.cb-steps {
+    position: absolute;
+    right: 26rpx;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 6rpx;
+}
+
+.cb-step {
+    /* filter 需要非行内盒子才生效 */
+    display: inline-block;
+    font-size: 34rpx;
+    line-height: 1;
+    /* 未点亮：褪成浅灰但保持形状，在深棕底上也能看清 */
+    opacity: 0.62;
+    filter: grayscale(1) brightness(1.9);
+    transition: opacity 0.3s ease, filter 0.3s ease, transform 0.3s var(--ease-spring);
+}
+
+.cb-step.on {
+    opacity: 1;
+    filter: drop-shadow(0 0 5rpx rgba(255, 219, 150, 0.85));
+    transform: scale(1.1);
+}
+
+/* ---------- 大屎官：整条转金色 + 缓慢扫光 ---------- */
+.cb-crown {
+    position: absolute;
+    right: 24rpx;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 34rpx;
+    line-height: 1;
+}
+
+.cb.is-badge {
+    overflow: hidden;
+    background: linear-gradient(135deg, #b8893c 0%, #e9cb80 46%, #a97c33 100%);
+    box-shadow: 0 10rpx 28rpx rgba(170, 125, 50, 0.32);
+}
+
+.cb.is-badge::before {
+    content: "";
+    position: absolute;
+    top: -60%;
+    bottom: -60%;
+    width: 38%;
+    left: -60%;
+    background: linear-gradient(
+        100deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.55) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-18deg);
+    animation: cbSheen 4.2s ease-in-out 1.6s infinite;
+}
+
+@keyframes cbSheen {
+    0% {
+        left: -60%;
+    }
+    45%, 100% {
+        left: 128%;
+    }
+}
+
+.cb.is-badge .cb-text {
+    color: #3a2a11;
+    letter-spacing: 2rpx;
+}
+
+.cb.is-badge .cb-icon {
+    filter: brightness(0) opacity(0.78);
+}

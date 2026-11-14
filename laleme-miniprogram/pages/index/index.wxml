@@ -89,28 +89,10 @@
         </view>
     </view>
 
-    <!-- 喊好友挑战：日历下方的通栏入口 -->
-    <button
-        class="challenge-btn {{shareBadge ? 'is-badge' : ''}}"
-        hover-class="challenge-btn-hover"
-        open-type="share"
-        bindtouchstart="onShareTouch"
-    >
-        <view class="challenge-btn-inner">
-            <image
-                class="challenge-btn-icon"
-                src="/assets/actions/share-white.png"
-                mode="aspectFit"
-            />
-            <view class="challenge-btn-main">
-                <text class="challenge-btn-text">{{shareBadge ? '大屎官 · 继续分享' : '喊好友挑战'}}</text>
-                <text class="challenge-btn-hint">{{shareBadge ? '金色传说，已解锁' : '再喊 ' + shareLeft + ' 次，升级「大屎官」'}}</text>
-            </view>
-            <view class="share-dots" wx:if="{{!shareBadge}}">
-                <view class="share-dot {{index < shareCount ? 'on' : ''}}" wx:for="{{[0, 1, 2]}}" wx:key="*this"></view>
-            </view>
-        </view>
-    </button>
+    <!-- 喊好友挑战：日历下方，与统计页共用同一个组件 -->
+    <view class="cb-slot">
+        <challenge-btn id="challengeBtn" />
+    </view>
 </view>
 
 <!-- 成就庆祝动画：打卡成功 / 获得称号 -->

@@ -1,0 +1,20 @@
+<button
+    class="cb {{badge ? 'is-badge' : ''}}"
+    hover-class="cb-hover"
+    hover-stay-time="80"
+    open-type="share"
+    bindtouchstart="onTouch"
+>
+    <image class="cb-icon" src="/assets/actions/share-white.png" mode="aspectFit" />
+    <text class="cb-text">{{badge ? '大屎官 · 继续分享' : '喊好友挑战'}}</text>
+
+    <!-- 进度：三个小大便，凑齐三个解锁「大屎官」 -->
+    <view class="cb-steps" wx:if="{{!badge}}">
+        <text
+            class="cb-step {{index < count ? 'on' : ''}}"
+            wx:for="{{[0, 1, 2]}}"
+            wx:key="*this"
+        >💩</text>
+    </view>
+    <text class="cb-crown" wx:else>👑</text>
+</button>

@@ -1,6 +1,7 @@
 {
   "navigationStyle": "custom",
   "usingComponents": {
-    "roll-number": "/components/roll-number/roll-number"
+    "roll-number": "/components/roll-number/roll-number",
+    "challenge-btn": "/components/challenge-btn/index"
   }
 }

@@ -292,32 +292,7 @@
     line-height: 1.4;
 }
 
-/* ---------- 分享按钮 ---------- */
-.share-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100% !important;
-    height: 100rpx;
+/* ---------- 挑战入口：与首页共用组件 ---------- */
+.cb-slot {
     margin-top: var(--sp-5);
-    padding: 0;
-    border: none;
-    border-radius: var(--r-full);
-    background: var(--tint);
-    color: #ffffff;
-    font-size: var(--t-body);
-    font-weight: 600;
-    letter-spacing: 0.5rpx;
-    box-sizing: border-box;
-    box-shadow: 0 10rpx 28rpx rgba(139, 94, 60, 0.22);
-    transition: transform 0.2s var(--ease-spring), opacity 0.12s ease;
-}
-
-.share-btn::after {
-    border: none;
-}
-
-.share-hover {
-    transform: scale(0.97);
-    opacity: 0.9;
 }

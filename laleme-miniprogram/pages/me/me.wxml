@@ -32,15 +32,15 @@
     <button class="ghost-btn" hover-class="ghost-hover" bindtap="goDataPage" bindtouchstart="onShareTouch">数据备份与恢复</button>
 
     <view class="card about">
-        <view class="about-text">「拉了么」v1.7.3 · 数据仅保存在本机，不上传任何服务器。\n\n性状分类采用国际通用的布里斯托大便分类法（Bristol Stool Scale）。\n\n本应用不构成医疗建议，持续异常请咨询消化科医生。</view>
+        <view class="about-text">「拉了么」v1.7.4 · 数据仅保存在本机，不上传任何服务器。\n\n性状分类采用国际通用的布里斯托大便分类法（Bristol Stool Scale）。\n\n本应用不构成医疗建议，持续异常请咨询消化科医生。</view>
 
         <view class="about-divider"></view>
 
-        <view class="thanks-text">感谢 Luna。从第一版原型里那坨歪歪扭扭的手绘大便开始，她就在。名字是她起的，日历的圆点是她坚持要的，连「记一次」这三个字都改到第七遍才放过自己。她总说「再简单一点」，于是这个应用删掉了大半功能，才长成今天这个样子——轻，但每一下都踩在点上。没有她的产品指导，「拉了么」大概只会是个记录工具，而不会成为一个让人笑出声的小东西。</view>
+        <view class="thanks-text">特别鸣谢 Luna——她陪着「拉了么」从第一版原型里那坨歪歪扭扭的手绘大便一路走到今天，名字是她起的，每一句「再简单一点」也都是她说的。</view>
 
-        <view class="thanks-text">感谢 Roger 和 Elliot 在技术架构与生态布局上的引导。「数据只留在本机」这条底线，是他们在我最想偷懒加个云同步的时候替我守住的；分享、备份、开源这三件事的先后顺序，也是他们陪我想明白的。一个关于大便的小程序，被他们认真对待过，才配得上被认真对待。</view>
+        <view class="thanks-text">特别鸣谢 Roger 和 Elliot——他们替我守住了「数据只留在本机」这条底线，也帮我把分享、备份、开源的先后顺序理清了。</view>
 
-        <view class="thanks-text">它已经开源了。欢迎来读代码、提个 issue，或者干脆 fork 一份，把它变成你自己的样子。</view>
+        <view class="thanks-text">这个项目已经开源，欢迎来读代码、提个 issue，或者 fork 一份。</view>
 
         <view class="repo-link" hover-class="repo-link-hover" bindtap="copyRepo">
             <text class="repo-label">github.com/i-am-gee/laleme</text>

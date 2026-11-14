@@ -67,7 +67,10 @@
             </view>
         </view>
 
-        <button class="share-btn" hover-class="share-hover" open-type="share" bindtouchstart="onShareTouch">挑战好友</button>
+        <!-- 与首页同一个分享组件，进度与称号共享 -->
+        <view class="cb-slot">
+            <challenge-btn id="challengeBtn" />
+        </view>
 </view>
 
 <!-- 分享海报绘制画布（不可见） -->

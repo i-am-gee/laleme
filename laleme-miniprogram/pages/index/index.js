@@ -50,9 +50,7 @@ Page({
         celebrateTitle: '打卡成功！',
         celebrateGrand: false,
         confetti: [],
-        shareCount: 0,
         shareBadge: false,
-        shareLeft: 3,
         showPrivacy: false,
         privacySummary: PRIVACY_SUMMARY,
         privacyContractName: '《小程序隐私保护指引》',
@@ -160,9 +158,7 @@ Page({
                 todayCount: today.length,
                 monthOffset: 0,
                 calendar: monthCalendar(records, monthBase),
-                shareCount: share.shareCount(),
                 shareBadge: share.shareBadge(),
-                shareLeft: Math.max(0, share.SHARE_BADGE_TARGET - share.shareCount()),
             }, function () {
                 share.ensurePoster(that, that._stats);
             });
@@ -176,11 +172,7 @@ Page({
 
     // 分享被拉起后的本地记账；称号达成的标记由 share.trackShare 写入
     afterShare(result) {
-        this.setData({
-            shareCount: result.count,
-            shareBadge: result.badge,
-            shareLeft: Math.max(0, share.SHARE_BADGE_TARGET - result.count),
-        });
+        this.setData({ shareBadge: result.badge });
     },
 
     onShareTimeline() {
