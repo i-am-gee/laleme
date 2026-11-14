@@ -50,7 +50,7 @@ Page({
         celebrateTitle: '打卡成功！',
         celebrateGrand: false,
         confetti: [],
-        shareBadge: false,
+        goldMode: false,
         showPrivacy: false,
         privacySummary: PRIVACY_SUMMARY,
         privacyContractName: '《小程序隐私保护指引》',
@@ -163,7 +163,7 @@ Page({
                 todayCount: today.length,
                 monthOffset: 0,
                 calendar: monthCalendar(records, monthBase),
-                shareBadge: share.shareBadge(),
+                goldMode: share.shareGold(),
             }, function () {
                 share.ensurePoster(that, that._stats);
             });
@@ -177,7 +177,13 @@ Page({
 
     // 分享被拉起后的本地记账；称号达成的标记由 share.trackShare 写入
     afterShare(result) {
-        this.setData({ shareBadge: result.badge });
+        this.setData({ goldMode: share.shareGold() });
+    },
+
+    // 组件里点了「切换身份」，主按钮与日历跟着一起换装
+    onGoldChange(event) {
+        const gold = !!(event && event.detail && event.detail.gold);
+        this.setData({ goldMode: gold });
     },
 
     onShareTimeline() {

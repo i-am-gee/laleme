@@ -71,6 +71,12 @@
     /* 用行内流居中，比 flex 更稳：文字和便便作为一个整体对齐 */
     text-align: center;
     line-height: 1.4;
+    border-radius: 12rpx;
+    transition: opacity 0.14s ease;
+}
+
+.cb-progress-hover {
+    opacity: 0.6;
 }
 
 .cb-progress-text {

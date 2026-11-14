@@ -14,7 +14,7 @@
     </view>
 
     <!-- 主视觉：居中的大圆按钮 -->
-    <view class="hero {{statusClass}} {{shareBadge ? 'is-badge' : ''}}">
+    <view class="hero {{statusClass}} {{goldMode ? 'is-badge' : ''}}">
         <view class="fab-wrap">
             <view class="fab-halo"></view>
             <view class="fab {{fabPressed ? 'fab-pressed' : ''}}" hover-class="fab-hover" bindtouchstart="onFabTouchStart" bindtap="onFabTap">
@@ -72,28 +72,28 @@
                 data-count="{{item.count}}"
                 bindtap="onDayTap"
             >
-                <view class="cal-poop {{shareBadge ? 'gold' : ''}}" wx:if="{{item.pooped}}">
+                <view class="cal-poop {{goldMode ? 'gold' : ''}}" wx:if="{{item.pooped}}">
                     <text class="cal-poop-emoji">💩</text>
                 </view>
                 <view class="cal-num" wx:elif="{{!item.blank}}">{{item.day}}</view>
                 <view class="cal-badge" wx:if="{{item.count > 1}}">{{item.count}}</view>
             </view>
         </view>
-
-        <!-- 最近一次：作为日历卡的脚注行，不再单独占一张卡 -->
-        <view class="last-line">
-            <text class="last-k">最近一次</text>
-            <view class="last-v">
-                <text class="last-seg">{{lastTime}}</text>
-                <text class="last-seg" wx:if="{{lastDur}}">{{lastDur}}</text>
-                <text class="last-seg" wx:if="{{lastShape}}">{{lastShape}}</text>
-            </view>
-        </view>
     </view>
 
     <!-- 喊好友挑战：日历下方，与统计页共用同一个组件 -->
     <view class="cb-area">
-        <challenge-btn id="challengeBtn" />
+        <challenge-btn id="challengeBtn" bind:change="onGoldChange" />
+    </view>
+
+    <!-- 最近一次：挪到页面末尾，让首屏腾出空间给分享入口 -->
+    <view class="last-line">
+        <text class="last-k">最近一次</text>
+        <view class="last-v">
+            <text class="last-seg">{{lastTime}}</text>
+            <text class="last-seg" wx:if="{{lastDur}}">{{lastDur}}</text>
+            <text class="last-seg" wx:if="{{lastShape}}">{{lastShape}}</text>
+        </view>
     </view>
 </view>
 

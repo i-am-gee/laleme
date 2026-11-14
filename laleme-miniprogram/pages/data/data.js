@@ -147,29 +147,14 @@ Page({
         return '分享进度已一并恢复';
     },
 
-    // 统一导入入口：解析 → 去重 → 逐条写入
+    // 统一导入入口：解析 → 比对差异 → 用户确认 → 才真正写入
     importText(text, sourceLabel) {
         const that = this;
         const parsed = parseCsv(text);
         const rows = parsed.rows;
-        if (!rows.length && !parsed.meta.shareCount && !parsed.meta.shareBadge) {
+        const meta = parsed.meta;
+        if (!rows.length && !meta.shareCount && !meta.shareBadge) {
             this.setStatus('没识别到有效记录：首行应为「时间,时长(分钟),布里斯托类型,感觉」，每行一条。', 'warn');
-            return;
-        }
-        const shareNote = this.applyShareMeta(parsed.meta);
-        if (!rows.length) {
-            // 只有分享进度、没有打卡记录
-            haptics.tap();
-            that.setData({
-                pasteText: '',
-                status: '',
-                resultShow: true,
-                resultTotal: 0,
-                resultAdded: 0,
-                resultSkipped: 0,
-                resultShare: shareNote,
-            });
-            that.refresh();
             return;
         }
         store.list().then(function (cur) {
@@ -177,46 +162,97 @@ Page({
             (cur.data || []).forEach(function (r) {
                 existing[r.timestamp + '|' + r.durationMin] = true;
             });
-            let added = 0;
-            let skipped = 0;
-            let pending = rows.length;
+
+            // 先把差异算清楚，一个字都没写
+            const fresh = [];
+            let dup = 0;
             rows.forEach(function (row) {
                 const key = row.timestamp + '|' + row.durationMin;
                 if (existing[key]) {
-                    skipped += 1;
-                    step();
+                    dup += 1;
                     return;
                 }
                 existing[key] = true;
-                store.create(row).then(function (r) {
-                    if (r.error) {
-                        skipped += 1;
-                    } else {
-                        added += 1;
-                    }
-                    step();
-                });
+                fresh.push(row);
             });
-            function step() {
-                pending -= 1;
-                if (pending !== 0) {
-                    return;
-                }
-                if (added > 0) {
-                    haptics.tap();
-                }
-                // 结果用独立弹窗确认，不再挤在页面里
-                that.setData({
-                    pasteText: '',
-                    status: '',
-                    resultShow: true,
-                    resultTotal: rows.length,
-                    resultAdded: added,
-                    resultSkipped: skipped,
-                    resultShare: shareNote,
-                });
-                that.refresh();
+
+            const curMeta = share.shareMeta();
+            const nextCount = Math.max(curMeta.shareCount, meta.shareCount || 0);
+            const nextBadge = curMeta.shareBadge || !!meta.shareBadge;
+
+            const parts = [];
+            if (fresh.length) {
+                parts.push('新增 ' + fresh.length + ' 条记录');
             }
+            if (dup) {
+                parts.push('跳过 ' + dup + ' 条已有记录');
+            }
+            if (nextBadge && !curMeta.shareBadge) {
+                parts.push('恢复「黄金大屎官」称号');
+            } else if (nextCount > curMeta.shareCount) {
+                parts.push('分享进度 ' + curMeta.shareCount + ' → ' + nextCount + ' 次');
+            }
+
+            if (!parts.length) {
+                that.setStatus('这份备份与现有数据完全一致，没有需要导入的内容。', 'info');
+                return;
+            }
+
+            wx.showModal({
+                title: '确认导入',
+                // showModal 的 content 不吃换行，改用分号把差异串成一句
+                content: parts.join('；') + '。导入后不可撤销，确定继续？',
+                confirmText: '导入',
+                cancelText: '再看看',
+                success(res) {
+                    if (!res.confirm) {
+                        that.setStatus('已取消，数据没有变化。', 'info');
+                        return;
+                    }
+                    that.doImport(fresh, dup, rows.length, meta);
+                },
+            });
+        });
+    },
+
+    // 用户确认后才落地
+    doImport(fresh, dup, total, meta) {
+        const that = this;
+        const shareNote = this.applyShareMeta(meta);
+        const finish = function (added, skipped) {
+            if (added > 0) {
+                haptics.tap();
+            }
+            that.setData({
+                pasteText: '',
+                status: '',
+                resultShow: true,
+                resultTotal: total,
+                resultAdded: added,
+                resultSkipped: skipped,
+                resultShare: shareNote,
+            });
+            that.refresh();
+        };
+        if (!fresh.length) {
+            finish(0, dup);
+            return;
+        }
+        let added = 0;
+        let skipped = dup;
+        let pending = fresh.length;
+        fresh.forEach(function (row) {
+            store.create(row).then(function (r) {
+                if (r.error) {
+                    skipped += 1;
+                } else {
+                    added += 1;
+                }
+                pending -= 1;
+                if (pending === 0) {
+                    finish(added, skipped);
+                }
+            });
         });
     },
 

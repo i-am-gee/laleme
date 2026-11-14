@@ -22,7 +22,7 @@
 
 /* ---------- 挑战入口：样式在组件里，这里只管与日历的间距 ---------- */
 .cb-area {
-    margin-top: 8rpx;
+    margin-top: var(--sp-3);
 }
 
 /* ---------- 好友挑战横幅：淡填充，无描边 ---------- */
@@ -208,8 +208,8 @@
     width: 100%;
     background: var(--bg-card);
     border-radius: var(--r-lg);
-    margin-top: 12rpx;
-    padding: 8rpx 0;
+    margin-top: var(--sp-2);
+    padding: var(--sp-2) 0;
 }
 
 .chip {
@@ -247,8 +247,8 @@
 
 /* ---------- 日历卡 ---------- */
 .cal-card {
-    padding: 12rpx var(--sp-3) 0;
-    margin-top: 12rpx;
+    padding: var(--sp-3) var(--sp-3) 0;
+    margin-top: var(--sp-3);
 }
 
 .cal-title {
@@ -415,44 +415,30 @@
     font-variant-numeric: tabular-nums;
 }
 
-/* ---------- 最近一次：日历卡内的脚注行 ---------- */
+/* ---------- 最近一次：页面末尾的轻量备注 ---------- */
 .last-line {
-    position: relative;
     display: flex;
-    align-items: center;
-    gap: var(--sp-2);
-    min-height: 64rpx;
-    /* 负 margin 抵消卡片左右内边距，让分隔线拉满整卡宽度 */
-    margin: var(--sp-2) calc(var(--sp-3) * -1) 0;
-    padding: 0 var(--sp-4);
-}
-
-.last-line::before {
-    content: "";
-    position: absolute;
-    left: var(--sp-4);
-    right: 0;
-    top: 0;
-    height: 0.5rpx;
-    background: var(--sep);
+    align-items: baseline;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--sp-1) var(--sp-2);
+    margin-top: var(--sp-4);
+    padding: 0 var(--sp-2);
 }
 
 .last-k {
-    font-size: var(--t-body);
-    color: var(--label);
+    font-size: var(--t-caption);
+    color: var(--label-3);
     flex-shrink: 0;
 }
 
 /* 分段折行：放得下就一行，放不下只在「·」处换行，不会把词切断 */
 .last-v {
-    flex: 1;
-    min-width: 0;
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-end;
     align-items: center;
-    font-size: var(--t-callout);
-    color: var(--label-2);
+    font-size: var(--t-caption);
+    color: var(--label-3);
     font-variant-numeric: tabular-nums;
     line-height: 1.5;
 }

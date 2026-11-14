@@ -61,6 +61,7 @@ function makeShareInfo(stats) {
 // 按「拉起分享的次数」计数（微信不回调发送结果，只能以拉起为准），满 3 次发称号
 const SHARE_COUNT_KEY = 'laleme_share_count';
 const SHARE_BADGE_KEY = 'laleme_share_badge';
+const GOLD_OFF_KEY = 'laleme_gold_off';
 const SHARE_BADGE_TARGET = 3;
 
 function shareCount() {
@@ -93,6 +94,25 @@ function shareMeta() {
     return { shareCount: shareCount(), shareBadge: shareBadge() };
 }
 
+// 「黄金大屎官」的显示开关：解锁后可手动切回普通外观，纯视觉，不影响称号本身
+function shareGold() {
+    return shareBadge() && !wx.getStorageSync(GOLD_OFF_KEY);
+}
+
+// 返回切换后的新状态；未解锁时不给切
+function toggleGold() {
+    if (!shareBadge()) {
+        return false;
+    }
+    const off = !wx.getStorageSync(GOLD_OFF_KEY);
+    if (off) {
+        wx.setStorageSync(GOLD_OFF_KEY, 1);
+    } else {
+        wx.removeStorageSync(GOLD_OFF_KEY);
+    }
+    return !off;
+}
+
 function setShareState(count, badge) {
     const n = Math.max(0, Math.min(parseInt(count, 10) || 0, 99));
     if (n > 0) {
@@ -105,12 +125,15 @@ function setShareState(count, badge) {
     } else {
         wx.removeStorageSync(SHARE_BADGE_KEY);
     }
+    // 恢复后默认展示金色，不继承上一次的隐藏状态
+    wx.removeStorageSync(GOLD_OFF_KEY);
 }
 
 // 清空全部数据时一并抹掉分享进度与称号
 function clearShareState() {
     wx.removeStorageSync(SHARE_COUNT_KEY);
     wx.removeStorageSync(SHARE_BADGE_KEY);
+    wx.removeStorageSync(GOLD_OFF_KEY);
 }
 
 // 页面 onReady/数据就绪后调用；页面需含 <canvas type="2d" id="shareCanvas"/>
@@ -366,6 +389,8 @@ module.exports = {
     shareBadge: shareBadge,
     trackShare: trackShare,
     shareMeta: shareMeta,
+    shareGold: shareGold,
+    toggleGold: toggleGold,
     setShareState: setShareState,
     clearShareState: clearShareState,
     SHARE_BADGE_TARGET: SHARE_BADGE_TARGET,

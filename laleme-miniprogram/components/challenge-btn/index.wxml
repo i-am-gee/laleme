@@ -1,6 +1,6 @@
 <view class="cb-wrap">
     <button
-        class="cb {{badge ? 'is-badge' : ''}}"
+        class="cb {{gold ? 'is-badge' : ''}}"
         hover-class="cb-hover"
         hover-stay-time="80"
         open-type="share"
@@ -10,9 +10,14 @@
         <text class="cb-text">转发给你在乎的人</text>
     </button>
 
-    <!-- 进度只用一句文字；旁边放一坨金色便便，把奖励说清楚 -->
-    <view class="cb-progress {{badge ? 'gold' : ''}}">
-        <text class="cb-progress-text">{{badge ? '已解锁黄金大屎官' : '已转发 ' + count + ' 次 · 还差 ' + left + ' 次解锁黄金大屎官'}}</text>
-        <text class="cb-progress-poop {{badge ? 'on' : ''}}">💩</text>
+    <!-- 进度与身份：解锁后点这行可以在普通 / 金色之间切换 -->
+    <view
+        class="cb-progress {{gold ? 'gold' : ''}}"
+        hover-class="{{badge ? 'cb-progress-hover' : 'none'}}"
+        hover-stay-time="80"
+        bindtap="onToggle"
+    >
+        <text class="cb-progress-text">{{progressText}}</text>
+        <text class="cb-progress-poop {{gold ? 'on' : ''}}">💩</text>
     </view>
 </view>
