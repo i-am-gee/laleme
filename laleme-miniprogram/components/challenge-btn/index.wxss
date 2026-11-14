@@ -62,16 +62,43 @@
     letter-spacing: 1.5rpx;
 }
 
-/* ---------- 进度：一句话 ---------- */
+/* ---------- 进度：一句话 + 一坨金便便 ---------- */
 .cb-progress {
+    width: 100%;
     margin-top: 12rpx;
+    padding: 0 8rpx;
+    box-sizing: border-box;
+    /* 用行内流居中，比 flex 更稳：文字和便便作为一个整体对齐 */
+    text-align: center;
+    line-height: 1.4;
+}
+
+.cb-progress-text {
     font-size: 22rpx;
     color: rgba(60, 58, 55, 0.48);
     letter-spacing: 0.2rpx;
-    line-height: 1.3;
 }
 
-.cb-progress.gold {
+/* 未解锁时也给一点金色，让「黄金大屎官」这个目标看得见 */
+.cb-progress-poop {
+    display: inline-block;
+    vertical-align: -3rpx;
+    margin-left: 8rpx;
+    font-size: 26rpx;
+    line-height: 1;
+    opacity: 0.72;
+    filter: sepia(1) saturate(3.4) hue-rotate(-14deg) brightness(1.12);
+    transition: opacity 0.3s ease, filter 0.3s ease, transform 0.3s var(--ease-spring);
+}
+
+.cb-progress-poop.on {
+    opacity: 1;
+    filter: sepia(1) saturate(3.6) hue-rotate(-14deg) brightness(1.2)
+        drop-shadow(0 0 6rpx rgba(255, 220, 150, 0.85));
+    transform: scale(1.1);
+}
+
+.cb-progress.gold .cb-progress-text {
     color: var(--gold);
     font-weight: 500;
 }

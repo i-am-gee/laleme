@@ -368,8 +368,26 @@
 /* 有记录：淡填充圆 */
 .cal-cell.pooped .cal-poop {
     background: var(--tint-soft);
+    line-height: 1;
+}
+
+.cal-poop-emoji {
+    display: block;
     font-size: 34rpx;
     line-height: 1;
+}
+
+/* 解锁「黄金大屎官」后，日历上的每一坨也跟着镀金 */
+.cal-cell.pooped .cal-poop.gold {
+    background: linear-gradient(145deg, #f9ecc8 0%, #e6c98c 58%, #d3ac63 100%);
+}
+
+.cal-cell.pooped .cal-poop.gold .cal-poop-emoji {
+    filter: sepia(1) saturate(3.6) hue-rotate(-14deg) brightness(1.14);
+}
+
+.cal-cell.today .cal-poop.gold {
+    box-shadow: inset 0 0 0 3rpx #c1954a;
 }
 
 /* 今天：加一圈实色环 */
