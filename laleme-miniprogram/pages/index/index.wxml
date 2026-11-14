@@ -97,8 +97,17 @@
     </view>
 </view>
 
-<!-- 分享致谢：轻量的一闪，比称号庆祝克制 -->
+<!-- 分享致谢：彩带 + 烟花，热闹但只有 3 秒 -->
 <view class="thanks-mask" wx:if="{{showThanks}}" bindtap="hideThanks">
+    <view
+        class="confetti-piece {{item.round ? 'round' : ''}}"
+        wx:for="{{thanksConfetti}}"
+        wx:key="index"
+        style="left: {{item.left}}%; width: {{item.size}}rpx; height: {{item.round ? item.size : item.size * 2}}rpx; background: {{item.color}}; animation-delay: {{item.delay}}s; animation-duration: {{item.duration}}s;"
+    ></view>
+    <view class="fw fw1"></view>
+    <view class="fw fw2"></view>
+    <view class="fw fw3"></view>
     <view class="thanks-card">
         <view class="thanks-badge">
             <view class="thanks-ring"></view>

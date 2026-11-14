@@ -7,12 +7,30 @@ const { getNavTop } = require('../../utils/nav.js');
 const store = createRecordStore();
 
 const CONFETTI_COLORS = ['#f0997b', '#97c459', '#85b7eb', '#ed93b1', '#fac775', '#5dcaa5'];
+// 分享致谢走金色系，和「闪闪发光」的文案对上
+const THANKS_COLORS = ['#f3d18a', '#e9cb80', '#ffd980', '#c9a04e', '#f6e3b0', '#f0997b'];
 
 const PRIVACY_SUMMARY = [
     '1. 你的打卡记录仅保存在本机（本地存储），不上传、不收集任何个人信息。',
     '2. 仅在你主动点击分享时，微信向你选择的好友发送打卡统计卡片。',
     '3. 全文见「用户隐私保护指引」，同意后即可使用。',
 ].join('\n');
+
+// 分享致谢的彩带：金色系为主，落得比庆祝慢一点，才有"飘下来"的感觉
+function buildThanksConfetti() {
+    const pieces = [];
+    for (let i = 0; i < 28; i += 1) {
+        pieces.push({
+            left: Math.round(2 + Math.random() * 96),
+            color: THANKS_COLORS[i % THANKS_COLORS.length],
+            delay: (Math.random() * 1.2).toFixed(2),
+            duration: (2 + Math.random() * 1.6).toFixed(2),
+            size: 10 + Math.round(Math.random() * 8),
+            round: i % 3 === 0,
+        });
+    }
+    return pieces;
+}
 
 // 彩屑：数量与时长比早些的版本更足，让庆祝有持续感
 function buildConfetti() {
@@ -47,6 +65,7 @@ Page({
         sheetShow: false,
         showCelebrate: false,
         showThanks: false,
+        thanksConfetti: [],
         celebrateText: '',
         celebrateTitle: '打卡成功！',
         celebrateGrand: false,
@@ -331,11 +350,11 @@ Page({
             clearTimeout(this._thanksTimer);
             this._thanksTimer = null;
         }
-        this.setData({ showThanks: true });
+        this.setData({ showThanks: true, thanksConfetti: buildThanksConfetti() });
         this._thanksTimer = setTimeout(function () {
             that.setData({ showThanks: false });
             that._thanksTimer = null;
-        }, 2400);
+        }, 3200);
     },
 
     hideThanks() {

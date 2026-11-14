@@ -467,7 +467,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(18, 16, 14, 0.34);
+    background: rgba(18, 16, 14, 0.58);
+    overflow: hidden;
     animation: thanksFade 0.22s ease both;
 }
 
@@ -479,7 +480,7 @@
     border-radius: var(--r-lg);
     /* 自承深色底：不依赖遮罩加深，文字就不会和底下的日历打架 */
     background: rgba(30, 26, 22, 0.9);
-    box-shadow: 0 24rpx 64rpx rgba(0, 0, 0, 0.34);
+    box-shadow: 0 24rpx 64rpx rgba(0, 0, 0, 0.34), inset 0 0 0 2rpx rgba(233, 203, 128, 0.36);
     animation: thanksPop 0.52s var(--ease-spring) both;
 }
 
@@ -505,6 +506,25 @@
     animation: thanksRing 1.8s ease-out 2;
 }
 
+/* 致谢的烟花统一走金色，和彩带、卡片是一个色系 */
+.thanks-mask .fw1 {
+    left: 10%;
+    top: 19%;
+    border-color: rgba(255, 214, 130, 0.92);
+}
+
+.thanks-mask .fw2 {
+    left: 75%;
+    top: 25%;
+    border-color: rgba(246, 227, 176, 0.88);
+}
+
+.thanks-mask .fw3 {
+    left: 47%;
+    top: 73%;
+    border-color: rgba(233, 203, 128, 0.88);
+}
+
 .thanks-poop {
     position: relative;
     display: block;
@@ -518,7 +538,8 @@
     margin-top: var(--sp-3);
     font-size: var(--t-title3);
     font-weight: 600;
-    color: #ffffff;
+    color: #f7e2ae;
+    text-shadow: 0 0 20rpx rgba(246, 200, 110, 0.45);
     letter-spacing: 1rpx;
     text-align: center;
     line-height: 1.35;
@@ -611,7 +632,7 @@
     height: 60rpx;
     border-radius: 50%;
     opacity: 0;
-    border-width: 4rpx;
+    border-width: 3rpx;
     border-style: solid;
     animation: firework 2.4s var(--ease-sheet) 1;
 }
