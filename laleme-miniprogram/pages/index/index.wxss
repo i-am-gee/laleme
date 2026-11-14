@@ -20,19 +20,22 @@
     min-width: 0;
 }
 
+/* 挑战入口：实心品牌棕胶囊，纯白图标与文字，在浅色页面上第一眼就能看到 */
 .nav-share {
     display: flex;
     align-items: center;
     gap: 8rpx;
     /* 微信 button 默认宽度 184px，必须显式覆盖 */
     width: auto !important;
-    margin-top: 12rpx;
-    padding: 12rpx 20rpx 12rpx 16rpx;
+    height: 64rpx;
+    margin-top: 10rpx;
+    padding: 0 22rpx 0 18rpx;
     border-radius: var(--r-full);
-    background: var(--tint-soft);
+    background: var(--tint);
+    box-shadow: 0 8rpx 20rpx rgba(139, 94, 60, 0.26);
     flex-shrink: 0;
     line-height: 1;
-    transition: transform 0.2s var(--ease-spring), background-color 0.12s ease;
+    transition: transform 0.2s var(--ease-spring), box-shadow 0.2s ease, background-color 0.12s ease;
 }
 
 .nav-share::after {
@@ -40,19 +43,21 @@
 }
 
 .nav-share-icon {
-    width: 28rpx;
-    height: 28rpx;
+    width: 26rpx;
+    height: 26rpx;
 }
 
 .nav-share-text {
     font-size: var(--t-footnote);
-    font-weight: 500;
-    color: var(--tint);
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 0.5rpx;
 }
 
 .nav-share-hover {
-    background: var(--tint-fill);
+    background: var(--tint-strong);
     transform: scale(0.95);
+    box-shadow: 0 4rpx 12rpx rgba(139, 94, 60, 0.22);
 }
 
 /* ---------- 好友挑战横幅：淡填充，无描边 ---------- */
@@ -95,14 +100,14 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: var(--sp-3) 0 0;
+    padding: 8rpx 0 0;
 }
 
 /* 圆按钮容器 */
 .fab-wrap {
     position: relative;
-    width: 340rpx;
-    height: 340rpx;
+    width: 312rpx;
+    height: 312rpx;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -111,8 +116,8 @@
 /* 引导光晕：呼吸式外扩，把视线引向主按钮 */
 .fab-halo {
     position: absolute;
-    width: 316rpx;
-    height: 316rpx;
+    width: 288rpx;
+    height: 288rpx;
     border-radius: 50%;
     background: var(--tint-soft);
     animation: haloBreathe 3s ease-in-out infinite;
@@ -133,8 +138,8 @@
 .fab {
     position: relative;
     overflow: hidden;
-    width: 288rpx;
-    height: 288rpx;
+    width: 264rpx;
+    height: 264rpx;
     border-radius: 50%;
     display: flex;
     flex-direction: column;
@@ -193,7 +198,7 @@
 .fab-emoji {
     position: relative;
     z-index: 1;
-    font-size: 108rpx;
+    font-size: 96rpx;
     line-height: 1;
 }
 
@@ -255,15 +260,15 @@
 
 /* ---------- 日历卡 ---------- */
 .cal-card {
-    padding: var(--sp-3) var(--sp-3) 8rpx;
-    margin-top: 8rpx;
+    padding: var(--sp-3) var(--sp-3) 0;
+    margin-top: var(--sp-2);
 }
 
 .cal-title {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8rpx;
+    margin-bottom: var(--sp-2);
 }
 
 /* 月份切换：左箭头 + 月份 + 右箭头 */
@@ -337,11 +342,11 @@
     flex-wrap: wrap;
 }
 
-/* 日历格子：64rpx 高，内含圆形日号 */
+/* 日历格子：72rpx 高，行高固定，切月不跳动 */
 .cal-cell {
     position: relative;
     width: calc(100% / 7);
-    height: 64rpx;
+    height: 72rpx;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -402,16 +407,26 @@
     font-variant-numeric: tabular-nums;
 }
 
-/* ---------- 最近一次：iOS 列表行 ---------- */
+/* ---------- 最近一次：日历卡内的脚注行 ---------- */
 .last-line {
+    position: relative;
     display: flex;
     align-items: center;
     gap: var(--sp-2);
-    min-height: 88rpx;
-    background: var(--bg-card);
-    border-radius: var(--r-lg);
-    padding: 10rpx var(--sp-4);
-    margin-top: 8rpx;
+    min-height: 72rpx;
+    /* 负 margin 抵消卡片左右内边距，让分隔线拉满整卡宽度 */
+    margin: var(--sp-2) calc(var(--sp-3) * -1) 0;
+    padding: 0 var(--sp-4);
+}
+
+.last-line::before {
+    content: "";
+    position: absolute;
+    left: var(--sp-4);
+    right: 0;
+    top: 0;
+    height: 0.5rpx;
+    background: var(--sep);
 }
 
 .last-k {

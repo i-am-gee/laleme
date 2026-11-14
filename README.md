@@ -3,7 +3,7 @@
 > 一款极度克制的肠道健康记录小程序。
 > 数据只属于你，从未离开你的手机。
 
-[![Version](https://img.shields.io/badge/version-1.7.0-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
+[![Version](https://img.shields.io/badge/version-1.7.1-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
 
 ---
 
@@ -78,7 +78,7 @@ laleme-miniprogram/       微信小程序（原生框架，零依赖）
 ├── assets/
 │   ├── tabbar/           四枚 tabBar 图标（双状态）
 │   ├── badges/           四枚成就徽章图标（点亮/未点亮）
-│   └── actions/          铅笔 / 垃圾桶 / 左滑引导 / 分享图标
+│   └── actions/          铅笔 / 垃圾桶 / 左滑引导 / 分享图标（棕、白两版）
 └── utils/
     ├── constants.js      布里斯托分类、徽章定义、月历口径、隐私文本
     ├── record-store.js   本地存储层（list/create/update/remove，含字段校验）

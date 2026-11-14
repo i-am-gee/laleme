@@ -6,8 +6,8 @@
             <view class="nav-sub">{{dateText}} · <text class="nav-state {{statusClass}}">{{statusSub}}</text></view>
         </view>
         <button class="nav-share" hover-class="nav-share-hover" open-type="share" bindtouchstart="onShareTouch">
-            <image class="nav-share-icon" src="/assets/actions/share.png" mode="aspectFit" />
-            <text class="nav-share-text">挑战</text>
+            <image class="nav-share-icon" src="/assets/actions/share-white.png" mode="aspectFit" />
+            <text class="nav-share-text">喊好友挑战</text>
         </button>
     </view>
 
@@ -81,15 +81,56 @@
                 <view class="cal-badge" wx:if="{{item.count > 1}}">{{item.count}}</view>
             </view>
         </view>
-    </view>
 
-    <!-- 最近一次：纯信息行，不再作为历史入口 -->
-    <view class="last-line">
-        <text class="last-k">最近一次</text>
-        <view class="last-v">
-            <text class="last-seg">{{lastTime}}</text>
-            <text class="last-seg" wx:if="{{lastDur}}">{{lastDur}}</text>
-            <text class="last-seg" wx:if="{{lastShape}}">{{lastShape}}</text>
+        <!-- 最近一次：作为日历卡的脚注行，不再单独占一张卡 -->
+        <view class="last-line">
+            <text class="last-k">最近一次</text>
+            <view class="last-v">
+                <text class="last-seg">{{lastTime}}</text>
+                <text class="last-seg" wx:if="{{lastDur}}">{{lastDur}}</text>
+                <text class="last-seg" wx:if="{{lastShape}}">{{lastShape}}</text>
+            </view>
         </view>
     </view>
 </view>
+
+<!-- 隐私保护指引弹窗 -->
+<view class="privacy-mask" wx:if="{{showPrivacy}}">
+    <view class="privacy-card">
+        <view class="privacy-title">隐私保护指引</view>
+        <scroll-view scroll-y class="privacy-body">
+            <text class="privacy-text">{{privacySummary}}</text>
+        </scroll-view>
+        <view class="privacy-link" bindtap="goPrivacyPage">查看「{{privacyContractName}}」全文 ></view>
+        <button
+            class="privacy-agree"
+            id="agree-btn"
+            open-type="agreePrivacyAuthorization"
+            bindagree="onPrivacyAgree"
+            bindtap="onPrivacyAgree"
+        >同意并继续</button>
+        <view class="privacy-decline" bindtap="onPrivacyDecline">不同意</view>
+    </view>
+</view>
+
+<!-- 记录抽屉：从底部拉起，可下滑收起 -->
+<page-container
+    show="{{sheetShow}}"
+    position="bottom"
+    round="{{true}}"
+    overlay="{{true}}"
+    duration="{{300}}"
+    z-index="{{800}}"
+    close-on-slide-down="{{true}}"
+    custom-style="background:#ffffff;border-radius:32rpx 32rpx 0 0;"
+    bind:beforeleave="onSheetLeave"
+    bind:clickoverlay="onSheetOverlay"
+>
+    <view class="sheet">
+        <view class="sheet-bar"></view>
+        <record-form id="recordForm" bind:saved="onSheetSaved" bind:deleted="onSheetSaved" />
+    </view>
+</page-container>
+
+<!-- 分享海报绘制画布（不可见） -->
+<canvas type="2d" id="shareCanvas" class="share-canvas"></canvas>

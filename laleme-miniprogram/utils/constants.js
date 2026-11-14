@@ -164,6 +164,11 @@ function monthCalendar(records, baseMs) {
             future: isCurrent && d > today,
         });
     }
+    // 固定 6 行（42 格）：行数不足时补齐空白，保证切月时日历高度与行距完全一致
+    const CELL_TOTAL = 42;
+    while (cells.length < CELL_TOTAL) {
+        cells.push({ blank: true, day: 0, count: 0, today: false, future: false });
+    }
     return {
         cells: cells,
         countMap: countMap,
