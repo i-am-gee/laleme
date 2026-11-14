@@ -1,6 +1,5 @@
 /* ============================================================
-   计时浮条：贴在 tabBar 上方的一张抽屉式卡片
-   和记录浮层用同一条 iOS 抓手，暗示「可以往上拉」
+   计时浮条：贴在 tabBar 上方，深色胶囊，安静但不隐形
    ============================================================ */
 
 .tb {
@@ -11,67 +10,59 @@
     position: fixed;
     left: 50%;
     /* 118rpx 的 tabBar + 一点呼吸，再避开安全区 */
-    bottom: calc(env(safe-area-inset-bottom) + 128rpx);
+    bottom: calc(env(safe-area-inset-bottom) + 136rpx);
     transform: translateX(-50%);
     z-index: 900;
 
-    width: 620rpx;
-    box-sizing: border-box;
-    padding: 16rpx 40rpx 26rpx;
-    border-radius: 40rpx;
-    background: rgba(38, 32, 27, 0.95);
-    box-shadow: 0 20rpx 52rpx rgba(0, 0, 0, 0.28);
-
     display: flex;
-    flex-direction: column;
     align-items: center;
-    animation: tbIn 0.36s var(--ease-spring) both;
+    gap: 12rpx;
+    height: 72rpx;
+    padding: 0 28rpx;
+    border-radius: var(--r-full);
+    background: rgba(43, 36, 30, 0.94);
+    box-shadow: 0 12rpx 32rpx rgba(0, 0, 0, 0.26);
+    animation: tbIn 0.34s var(--ease-spring) both;
     transition: transform 0.16s var(--ease-spring), opacity 0.14s ease;
 }
 
 .tb-hover {
-    transform: translateX(-50%) scale(0.97);
-    opacity: 0.92;
-}
-
-/* 与记录浮层一致的抓手条 */
-.tb-grabber {
-    width: 72rpx;
-    height: 10rpx;
-    border-radius: var(--r-full);
-    background: rgba(255, 255, 255, 0.26);
-    margin-bottom: 18rpx;
-}
-
-.tb-row {
-    display: flex;
-    align-items: center;
-    gap: 14rpx;
+    transform: translateX(-50%) scale(0.96);
+    opacity: 0.9;
 }
 
 /* 呼吸的小点：告诉用户它一直活着 */
 .tb-pulse {
-    width: 14rpx;
-    height: 14rpx;
+    width: 12rpx;
+    height: 12rpx;
     border-radius: 50%;
     background: #f0b95c;
     animation: tbPulse 1.7s ease-in-out infinite;
 }
 
 .tb-time {
-    font-size: 52rpx;
+    font-size: var(--t-headline);
     font-weight: 600;
     color: #ffffff;
-    letter-spacing: 1rpx;
-    line-height: 1.15;
+    letter-spacing: 0.5rpx;
     font-variant-numeric: tabular-nums;
 }
 
 .tb-label {
-    margin-top: 8rpx;
-    font-size: var(--t-caption2);
-    color: rgba(255, 255, 255, 0.52);
-    letter-spacing: 0.6rpx;
+    font-size: var(--t-footnote);
+    color: rgba(255, 255, 255, 0.62);
+    letter-spacing: 0.5rpx;
+}
+
+/* 向上的小箭头，暗示"点我回去" */
+.tb-arrow {
+    width: 14rpx;
+    height: 14rpx;
+    margin-left: 2rpx;
+    margin-top: 6rpx;
+    border-left: 3rpx solid rgba(255, 255, 255, 0.66);
+    border-top: 3rpx solid rgba(255, 255, 255, 0.66);
+    transform: rotate(45deg);
 }
 
 @keyframes tbPulse {
@@ -88,7 +79,7 @@
 @keyframes tbIn {
     0% {
         opacity: 0;
-        transform: translateX(-50%) translateY(24rpx) scale(0.92);
+        transform: translateX(-50%) translateY(16rpx) scale(0.9);
     }
     100% {
         opacity: 1;

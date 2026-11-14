@@ -3,7 +3,7 @@
 > 一款极度克制的肠道健康记录小程序。
 > 数据只属于你，从未离开你的手机。
 
-[![Version](https://img.shields.io/badge/version-1.8.1-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
+[![Version](https://img.shields.io/badge/version-1.8.0-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
 
 > **接手开发请先读 [CLAUDE.md](./CLAUDE.md)** —— 项目结构、数据层、设计令牌、踩坑清单与发布流程都在那里，读完即可上手。
 

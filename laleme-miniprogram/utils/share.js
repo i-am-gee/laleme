@@ -49,8 +49,7 @@ function makeShareInfo(stats) {
     const month = (stats && stats.monthDays) || 0;
     const info = {
         title: makeTitle(streak, month),
-        // welcome=1：接收方第一眼看到一屏烟花，先被关心一下再开始用
-        path: '/pages/index/index?challenge=1&streak=' + streak + '&month=' + month + '&welcome=1',
+        path: '/pages/index/index?challenge=1&streak=' + streak + '&month=' + month,
     };
     if (cachedPath) {
         info.imageUrl = cachedPath;
