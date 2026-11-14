@@ -11,12 +11,6 @@ const store = createRecordStore();
 const DRAFT_KEY = 'laleme_draft';
 const DRAFT_TTL = 24 * 60 * 60 * 1000;
 
-// 计时结束后的展示时间：优先用真实秒数，退化到分钟
-function finishText(seconds, minutes) {
-    const total = Number.isFinite(Number(seconds)) && Number(seconds) > 0 ? Number(seconds) : (minutes || 0) * 60;
-    return pad2(Math.floor(total / 60)) + ':' + pad2(Math.floor(total % 60));
-}
-
 function dateValueOf(ms) {
     const d = new Date(ms);
     return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
@@ -216,27 +210,6 @@ Component({
             }
         },
 
-        // 结束计时后打开：时长已经由计时算好，只需要补性状与感受
-        openFinish(minutes, seconds) {
-            const now = Date.now();
-            this.selBristol = null;
-            this.selMood = null;
-            this.stopTimer();
-            // 这次计时算出来的分钟数，submit 时兜底用（输入框本身留空）
-            this._finishMin = minutes || 0;
-            this.setData({
-                isEdit: false,
-                manualMin: '',
-                dateValue: dateValueOf(now),
-                timeValue: timeValueOf(now),
-                bristolOptions: bristolOptions(null),
-                bristolHint: '',
-                moodOptions: moodOptions(null),
-                timerText: finishText(seconds, minutes),
-            });
-            this.restoreSelection(false);
-        },
-
         close() {
             this.stopTimer();
             this._startAt = 0;
@@ -309,8 +282,6 @@ Component({
             let duration;
             if (!isNaN(manual) && manual > 0) {
                 duration = Math.min(manual, 720);
-            } else if (this._finishMin > 0) {
-                duration = Math.min(this._finishMin, 720);
             } else if (timer.running()) {
                 duration = timer.elapsedMin();
             } else {
@@ -344,7 +315,6 @@ Component({
                     wx.showToast({ title: '记录已更新', icon: 'success' });
                     that.stopTimer();
                     timer.stop();
-                    that._finishMin = 0;
                     that.clearDraft();
                     that.triggerEvent('saved', { mode: 'update' });
                 });
@@ -367,7 +337,6 @@ Component({
                 }
                 that.stopTimer();
                 timer.stop();
-                that._finishMin = 0;
                 that.clearDraft();
                 that.triggerEvent('saved', { mode: 'create' });
             });

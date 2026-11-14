@@ -550,22 +550,6 @@ Page({
     },
 
     // 按钮上再按一下：结束本次计时，按上次的性状与感受收下
-    // 按钮上再按一下：停表，带着已算好的时长打开浮层补性状与感受
-    finishTiming() {
-        // 先取秒数再停表，浮层里要显示这次到底计了多久
-        const sec = timer.elapsedSec();
-        const min = timer.elapsedMin();
-        timer.stop();
-        this.stopTick();
-        haptics.tap();
-        this.setData({ ticking: false, timerText: '00:00', sheetShow: true }, () => {
-            const form = this.selectComponent('#recordForm');
-            if (form) {
-                form.openFinish(min, sec);
-            }
-        });
-    },
-
     onFabTouchStart() {
         haptics.strong();
     },
@@ -580,9 +564,9 @@ Page({
         if (this._fabLock) {
             return; // 防连点
         }
-        // 计时中：这一下就是「结束」
+        // 计时中：拉起浮层去填性状，表不停，按钮状态也不变
         if (this.data.ticking) {
-            this.finishTiming();
+            this.openTimerSheet();
             return;
         }
         if (this.data.sheetShow) {
