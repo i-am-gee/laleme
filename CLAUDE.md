@@ -3,7 +3,7 @@
 > 这份文档是给**后续接手的 AI 或开发者**看的。
 > 目标：读完这一份，不需要翻历史对话，就能安全地继续改这个项目。
 >
-> 最后更新：2026-11-14 · 对应版本 v1.7.11
+> 最后更新：2026-11-14 · 对应版本 v1.8.0
 
 ---
 
@@ -14,7 +14,7 @@
 | 产品 | 「拉了么」——极度克制的肠道健康记录小程序 |
 | 形态 | 微信原生小程序，**零第三方依赖**，数据 100% 存本机 |
 | 代码位置 | `laleme-miniprogram/`（仓库根目录还有 Web 原型与图标生成脚本） |
-| 当前版本 | **1.7.11**（已上传体验版，等待后台提审） |
+| 当前版本 | **1.8.0**（已上传体验版，等待后台提审） |
 | 包体 | 上传约 154KB / 源码 416KB |
 | AppID | `wxc8c0a431489d7ea7` |
 | 仓库 | https://github.com/i-am-gee/laleme |
@@ -102,13 +102,15 @@ laleme-miniprogram/
 ├── components/
 │   ├── record-form/         记录表单：首页抽屉与编辑页共用，计时器在这里
 │   ├── roll-number/         拉霸滚动数字（逐位竖排）
-│   └── challenge-btn/       分享入口：首页与统计页共用，见下方「分享状态机」
+│   ├── challenge-btn/       分享入口：首页与统计页共用，见下方「分享状态机」
+│   └── timer-bar/           计时浮条：任意 Tab 页贴在 tabBar 上方，点击回首页继续记录
 ├── custom-tab-bar/          自定义底部导航（原生 tabBar 加不了震动反馈）
 ├── assets/                  tabbar(4×2) / badges(4×2) / actions(5)
 └── utils/
     ├── constants.js         布里斯托 7 型、徽章定义、月历口径、分享文案、隐私文本
     ├── record-store.js      存储层：list/create/update/remove，统一返回 {data, error}
     ├── share.js             分享信息 + 5:4 海报绘制 + **分享计数/称号/金色开关**
+    ├── timer.js             **全局计时**：以开始时间戳为准，跨页面/切后台都不中断
     ├── csv.js               CSV 导出解析（含末尾 # 附属状态行）
     ├── nav.js               Large Title 顶部安全距离
     └── haptics.js           震动三档：light / tap / strong
@@ -133,6 +135,7 @@ laleme-miniprogram/
 | `laleme_celebrate_flag` | 打卡后待播放的庆祝（时间戳） | `record-form` 写入、首页消费 |
 | `laleme_badge_flag` | 称号达成后待播放的庆祝（时间戳） | `share.js` 写入、首页消费 |
 | `laleme_thanks_flag` | 分享后待播放的致谢（时间戳） | `share.js` 写入、首页消费 |
+| `laleme_timer_start` | 计时开始时间戳（有值即在计时） | `timer.js` 维护 |
 
 **记录字段**：`id` / `timestamp`(ms) / `durationMin`(1–720) / `bristol`(1–7，可空) / `mood`(`good|normal|hard`，可空)
 
@@ -245,6 +248,7 @@ wechatide -c ide auto_preview --project $P
 
 | 版本 | 关键变化 |
 |---|---|
+| 1.8.0 | 计时全局化：关掉抽屉也继续走，首页按钮显示时间、再按结束；其余 Tab 页有计时浮条可跳回；超过 1 小时自动收尾。致谢动画改为无卡片的暗底大图，与打卡庆祝同构。打开抽屉默认沿用上次的性状与感受 |
 | 1.7.11 | 致谢动画加金色系彩带与烟花环，时长 3.2s；卡片加金色描边、标题转金 |
 | 1.7.10 | 分享后加轻量致谢动画（金色便便 + 感谢语，2.4 秒自动退场）；称号庆祝优先，不与致谢叠加 |
 | 1.7.9 | 首页间距统一到令牌；解锁文案「让更多人闪闪发光」+ 身份可切换；导入前先比对再确认 |

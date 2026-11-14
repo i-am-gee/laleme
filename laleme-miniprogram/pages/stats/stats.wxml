@@ -75,3 +75,6 @@
 
 <!-- 分享海报绘制画布（不可见） -->
 <canvas type="2d" id="shareCanvas" class="share-canvas"></canvas>
+
+<!-- 计时浮条：任意页都能看到还在计时 -->
+<timer-bar />

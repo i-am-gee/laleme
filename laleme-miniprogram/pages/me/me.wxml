@@ -32,13 +32,13 @@
     <button class="ghost-btn" hover-class="ghost-hover" bindtap="goDataPage" bindtouchstart="onShareTouch">数据备份与恢复</button>
 
     <view class="card about">
-        <view class="about-text">「拉了么」v1.7.11 · 数据仅保存在本机，不上传任何服务器。\n\n性状分类采用国际通用的布里斯托大便分类法（Bristol Stool Scale）。\n\n本应用不构成医疗建议，持续异常请咨询消化科医生。</view>
+        <view class="about-text">「拉了么」v1.8.0 · 数据仅保存在本机，不上传任何服务器。\n\n性状分类采用国际通用的布里斯托大便分类法（Bristol Stool Scale）。\n\n本应用不构成医疗建议，持续异常请咨询消化科医生。</view>
 
         <view class="about-divider"></view>
 
         <view class="thanks-text">特别鸣谢 Luna——有你，和你的那群朋友，才有了「拉了么」。</view>
 
-        <view class="thanks-text">特别鸣谢 Roger 和 Elliot——他们打开了我的眼界和想象力，让这件小事有了被认真做下去的可能。</view>
+        <view class="thanks-text">特别鸣谢 Roger 和 Elliot——你们打开了我的眼界和想象力，让这件小事有了被认真做下去的可能。</view>
 
         <view class="thanks-text">这个项目已经开源，欢迎来读代码、提个 issue，或者 fork 一份。</view>
 
@@ -51,3 +51,6 @@
 
 <!-- 分享海报绘制画布（不可见） -->
 <canvas type="2d" id="shareCanvas" class="share-canvas"></canvas>
+
+<!-- 计时浮条：任意页都能看到还在计时 -->
+<timer-bar />

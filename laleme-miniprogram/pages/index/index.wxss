@@ -181,6 +181,22 @@
     color: #ffffff;
 }
 
+.fab-time {
+    position: relative;
+    z-index: 1;
+    display: block;
+    font-size: 52rpx;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 1rpx;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+}
+
+.hero.is-badge .fab-time {
+    color: #f4dca6;
+}
+
 /* ---------- 大屎官：主按钮换成黑金，与普通用户的暖棕拉开档次 ---------- */
 .hero.is-badge .fab {
     background: linear-gradient(165deg, #3d352c 0%, #201b15 100%);
@@ -467,7 +483,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(18, 16, 14, 0.58);
+    /* 与打卡庆祝同档的暗底：金色图标和字直接浮在上面，不放色块 */
+    background: rgba(18, 16, 14, 0.87);
     overflow: hidden;
     animation: thanksFade 0.22s ease both;
 }
@@ -476,18 +493,14 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 40rpx 48rpx 36rpx;
-    border-radius: var(--r-lg);
-    /* 自承深色底：不依赖遮罩加深，文字就不会和底下的日历打架 */
-    background: rgba(30, 26, 22, 0.9);
-    box-shadow: 0 24rpx 64rpx rgba(0, 0, 0, 0.34), inset 0 0 0 2rpx rgba(233, 203, 128, 0.36);
+    padding: 0 var(--sp-5);
     animation: thanksPop 0.52s var(--ease-spring) both;
 }
 
 .thanks-badge {
     position: relative;
-    width: 180rpx;
-    height: 180rpx;
+    width: 280rpx;
+    height: 280rpx;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -498,9 +511,9 @@
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 180rpx;
-    height: 180rpx;
-    margin: -90rpx 0 0 -90rpx;
+    width: 280rpx;
+    height: 280rpx;
+    margin: -140rpx 0 0 -140rpx;
     border-radius: 50%;
     background: radial-gradient(circle, rgba(255, 214, 130, 0.62) 0%, rgba(255, 214, 130, 0) 70%);
     animation: thanksRing 1.8s ease-out 2;
@@ -521,22 +534,22 @@
 
 .thanks-mask .fw3 {
     left: 47%;
-    top: 73%;
+    top: 63%;
     border-color: rgba(233, 203, 128, 0.88);
 }
 
 .thanks-poop {
     position: relative;
     display: block;
-    font-size: 88rpx;
+    font-size: 150rpx;
     line-height: 1;
     filter: sepia(1) saturate(3.4) hue-rotate(-14deg) brightness(1.18)
         drop-shadow(0 6rpx 18rpx rgba(255, 214, 130, 0.55));
 }
 
 .thanks-title {
-    margin-top: var(--sp-3);
-    font-size: var(--t-title3);
+    margin-top: var(--sp-4);
+    font-size: var(--t-title2);
     font-weight: 600;
     color: #f7e2ae;
     text-shadow: 0 0 20rpx rgba(246, 200, 110, 0.45);
@@ -547,8 +560,8 @@
 
 .thanks-sub {
     margin-top: var(--sp-2);
-    font-size: var(--t-footnote);
-    color: rgba(255, 255, 255, 0.58);
+    font-size: var(--t-callout);
+    color: rgba(255, 255, 255, 0.68);
     letter-spacing: 0.5rpx;
 }
 

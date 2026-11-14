@@ -3,6 +3,7 @@
 const { BRISTOL, CHEERS, pad2, pickRecord } = require('../../utils/constants.js');
 const { createRecordStore } = require('../../utils/record-store.js');
 const haptics = require('../../utils/haptics.js');
+const timer = require('../../utils/timer.js');
 
 const store = createRecordStore();
 
@@ -74,6 +75,8 @@ Component({
         /* ---------- 计时：以开始时间戳换算，不依赖 tick 次数 ---------- */
         startTimer() {
             this.stopTimer();
+            // 计时状态存到全局，抽屉关掉、切页、切后台都不影响
+            timer.start();
             this._startAt = Date.now();
             const that = this;
             this.setData({ timerText: '00:00' });
@@ -83,13 +86,10 @@ Component({
         },
 
         tick() {
-            if (!this._startAt) {
+            if (!timer.running()) {
                 return;
             }
-            const sec = Math.max(0, Math.floor((Date.now() - this._startAt) / 1000));
-            const m = Math.floor(sec / 60);
-            const s = sec % 60;
-            const text = pad2(m) + ':' + pad2(s);
+            const text = timer.elapsedText();
             if (text !== this.data.timerText) {
                 this.setData({ timerText: text });
             }
@@ -104,8 +104,9 @@ Component({
 
         // 回到前台时补一次，显示跳过的时长
         resume() {
-            if (this._startAt && !this._timer) {
+            if (timer.running() && !this.data.isEdit && !this._timer) {
                 const that = this;
+                this._startAt = timer.startAt();
                 this.tick();
                 this._timer = setInterval(function () {
                     that.tick();
@@ -119,9 +120,10 @@ Component({
 
         /* ---------- 新建：由外部（首页抽屉）调用 ---------- */
         open() {
+            const that = this;
+            const now = Date.now();
             this.selBristol = null;
             this.selMood = null;
-            const now = Date.now();
             this.setData({
                 isEdit: false,
                 manualMin: '',
@@ -132,7 +134,30 @@ Component({
                 moodOptions: moodOptions(null),
                 timerText: '00:00',
             });
-            this.startTimer();
+
+            // 沿用上一次的性状与感受：多数时候是同一档，少点两下
+            store.list().then(function (res) {
+                const list = res.data || [];
+                const last = list.length ? list[list.length - 1] : null;
+                if (!last) {
+                    return;
+                }
+                that.selBristol = last.bristol === undefined ? null : last.bristol;
+                that.selMood = last.mood === undefined ? null : last.mood;
+                that.setData({
+                    bristolOptions: bristolOptions(that.selBristol),
+                    bristolHint: that.selBristol ? BRISTOL[that.selBristol - 1].hint : '',
+                    moodOptions: moodOptions(that.selMood),
+                    manualMin: String(last.durationMin || ''),
+                });
+            });
+
+            // 已经有在跑的计时就接着走，不重新起算
+            if (timer.running()) {
+                this.resume();
+            } else {
+                this.startTimer();
+            }
         },
 
         close() {
@@ -204,8 +229,8 @@ Component({
             let duration;
             if (!isNaN(manual) && manual > 0) {
                 duration = Math.min(manual, 720);
-            } else if (this._startAt) {
-                duration = Math.max(1, Math.round((Date.now() - this._startAt) / 60000));
+            } else if (timer.running()) {
+                duration = timer.elapsedMin();
             } else {
                 duration = 1;
             }
@@ -236,6 +261,7 @@ Component({
                     }
                     wx.showToast({ title: '记录已更新', icon: 'success' });
                     that.stopTimer();
+                    timer.stop();
                     that.triggerEvent('saved', { mode: 'update' });
                 });
                 return;
@@ -256,6 +282,7 @@ Component({
                     }, 1200);
                 }
                 that.stopTimer();
+                timer.stop();
                 that.triggerEvent('saved', { mode: 'create' });
             });
         },

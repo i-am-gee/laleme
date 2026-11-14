@@ -3,6 +3,7 @@ const { createRecordStore } = require('../../utils/record-store.js');
 const haptics = require('../../utils/haptics.js');
 const share = require('../../utils/share.js');
 const { getNavTop } = require('../../utils/nav.js');
+const timer = require('../../utils/timer.js');
 
 const store = createRecordStore();
 
@@ -65,6 +66,8 @@ Page({
         sheetShow: false,
         showCelebrate: false,
         showThanks: false,
+        ticking: false,
+        timerText: '00:00',
         thanksConfetti: [],
         celebrateText: '',
         celebrateTitle: '打卡成功！',
@@ -82,6 +85,7 @@ Page({
     },
 
     onLoad(options) {
+        wx.setStorageSync('laleme_thanks_flag', Date.now());
         this.setData({ navTop: getNavTop() });
         if (options && options.challenge === '1') {
             this.setData({
@@ -107,6 +111,20 @@ Page({
         const cb = this.selectComponent('#challengeBtn');
         if (cb && cb.sync) {
             cb.sync();
+        }
+
+        const app = getApp();
+        if (app && typeof app.settleExpiredTimer === 'function') {
+            app.settleExpiredTimer();
+        }
+        this.syncTiming();
+        // 从其他页的计时浮条跳回来，直接把抽屉弹出来
+        if (app && app.globalData && app.globalData.openTimer) {
+            app.globalData.openTimer = false;
+            const that = this;
+            this.setData({ sheetShow: true }, function () {
+                that.openSheetForm();
+            });
         }
     },
 
@@ -350,9 +368,11 @@ Page({
             clearTimeout(this._thanksTimer);
             this._thanksTimer = null;
         }
+        this.setTabBarDim(true);
         this.setData({ showThanks: true, thanksConfetti: buildThanksConfetti() });
         this._thanksTimer = setTimeout(function () {
             that.setData({ showThanks: false });
+            that.setTabBarDim(false);
             that._thanksTimer = null;
         }, 3200);
     },
@@ -363,6 +383,7 @@ Page({
             this._thanksTimer = null;
         }
         this.setData({ showThanks: false });
+        this.setTabBarDim(false);
     },
 
     playCelebrate(title, text, grand, duration) {        const that = this;
@@ -492,6 +513,71 @@ Page({
     },
 
     // 按下瞬间：唯一使用强触感的入口（设备最长时间震动）
+    /* ---------- 计时：离开抽屉也继续走，按钮上实时显示 ---------- */
+    syncTiming() {
+        const on = timer.running();
+        if (on) {
+            this.setData({ ticking: true, timerText: timer.elapsedText() });
+            this.startTick();
+        } else {
+            this.stopTick();
+            if (this.data.ticking) {
+                this.setData({ ticking: false, timerText: '00:00' });
+            }
+        }
+    },
+
+    startTick() {
+        const that = this;
+        this.stopTick();
+        this._tickTimer = setInterval(function () {
+            if (!timer.running()) {
+                that.stopTick();
+                that.setData({ ticking: false, timerText: '00:00' });
+                return;
+            }
+            const text = timer.elapsedText();
+            if (text !== that.data.timerText) {
+                that.setData({ timerText: text });
+            }
+        }, 1000);
+    },
+
+    stopTick() {
+        if (this._tickTimer) {
+            clearInterval(this._tickTimer);
+            this._tickTimer = null;
+        }
+    },
+
+    // 按钮上再按一下：结束本次计时，按上次的性状与感受收下
+    finishTiming() {
+        const that = this;
+        const min = timer.elapsedMin();
+        timer.stop();
+        this.stopTick();
+        this.setData({ ticking: false, timerText: '00:00' });
+        haptics.tap();
+        store.list().then(function (res) {
+            const list = res.data || [];
+            const last = list.length ? list[list.length - 1] : null;
+            return store.create({
+                timestamp: Date.now(),
+                durationMin: min,
+                bristol: last ? last.bristol : null,
+                mood: last ? last.mood : null,
+            });
+        }).then(function (res) {
+            if (res && res.error) {
+                wx.showToast({ title: '没有存下来，稍后再试', icon: 'none' });
+                return;
+            }
+            wx.setStorageSync('laleme_celebrate_flag', Date.now());
+            that.refresh();
+            that.maybeCelebrate();
+        });
+    },
+
     onFabTouchStart() {
         haptics.strong();
     },
@@ -505,6 +591,11 @@ Page({
     onFabTap() {
         if (this._fabLock) {
             return; // 防连点
+        }
+        // 计时中：这一下就是「结束」
+        if (this.data.ticking) {
+            this.finishTiming();
+            return;
         }
         if (this.data.sheetShow) {
             return;
@@ -541,7 +632,7 @@ Page({
     },
 
     onSheetLeave() {
-        // 下滑关闭 / 点遮罩关闭时同步状态并停止计时
+        // 下滑或点遮罩收起抽屉：计时不停，按钮切成计时态
         const form = this.selectComponent('#recordForm');
         if (form) {
             form.close();
@@ -549,6 +640,7 @@ Page({
         if (this.data.sheetShow) {
             this.setData({ sheetShow: false });
         }
+        this.syncTiming();
     },
 
     onSheetOverlay() {
@@ -557,6 +649,7 @@ Page({
 
     onSheetSaved() {
         this.setData({ sheetShow: false });
+        this.syncTiming();
         const that = this;
         setTimeout(function () {
             that.refresh();
@@ -565,6 +658,7 @@ Page({
     },
 
     onHide() {
+        this.stopTick();
         const form = this.selectComponent('#recordForm');
         if (form) {
             form.pause();
