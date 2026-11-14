@@ -13,6 +13,10 @@ Component({
         selected: 0,
         list: LIST,
         pressed: -1,
+        // 庆祝动画盖住整页时，把 tabBar 一起压暗，避免它亮在最上层
+        dim: false,
+        // 庆祝动画盖住整页时，把 tabBar 一起压暗，避免它亮在最上层
+        dim: false,
     },
 
     methods: {

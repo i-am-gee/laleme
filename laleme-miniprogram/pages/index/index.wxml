@@ -14,7 +14,7 @@
     </view>
 
     <!-- 主视觉：居中的大圆按钮 -->
-    <view class="hero {{statusClass}}">
+    <view class="hero {{statusClass}} {{shareBadge ? 'is-badge' : ''}}">
         <view class="fab-wrap">
             <view class="fab-halo"></view>
             <view class="fab {{fabPressed ? 'fab-pressed' : ''}}" hover-class="fab-hover" bindtouchstart="onFabTouchStart" bindtap="onFabTap">
@@ -91,16 +91,45 @@
 
     <!-- 喊好友挑战：日历下方的通栏入口 -->
     <button
-        class="challenge-btn"
+        class="challenge-btn {{shareBadge ? 'is-badge' : ''}}"
         hover-class="challenge-btn-hover"
         open-type="share"
         bindtouchstart="onShareTouch"
     >
         <view class="challenge-btn-inner">
-            <image class="challenge-btn-icon" src="/assets/actions/share-white.png" mode="aspectFit" />
-            <text class="challenge-btn-text">喊好友挑战</text>
+            <image
+                class="challenge-btn-icon"
+                src="/assets/actions/share-white.png"
+                mode="aspectFit"
+            />
+            <view class="challenge-btn-main">
+                <text class="challenge-btn-text">{{shareBadge ? '大屎官 · 继续分享' : '喊好友挑战'}}</text>
+                <text class="challenge-btn-hint">{{shareBadge ? '金色传说，已解锁' : '再喊 ' + shareLeft + ' 次，升级「大屎官」'}}</text>
+            </view>
+            <view class="share-dots" wx:if="{{!shareBadge}}">
+                <view class="share-dot {{index < shareCount ? 'on' : ''}}" wx:for="{{[0, 1, 2]}}" wx:key="*this"></view>
+            </view>
         </view>
     </button>
+</view>
+
+<!-- 成就庆祝动画：打卡成功 / 获得称号 -->
+<view class="celebrate-mask {{celebrateGrand ? 'grand' : ''}}" wx:if="{{showCelebrate}}" bindtap="hideCelebrate">
+    <view
+        class="confetti-piece {{item.round ? 'round' : ''}}"
+        wx:for="{{confetti}}"
+        wx:key="index"
+        style="left: {{item.left}}%; width: {{item.size}}rpx; height: {{item.round ? item.size : item.size * 2}}rpx; background: {{item.color}}; animation-delay: {{item.delay}}s; animation-duration: {{item.duration}}s;"
+    ></view>
+    <view class="fw fw1"></view>
+    <view class="fw fw2"></view>
+    <view class="fw fw3"></view>
+    <view class="celebrate-center">
+        <view class="star-man">{{celebrateGrand ? '👑' : '🌟'}}</view>
+        <view class="star-poop">💩</view>
+        <view class="celebrate-title">{{celebrateTitle}}</view>
+        <view class="celebrate-sub">{{celebrateText}}</view>
+    </view>
 </view>
 
 <!-- 隐私保护指引弹窗 -->

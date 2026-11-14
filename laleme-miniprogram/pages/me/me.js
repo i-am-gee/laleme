@@ -30,6 +30,7 @@ Page({
     },
 
     onShareAppMessage() {
+        share.trackShare();
         return share.makeShareInfo(this._shareStats);
     },
 
@@ -46,6 +47,17 @@ Page({
     goDataPage() {
         haptics.tap();
         wx.navigateTo({ url: '/pages/data/data' });
+    },
+
+    // 小程序不能直接跳外链，复制仓库地址是最稳的落地方式
+    copyRepo() {
+        haptics.tap();
+        wx.setClipboardData({
+            data: 'https://github.com/i-am-gee/laleme',
+            success: function () {
+                wx.showToast({ title: '仓库地址已复制', icon: 'none' });
+            },
+        });
     },
 
     refresh() {

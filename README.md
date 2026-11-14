@@ -3,7 +3,7 @@
 > 一款极度克制的肠道健康记录小程序。
 > 数据只属于你，从未离开你的手机。
 
-[![Version](https://img.shields.io/badge/version-1.7.2-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
+[![Version](https://img.shields.io/badge/version-1.7.3-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
 
 ---
 

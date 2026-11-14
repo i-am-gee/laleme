@@ -11,6 +11,8 @@
 
     display: flex;
     background: #ffffff;
+    transition: opacity 0.28s ease;
+    transition: opacity 0.28s ease;
     /* iOS 用一条 0.5px 发丝线分隔，不用投影 */
     border-top: 0.5rpx solid var(--sep);
     padding-bottom: env(safe-area-inset-bottom);
@@ -47,4 +49,14 @@
 .tab.active .tab-text {
     color: var(--tint);
     font-weight: 600;
+}
+
+/* 庆祝遮罩升起时，tabBar 一起沉下去 */
+.tabbar.dim {
+    opacity: 0.22;
+}
+
+/* 庆祝遮罩升起时，tabBar 一起沉下去 */
+.tabbar.dim {
+    opacity: 0.22;
 }

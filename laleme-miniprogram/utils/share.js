@@ -57,6 +57,37 @@ function makeShareInfo(stats) {
     return info;
 }
 
+// ---------------- 分享计数与「大屎官」称号 ----------------
+// 按「拉起分享的次数」计数（微信不回调发送结果，只能以拉起为准），满 3 次发称号
+const SHARE_COUNT_KEY = 'laleme_share_count';
+const SHARE_BADGE_KEY = 'laleme_share_badge';
+const SHARE_BADGE_TARGET = 3;
+
+function shareCount() {
+    const n = parseInt(wx.getStorageSync(SHARE_COUNT_KEY), 10);
+    return isNaN(n) || n < 0 ? 0 : n;
+}
+
+function shareBadge() {
+    return wx.getStorageSync(SHARE_BADGE_KEY) === 1;
+}
+
+// 每次拉起分享调用一次；返回本次之后的进度，earned 标记是否「刚好达成」
+// 达成时留一个时间戳，首页 onShow 读到就放庆祝（分享面板正盖着，当场看不见）
+function trackShare() {
+    if (shareBadge()) {
+        return { count: shareCount(), earned: false, badge: true };
+    }
+    const next = shareCount() + 1;
+    wx.setStorageSync(SHARE_COUNT_KEY, next);
+    if (next >= SHARE_BADGE_TARGET) {
+        wx.setStorageSync(SHARE_BADGE_KEY, 1);
+        wx.setStorageSync('laleme_badge_flag', Date.now());
+        return { count: next, earned: true, badge: true };
+    }
+    return { count: next, earned: false, badge: false };
+}
+
 // 页面 onReady/数据就绪后调用；页面需含 <canvas type="2d" id="shareCanvas"/>
 function ensurePoster(page, stats) {
     const key = posterKey(stats);
@@ -306,4 +337,8 @@ module.exports = {
     makeShareInfo: makeShareInfo,
     ensurePoster: ensurePoster,
     getPosterPath: getPosterPath,
+    shareCount: shareCount,
+    shareBadge: shareBadge,
+    trackShare: trackShare,
+    SHARE_BADGE_TARGET: SHARE_BADGE_TARGET,
 };

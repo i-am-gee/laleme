@@ -67,6 +67,7 @@ Page({
     },
 
     onShareAppMessage() {
+        share.trackShare();
         return share.makeShareInfo(this._shareStats);
     },
 

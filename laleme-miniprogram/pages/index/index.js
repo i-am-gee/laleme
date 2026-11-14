@@ -14,15 +14,16 @@ const PRIVACY_SUMMARY = [
     '3. 全文见「用户隐私保护指引」，同意后即可使用。',
 ].join('\n');
 
+// 彩屑：数量与时长比早些的版本更足，让庆祝有持续感
 function buildConfetti() {
     const pieces = [];
-    for (let i = 0; i < 14; i += 1) {
+    for (let i = 0; i < 24; i += 1) {
         pieces.push({
-            left: Math.round(4 + Math.random() * 92),
+            left: Math.round(3 + Math.random() * 94),
             color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
-            delay: (Math.random() * 0.8).toFixed(2),
-            duration: (1.4 + Math.random() * 1.2).toFixed(2),
-            size: 10 + Math.round(Math.random() * 8),
+            delay: (Math.random() * 1.6).toFixed(2),
+            duration: (1.9 + Math.random() * 1.9).toFixed(2),
+            size: 10 + Math.round(Math.random() * 9),
             round: i % 3 === 0,
         });
     }
@@ -46,7 +47,12 @@ Page({
         sheetShow: false,
         showCelebrate: false,
         celebrateText: '',
+        celebrateTitle: '打卡成功！',
+        celebrateGrand: false,
         confetti: [],
+        shareCount: 0,
+        shareBadge: false,
+        shareLeft: 3,
         showPrivacy: false,
         privacySummary: PRIVACY_SUMMARY,
         privacyContractName: '《小程序隐私保护指引》',
@@ -154,6 +160,9 @@ Page({
                 todayCount: today.length,
                 monthOffset: 0,
                 calendar: monthCalendar(records, monthBase),
+                shareCount: share.shareCount(),
+                shareBadge: share.shareBadge(),
+                shareLeft: Math.max(0, share.SHARE_BADGE_TARGET - share.shareCount()),
             }, function () {
                 share.ensurePoster(that, that._stats);
             });
@@ -161,7 +170,17 @@ Page({
     },
 
     onShareAppMessage() {
+        this.afterShare(share.trackShare());
         return share.makeShareInfo(this._stats);
+    },
+
+    // 分享被拉起后的本地记账；称号达成的标记由 share.trackShare 写入
+    afterShare(result) {
+        this.setData({
+            shareCount: result.count,
+            shareBadge: result.badge,
+            shareLeft: Math.max(0, share.SHARE_BADGE_TARGET - result.count),
+        });
     },
 
     onShareTimeline() {
@@ -265,19 +284,60 @@ Page({
 
     /* ---- 庆祝动画 ---- */
     maybeCelebrate() {
+        // 称号优先：刚达成「大屎官」时先放这一场
+        const badgeFlag = wx.getStorageSync('laleme_badge_flag');
+        if (badgeFlag && Date.now() - Number(badgeFlag) < 60000) {
+            wx.removeStorageSync('laleme_badge_flag');
+            haptics.strong();
+            this.playCelebrate(
+                '大屎官',
+                '连喊三次，实至名归。\n从此你的大便，闪金光。',
+                true,
+                4600
+            );
+            return;
+        }
         const flag = wx.getStorageSync('laleme_celebrate_flag');
         if (flag && Date.now() - Number(flag) < 10000) {
             wx.removeStorageSync('laleme_celebrate_flag');
             haptics.tap();
-            const that = this;
-            this.setData({
-                showCelebrate: true,
-                celebrateText: CHEERS[Math.floor(Math.random() * CHEERS.length)],
-                confetti: buildConfetti(),
-            });
-            this._celebrateTimer = setTimeout(function () {
-                that.setData({ showCelebrate: false });
-            }, 3200);
+            this.playCelebrate(
+                '打卡成功！',
+                CHEERS[Math.floor(Math.random() * CHEERS.length)],
+                false,
+                3200
+            );
+        }
+    },
+
+    playCelebrate(title, text, grand, duration) {
+        const that = this;
+        if (this._celebrateTimer) {
+            clearTimeout(this._celebrateTimer);
+            this._celebrateTimer = null;
+        }
+        this.setTabBarDim(true);
+        this.setData({
+            showCelebrate: true,
+            celebrateTitle: title,
+            celebrateText: text,
+            celebrateGrand: !!grand,
+            confetti: buildConfetti(),
+        });
+        this._celebrateTimer = setTimeout(function () {
+            that.setData({ showCelebrate: false });
+            that.setTabBarDim(false);
+        }, duration || 3200);
+    },
+
+    // 自定义 tabBar 是独立节点，页面里的遮罩盖不住它，得单独通知它压暗
+    setTabBarDim(dim) {
+        if (typeof this.getTabBar !== 'function') {
+            return;
+        }
+        const tab = this.getTabBar();
+        if (tab && tab.data && tab.data.dim !== dim) {
+            tab.setData({ dim: dim });
         }
     },
 
@@ -287,6 +347,7 @@ Page({
             this._celebrateTimer = null;
         }
         this.setData({ showCelebrate: false });
+        this.setTabBarDim(false);
     },
 
     /* ---- 隐私授权 ---- */

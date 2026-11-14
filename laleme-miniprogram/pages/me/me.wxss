@@ -132,6 +132,50 @@
     white-space: pre-line;
 }
 
+/* 致谢：一条发丝线隔开，像页脚的题记 */
+.about-divider {
+    height: 0.5rpx;
+    background: var(--sep);
+    margin: var(--sp-4) 0 var(--sp-3);
+}
+
+.thanks-text {
+    font-size: var(--t-footnote);
+    /* 比上面的条款略深一档：这是正文，不是免责声明 */
+    color: rgba(60, 58, 55, 0.86);
+    line-height: 1.9;
+    margin-bottom: var(--sp-3);
+}
+
+.repo-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-2);
+    margin-top: var(--sp-1);
+    padding: 20rpx var(--sp-3);
+    border-radius: var(--r-sm);
+    background: var(--tint-soft);
+    transition: background 0.14s ease;
+}
+
+.repo-link-hover {
+    background: var(--tint-fill);
+}
+
+.repo-label {
+    font-size: var(--t-caption);
+    color: var(--tint);
+    font-weight: 600;
+    letter-spacing: 0.2rpx;
+}
+
+.repo-copy {
+    font-size: var(--t-caption2);
+    color: var(--tint);
+    opacity: 0.72;
+}
+
 /* 隐藏分享画布 */
 .share-canvas {
     position: fixed;

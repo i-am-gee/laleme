@@ -24,7 +24,7 @@
 .challenge-btn {
     /* 微信 button 默认宽度 184px，必须显式覆盖 */
     width: 100% !important;
-    height: 84rpx;
+    height: 92rpx;
     margin-top: 12rpx;
     padding: 0;
     border-radius: var(--r-md);
@@ -39,12 +39,20 @@
 }
 
 .challenge-btn-inner {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 12rpx;
     width: 100%;
     height: 100%;
+}
+
+.challenge-btn-main {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4rpx;
 }
 
 .challenge-btn-icon {
@@ -56,14 +64,95 @@
     font-size: var(--t-headline);
     font-weight: 600;
     color: #ffffff;
-    letter-spacing: 2rpx;
-    text-indent: 2rpx;
+    letter-spacing: 1.5rpx;
+    line-height: 1.2;
+}
+
+.challenge-btn-hint {
+    font-size: 22rpx;
+    color: rgba(255, 255, 255, 0.84);
+    letter-spacing: 0.4rpx;
+    line-height: 1.2;
+}
+
+/* 三次分享进度：三个小点，点亮的用暖金 */
+.share-dots {
+    position: absolute;
+    right: 26rpx;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 7rpx;
+}
+
+.share-dot {
+    width: 12rpx;
+    height: 12rpx;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.26);
+    transition: background 0.24s ease, transform 0.24s var(--ease-spring);
+}
+
+.share-dot.on {
+    background: #ffd980;
+    transform: scale(1.14);
 }
 
 .challenge-btn-hover {
     background: var(--tint-strong);
     transform: scale(0.985);
     box-shadow: 0 4rpx 12rpx rgba(139, 94, 60, 0.18);
+}
+
+/* ---------- 「大屎官」金色态：深金渐变 + 缓慢扫光 ---------- */
+.challenge-btn.is-badge {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #b8893c 0%, #e9cb80 46%, #a97c33 100%);
+    box-shadow: 0 10rpx 28rpx rgba(170, 125, 50, 0.32);
+}
+
+.challenge-btn.is-badge::before {
+    content: "";
+    position: absolute;
+    top: -60%;
+    bottom: -60%;
+    width: 38%;
+    left: -60%;
+    background: linear-gradient(
+        100deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.55) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-18deg);
+    animation: badgeSheen 4.2s ease-in-out 1.6s infinite;
+}
+
+@keyframes badgeSheen {
+    0% {
+        left: -60%;
+    }
+    45%, 100% {
+        left: 128%;
+    }
+}
+
+.challenge-btn.is-badge .challenge-btn-main {
+    align-items: center;
+}
+
+.challenge-btn.is-badge .challenge-btn-text {
+    color: #3a2a11;
+    letter-spacing: 2rpx;
+}
+
+.challenge-btn.is-badge .challenge-btn-hint {
+    color: rgba(58, 42, 17, 0.62);
+}
+
+.challenge-btn.is-badge .challenge-btn-icon {
+    filter: brightness(0) opacity(0.78);
 }
 
 /* ---------- 好友挑战横幅：淡填充，无描边 ---------- */
@@ -204,6 +293,8 @@
 .fab-emoji {
     position: relative;
     z-index: 1;
+    /* filter 对行内元素不生效，emoji 必须是块级才能被染色 */
+    display: block;
     font-size: 96rpx;
     line-height: 1;
 }
@@ -218,6 +309,26 @@
     letter-spacing: 4rpx;
     text-indent: 4rpx;
     color: #ffffff;
+}
+
+/* ---------- 大屎官：主按钮换成黑金，与普通用户的暖棕拉开档次 ---------- */
+.hero.is-badge .fab {
+    background: linear-gradient(165deg, #3d352c 0%, #201b15 100%);
+    box-shadow: 0 18rpx 46rpx rgba(44, 31, 12, 0.44), inset 0 0 0 2rpx rgba(228, 192, 120, 0.62);
+}
+
+.hero.is-badge .fab-emoji {
+    filter: sepia(1) saturate(3.6) hue-rotate(-14deg) brightness(1.16) contrast(1.06)
+        drop-shadow(0 2rpx 10rpx rgba(255, 214, 130, 0.55));
+}
+
+.hero.is-badge .fab-label {
+    color: #f4dca6;
+    text-shadow: 0 0 14rpx rgba(255, 214, 130, 0.35);
+}
+
+.hero.is-badge .fab-halo {
+    background: radial-gradient(circle, rgba(233, 197, 122, 0.42) 0%, rgba(233, 197, 122, 0) 72%);
 }
 
 /* ---------- 统计双栏卡：iOS 分组统计 ---------- */
@@ -470,8 +581,12 @@
    ============================================================ */
 .celebrate-mask {
     position: fixed;
-    inset: 0;
-    background: rgba(18, 16, 14, 0.82);
+    /* 不用 inset 简写：部分基础库对 inset 支持不完整，会导致遮罩不铺满 */
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(18, 16, 14, 0.88);
     z-index: 999;
     overflow: hidden;
 }
@@ -587,6 +702,31 @@
     font-size: var(--t-callout);
     color: rgba(255, 255, 255, 0.66);
     margin-top: var(--sp-1);
+    max-width: 560rpx;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+    white-space: pre-line;
+    white-space: pre-line;
+}
+
+/* 称号庆祝：金色调，与打卡庆祝区分 */
+.celebrate-mask.grand .celebrate-title {
+    color: #f7e2ae;
+    text-shadow: 0 0 28rpx rgba(246, 200, 110, 0.5);
+}
+
+.celebrate-mask.grand .celebrate-sub {
+    color: rgba(247, 226, 174, 0.78);
+}
+
+.celebrate-mask.grand .star-poop {
+    filter: sepia(1) saturate(3.6) hue-rotate(-14deg) brightness(1.16) contrast(1.06)
+        drop-shadow(0 0 12rpx rgba(255, 214, 130, 0.6));
+}
+
+.celebrate-mask.grand .star-man {
+    filter: drop-shadow(0 0 18rpx rgba(255, 208, 110, 0.6));
 }
 
 @keyframes star-pop {
