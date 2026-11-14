@@ -32,7 +32,7 @@
     <button class="ghost-btn" hover-class="ghost-hover" bindtap="goDataPage" bindtouchstart="onShareTouch">数据备份与恢复</button>
 
     <view class="card about">
-        <view class="about-text">「拉了么」v1.8.2 · 数据仅保存在本机，不上传任何服务器。\n\n性状分类采用国际通用的布里斯托大便分类法（Bristol Stool Scale）。\n\n本应用不构成医疗建议，持续异常请咨询消化科医生。</view>
+        <view class="about-text">「拉了么」v1.8.3 · 数据仅保存在本机，不上传任何服务器。\n\n性状分类采用国际通用的布里斯托大便分类法（Bristol Stool Scale）。\n\n本应用不构成医疗建议，持续异常请咨询消化科医生。</view>
 
         <view class="about-divider"></view>
 

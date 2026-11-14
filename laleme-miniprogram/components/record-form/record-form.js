@@ -7,6 +7,10 @@ const timer = require('../../utils/timer.js');
 
 const store = createRecordStore();
 
+// 未保存的选择存个草稿：关掉浮层、去别的页面逛一圈，回来还是原来的选择
+const DRAFT_KEY = 'laleme_draft';
+const DRAFT_TTL = 24 * 60 * 60 * 1000;
+
 // 计时结束后的展示时间：优先用真实秒数，退化到分钟
 function finishText(seconds, minutes) {
     const total = Number.isFinite(Number(seconds)) && Number(seconds) > 0 ? Number(seconds) : (minutes || 0) * 60;
@@ -125,6 +129,66 @@ Component({
         },
 
         /* ---------- 新建：由外部（首页抽屉）调用 ---------- */
+        /* ---------- 草稿：保住没保存的选择 ---------- */
+        readDraft() {
+            const raw = wx.getStorageSync(DRAFT_KEY);
+            if (!raw || typeof raw !== 'object') {
+                return null;
+            }
+            if (!raw.savedAt || Date.now() - raw.savedAt > DRAFT_TTL) {
+                wx.removeStorageSync(DRAFT_KEY);
+                return null;
+            }
+            return raw;
+        },
+
+        saveDraft() {
+            if (this.data.isEdit) {
+                return;
+            }
+            wx.setStorageSync(DRAFT_KEY, {
+                bristol: this.selBristol,
+                mood: this.selMood,
+                manualMin: this.data.manualMin,
+                savedAt: Date.now(),
+            });
+        },
+
+        clearDraft() {
+            wx.removeStorageSync(DRAFT_KEY);
+        },
+
+        // 优先用草稿，其次沿用上一条记录
+        restoreSelection(restoreMinutes) {
+            const that = this;
+            const draft = this.readDraft();
+            if (draft) {
+                this.selBristol = draft.bristol === undefined ? null : draft.bristol;
+                this.selMood = draft.mood === undefined ? null : draft.mood;
+                this.setData({
+                    bristolOptions: bristolOptions(this.selBristol),
+                    bristolHint: this.selBristol ? BRISTOL[this.selBristol - 1].hint : '',
+                    moodOptions: moodOptions(this.selMood),
+                    manualMin: restoreMinutes ? draft.manualMin || '' : '',
+                });
+                return;
+            }
+            store.list().then(function (res) {
+                const list = res.data || [];
+                const last = list.length ? list[list.length - 1] : null;
+                if (!last) {
+                    return;
+                }
+                that.selBristol = last.bristol === undefined ? null : last.bristol;
+                that.selMood = last.mood === undefined ? null : last.mood;
+                that.setData({
+                    bristolOptions: bristolOptions(that.selBristol),
+                    bristolHint: that.selBristol ? BRISTOL[that.selBristol - 1].hint : '',
+                    moodOptions: moodOptions(that.selMood),
+                });
+            });
+        },
+
         open() {
             const that = this;
             const now = Date.now();
@@ -141,21 +205,8 @@ Component({
                 timerText: '00:00',
             });
 
-            // 沿用上一次的性状与感受：多数时候是同一档，少点两下
-            store.list().then(function (res) {
-                const list = res.data || [];
-                const last = list.length ? list[list.length - 1] : null;
-                if (!last) {
-                    return;
-                }
-                that.selBristol = last.bristol === undefined ? null : last.bristol;
-                that.selMood = last.mood === undefined ? null : last.mood;
-                that.setData({
-                    bristolOptions: bristolOptions(that.selBristol),
-                    bristolHint: that.selBristol ? BRISTOL[that.selBristol - 1].hint : '',
-                    moodOptions: moodOptions(that.selMood),
-                });
-            });
+            // 草稿优先，其次沿用上一次的性状与感受
+            this.restoreSelection(true);
 
             // 已经有在跑的计时就接着走，不重新起算
             if (timer.running()) {
@@ -167,36 +218,23 @@ Component({
 
         // 结束计时后打开：时长已经由计时算好，只需要补性状与感受
         openFinish(minutes, seconds) {
-            const that = this;
             const now = Date.now();
             this.selBristol = null;
             this.selMood = null;
             this.stopTimer();
+            // 这次计时算出来的分钟数，submit 时兜底用（输入框本身留空）
+            this._finishMin = minutes || 0;
             this.setData({
                 isEdit: false,
-                manualMin: String(minutes),
+                manualMin: '',
                 dateValue: dateValueOf(now),
                 timeValue: timeValueOf(now),
                 bristolOptions: bristolOptions(null),
                 bristolHint: '',
                 moodOptions: moodOptions(null),
-                // 显示这次计时的真实结果，和输入框里的数字对得上
                 timerText: finishText(seconds, minutes),
             });
-            store.list().then(function (res) {
-                const list = res.data || [];
-                const last = list.length ? list[list.length - 1] : null;
-                if (!last) {
-                    return;
-                }
-                that.selBristol = last.bristol === undefined ? null : last.bristol;
-                that.selMood = last.mood === undefined ? null : last.mood;
-                that.setData({
-                    bristolOptions: bristolOptions(that.selBristol),
-                    bristolHint: that.selBristol ? BRISTOL[that.selBristol - 1].hint : '',
-                    moodOptions: moodOptions(that.selMood),
-                });
-            });
+            this.restoreSelection(false);
         },
 
         close() {
@@ -233,6 +271,7 @@ Component({
         /* ---------- 交互 ---------- */
         onManualMin(event) {
             this.setData({ manualMin: event.detail.value });
+            this.saveDraft();
         },
 
         onDateChange(event) {
@@ -253,6 +292,7 @@ Component({
                 bristolOptions: bristolOptions(this.selBristol),
                 bristolHint: t > 0 ? BRISTOL[t - 1].hint : '',
             });
+            this.saveDraft();
         },
 
         pickMood(event) {
@@ -260,6 +300,7 @@ Component({
             const key = event.currentTarget.dataset.mood;
             this.selMood = key;
             this.setData({ moodOptions: moodOptions(key) });
+            this.saveDraft();
         },
 
         submit() {
@@ -268,6 +309,8 @@ Component({
             let duration;
             if (!isNaN(manual) && manual > 0) {
                 duration = Math.min(manual, 720);
+            } else if (this._finishMin > 0) {
+                duration = Math.min(this._finishMin, 720);
             } else if (timer.running()) {
                 duration = timer.elapsedMin();
             } else {
@@ -301,6 +344,8 @@ Component({
                     wx.showToast({ title: '记录已更新', icon: 'success' });
                     that.stopTimer();
                     timer.stop();
+                    that._finishMin = 0;
+                    that.clearDraft();
                     that.triggerEvent('saved', { mode: 'update' });
                 });
                 return;
@@ -322,6 +367,8 @@ Component({
                 }
                 that.stopTimer();
                 timer.stop();
+                that._finishMin = 0;
+                that.clearDraft();
                 that.triggerEvent('saved', { mode: 'create' });
             });
         },

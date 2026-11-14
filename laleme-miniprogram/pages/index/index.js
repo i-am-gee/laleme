@@ -85,7 +85,6 @@ Page({
     },
 
     onLoad(options) {
-        wx.setStorageSync('laleme_thanks_flag', Date.now());
         this.setData({ navTop: getNavTop() });
         if (options && options.challenge === '1') {
             this.setData({
@@ -601,6 +600,14 @@ Page({
     },
 
     // 抽屉里的表单可能晚一帧才渲染，取不到就再试一次
+    // 打开记录浮层（计时浮条与结束计时都走这里）
+    openTimerSheet() {
+        const that = this;
+        this.setData({ sheetShow: true }, function () {
+            that.openSheetForm();
+        });
+    },
+
     openSheetForm() {
         const form = this.selectComponent('#recordForm');
         if (form) {
