@@ -4,10 +4,7 @@
         <view class="nav-title">历史</view>
     </view>
 
-    <!-- 左滑引导：图形化（动画双箭头），不用文字 -->
-    <view class="hint {{hintDim ? 'dim' : ''}}">
-        <image class="hint-icon" src="/assets/actions/swipe.png" mode="aspectFit" />
-    </view>
+    <!-- 左滑引导不再单独占一条，移到首条记录卡内 -->
 
     <block wx:if="{{empty}}">
         <view class="empty">还没有记录，去首页「记一次」开始吧</view>
@@ -40,7 +37,13 @@
                 >
                     <view class="h-top">
                         <text class="h-time">{{item.time}}</text>
-                        <text class="h-arrow">⋯</text>
+                        <image
+                            wx:if="{{gi === 0 && ii === 0 && !hintDim}}"
+                            class="h-peek"
+                            src="/assets/actions/swipe.png"
+                            mode="aspectFit"
+                        />
+                        <text wx:else class="h-arrow">⋯</text>
                     </view>
                     <view class="h-detail">{{item.detail}}</view>
                 </view>

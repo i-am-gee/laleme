@@ -71,34 +71,6 @@ Page({
             });
         });
     },
-
-    clearAll() {
-        const that = this;
-        if (this.data.countText === '0 条') {
-            wx.showToast({ title: '暂无数据', icon: 'none' });
-            return;
-        }
-        haptics.tap();
-        wx.showModal({
-            title: '清空全部数据',
-            content: '将删除本机全部记录且不可恢复，建议先导出备份。',
-            confirmText: '清空',
-            confirmColor: '#e24b4a',
-            success(res) {
-                if (!res.confirm) {
-                    return;
-                }
-                store.removeAll().then(function (r2) {
-                    if (r2.error) {
-                        wx.showToast({ title: '清空失败，请重试', icon: 'none' });
-                        return;
-                    }
-                    that.refresh();
-                    wx.showToast({ title: '已清空', icon: 'success' });
-                });
-            },
-        });
-    },
 });
 
 // 自定义 tabBar 需要页面自己同步选中项

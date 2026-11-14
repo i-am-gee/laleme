@@ -10,14 +10,14 @@
         <view class="row" bindtap="exportFile">
             <view class="row-main">
                 <view class="row-title">导出为文件</view>
-                <view class="row-sub">生成 .csv 文件，可直接发给好友或文件传输助手</view>
+                <view class="row-sub">生成 .csv 文件，可直接发给文件传输助手</view>
             </view>
             <view class="row-arrow">›</view>
         </view>
         <view class="row" bindtap="copyCsv">
             <view class="row-main">
                 <view class="row-title">复制 CSV 到剪贴板</view>
-                <view class="row-sub">粘到备忘录、邮件或电脑上另存</view>
+                <view class="row-sub">粘到文件传输助手、备忘录或邮件，在电脑上另存</view>
             </view>
             <view class="row-arrow">›</view>
         </view>
@@ -35,23 +35,28 @@
         </view>
     </view>
 
-    <!-- 手动粘贴 -->
-    <view class="paste-card">
-        <view class="paste-title">粘贴内容导入</view>
-        <textarea
-            class="paste-box"
-            placeholder="把 CSV 内容粘贴到这里，首行：时间,时长(分钟),布里斯托类型,感觉"
-            placeholder-class="paste-ph"
-            value="{{pasteText}}"
-            bindinput="onPasteInput"
-            maxlength="-1"
-            auto-height
-            show-confirm-bar="{{false}}"
-        ></textarea>
-        <view class="paste-btn" hover-class="btn-hover" bindtap="importPasted">导入粘贴的内容</view>
+    <!-- 手动粘贴：默认折叠，避免与剪贴板导入重复 -->
+    <view class="collapse">
+        <view class="collapse-head" bindtap="togglePaste" hover-class="row-press">
+            <text class="collapse-title">手动粘贴导入</text>
+            <view class="collapse-arrow {{pasteOpen ? 'open' : ''}}"></view>
+        </view>
+        <view class="collapse-body" wx:if="{{pasteOpen}}">
+            <textarea
+                class="paste-box"
+                placeholder="把 CSV 内容粘贴到这里，首行：时间,时长(分钟),布里斯托类型,感觉"
+                placeholder-class="paste-ph"
+                value="{{pasteText}}"
+                bindinput="onPasteInput"
+                maxlength="-1"
+                auto-height
+                show-confirm-bar="{{false}}"
+            ></textarea>
+            <view class="paste-btn" hover-class="btn-hover" bindtap="importPasted">导入粘贴的内容</view>
+        </view>
     </view>
 
-    <!-- 结果反馈 -->
+    <!-- 失败/提示反馈；成功结果走独立弹窗 -->
     <view class="status {{statusType}}" wx:if="{{status}}">{{status}}</view>
 
     <view class="tip">
@@ -59,4 +64,28 @@
     </view>
 
     <view class="danger-link" bindtap="clearAll">清空全部数据</view>
+</view>
+
+<!-- 导入结果确认弹窗 -->
+<view class="res-mask" wx:if="{{resultShow}}" catchtouchmove="noop">
+    <view class="res-card">
+        <view class="res-badge {{resultAdded > 0 ? 'ok' : 'warn'}}">{{resultAdded > 0 ? '✓' : '!'}}</view>
+        <view class="res-title">{{resultAdded > 0 ? '导入完成' : '没有新增记录'}}</view>
+        <view class="res-body">
+            <view class="res-row">
+                <text class="res-k">识别到</text>
+                <text class="res-v">{{resultTotal}} 条</text>
+            </view>
+            <view class="res-row">
+                <text class="res-k">新增</text>
+                <text class="res-v strong">{{resultAdded}} 条</text>
+            </view>
+            <view class="res-row" wx:if="{{resultSkipped > 0}}">
+                <text class="res-k">跳过</text>
+                <text class="res-v">{{resultSkipped}} 条</text>
+            </view>
+        </view>
+        <view class="res-note" wx:if="{{resultSkipped > 0}}">跳过的是与现有记录重复、或格式不完整的数据</view>
+        <view class="res-btn" hover-class="btn-hover" bindtap="closeResult">知道了</view>
+    </view>
 </view>

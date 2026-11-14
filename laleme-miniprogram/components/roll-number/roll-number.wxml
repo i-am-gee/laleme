@@ -1,0 +1,31 @@
+<view class="rn">
+    <block wx:if="{{text}}">
+        <text class="rn-static" style="font-size:{{fontSize}};line-height:{{cellH}}">{{text}}</text>
+    </block>
+    <block wx:else>
+        <view
+            class="rn-col"
+            wx:for="{{cols}}"
+            wx:key="key"
+            style="height:{{cellH}};font-size:{{fontSize}}"
+        >
+            <view
+                class="rn-strip {{instant ? 'rn-instant' : ''}}"
+                style="transform: translateY({{item.offset}}%); transition-duration: {{item.dur}}ms;"
+            >
+                <view
+                    class="rn-cell"
+                    wx:for="{{item.cells}}"
+                    wx:for-item="c"
+                    wx:key="k"
+                    style="height:{{cellH}};line-height:{{cellH}};font-size:{{fontSize}}"
+                >{{c.v}}</view>
+            </view>
+        </view>
+        <text
+            class="rn-suffix"
+            wx:if="{{suffix}}"
+            style="font-size:{{suffixFont}};line-height:{{cellH}}"
+        >{{suffix}}</text>
+    </block>
+</view>

@@ -9,8 +9,13 @@ Page({
     data: {
         total: 0,
         pasteText: '',
+        pasteOpen: false,
         status: '',
         statusType: 'info', // info | ok | warn
+        resultShow: false,
+        resultTotal: 0,
+        resultAdded: 0,
+        resultSkipped: 0,
     },
 
     onShow() {
@@ -100,6 +105,18 @@ Page({
         this.setData({ pasteText: event.detail.value });
     },
 
+    togglePaste() {
+        haptics.light();
+        this.setData({ pasteOpen: !this.data.pasteOpen });
+    },
+
+    closeResult() {
+        haptics.tap();
+        this.setData({ resultShow: false });
+    },
+
+    noop() {},
+
     importPasted() {
         haptics.tap();
         const text = (this.data.pasteText || '').trim();
@@ -148,17 +165,19 @@ Page({
                 if (pending !== 0) {
                     return;
                 }
-                const summary = '识别 ' + rows.length + ' 条 · 新增 ' + added + ' 条 · 跳过 ' + skipped + ' 条';
                 if (added > 0) {
                     haptics.tap();
                 }
-                that.setStatus('来自' + sourceLabel + '：' + summary + (skipped > 0 ? '（跳过的是与现有记录重复或格式不完整的数据）' : ''), added > 0 ? 'ok' : 'warn');
-                that.setData({ pasteText: '' });
-                that.refresh();
-                wx.showToast({
-                    title: added > 0 ? '新增 ' + added + ' 条' : '没有新增记录',
-                    icon: added > 0 ? 'success' : 'none',
+                // 结果用独立弹窗确认，不再挤在页面里
+                that.setData({
+                    pasteText: '',
+                    status: '',
+                    resultShow: true,
+                    resultTotal: rows.length,
+                    resultAdded: added,
+                    resultSkipped: skipped,
                 });
+                that.refresh();
             }
         });
     },

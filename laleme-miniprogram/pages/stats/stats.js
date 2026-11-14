@@ -32,6 +32,8 @@ Page({
         rangeLabel: '',
         countText: '0',
         avgText: '-',
+        avgNum: '',
+        avgFallback: '-',
         streakText: '0',
         dist: [],
         achList: BADGES.map(function (b) {
@@ -145,10 +147,15 @@ Page({
             }
 
             let avgText = '-';
+            let avgNum = '';
+            let avgFallback = '-';
             if (list.length > 0) {
                 let total = 0;
                 list.forEach(function (r) { total += r.durationMin; });
-                avgText = Math.round(total / list.length) + ' 分';
+                const avg = Math.round(total / list.length);
+                avgText = avg + ' 分';
+                avgNum = String(avg);
+                avgFallback = '';
             }
 
             const counts = {};
@@ -203,6 +210,8 @@ Page({
                 rangeLabel: rangeLabel,
                 countText: String(list.length),
                 avgText: avgText,
+                avgNum: avgNum,
+                avgFallback: avgFallback,
                 streakText: String(streakDays(records)),
                 dist: dist,
                 hasDist: dist.length > 0,

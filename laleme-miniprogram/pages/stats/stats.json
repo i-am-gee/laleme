@@ -1,4 +1,6 @@
 {
   "navigationStyle": "custom",
-  "usingComponents": {}
+  "usingComponents": {
+    "roll-number": "/components/roll-number/roll-number"
+  }
 }

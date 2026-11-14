@@ -1,0 +1,38 @@
+.rn {
+    display: inline-flex;
+    align-items: flex-start;
+    vertical-align: bottom;
+}
+
+.rn-col {
+    overflow: hidden;
+    /* 数字等宽：0.62em 由字号推出，无需外部指定 */
+    width: 0.62em;
+    flex-shrink: 0;
+}
+
+.rn-strip {
+    transition-property: transform;
+    /* 先快后慢，像拉霸惯性滑行后卡住 */
+    transition-timing-function: cubic-bezier(0.16, 0.84, 0.24, 1);
+    will-change: transform;
+}
+
+.rn-instant {
+    transition-duration: 0ms !important;
+}
+
+.rn-cell {
+    width: 100%;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.rn-static {
+    display: inline-block;
+}
+
+.rn-suffix {
+    margin-left: 6rpx;
+    flex-shrink: 0;
+}

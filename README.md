@@ -3,7 +3,7 @@
 > 一款极度克制的肠道健康记录小程序。
 > 数据只属于你，从未离开你的手机。
 
-[![Version](https://img.shields.io/badge/version-1.6.0-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
+[![Version](https://img.shields.io/badge/version-1.7.0-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
 
 ---
 
@@ -64,7 +64,7 @@ laleme-miniprogram/       微信小程序（原生框架，零依赖）
 ├── app.wxss              设计系统：iOS 语义令牌 + Dynamic Type + 共用卡片/列表/按钮
 ├── app.js                全局配置 + onNeedPrivacyAuthorization 接入
 ├── pages/
-│   ├── index/            首页：Large Title + 大圆按钮 / 可点日历 / 庆祝动画 / 隐私弹窗 / 分享海报
+│   ├── index/            首页：Large Title + 挑战入口 / 拉霸计数 / 大圆按钮 / 可滑动切月日历 / 庆祝动画
 │   ├── history/          历史：按天分组、左滑修改或删除、日历锚定高亮
 │   ├── record/           记录页：独立编辑入口（薄壳，复用 record-form）
 │   ├── stats/            统计页：周月自定义指标、分布图、徽章成就墙
@@ -73,11 +73,12 @@ laleme-miniprogram/       微信小程序（原生框架，零依赖）
 │   └── me/               我的：数据概览、入口聚合
 ├── custom-tab-bar/       自定义底部导航（原生 tabBar 无法加震动反馈）
 ├── components/
-│   └── record-form/      记录表单：首页抽屉与编辑页共用
+│   ├── record-form/      记录表单：首页抽屉与编辑页共用
+│   └── roll-number/      拉霸滚动数字：逐位竖排滚动，三段式 setData 保证每次重播
 ├── assets/
 │   ├── tabbar/           四枚 tabBar 图标（双状态）
 │   ├── badges/           四枚成就徽章图标（点亮/未点亮）
-│   └── actions/          铅笔 / 垃圾桶 / 左滑箭头图标
+│   └── actions/          铅笔 / 垃圾桶 / 左滑引导 / 分享图标
 └── utils/
     ├── constants.js      布里斯托分类、徽章定义、月历口径、隐私文本
     ├── record-store.js   本地存储层（list/create/update/remove，含字段校验）
@@ -87,7 +88,7 @@ laleme-miniprogram/       微信小程序（原生框架，零依赖）
     └── haptics.js        触感反馈三档封装
 ```
 
-- **原生小程序框架**，无第三方依赖，源码约 344KB（含 76KB 图片资产），上传包体约 120KB
+- **原生小程序框架**，无第三方依赖，源码约 356KB（含 78KB 图片资产），上传包体约 136KB
 - **canvas 2d** 动态绘制分享海报（500×400，5:4 与微信缩略图比例一致，dpr 适配，`canvas.createImage` 预加载徽章）
 - **隐私合规三层设计**：首启弹窗（`open-type="agreePrivacyAuthorization"`）→ 指引全文页 → 常驻入口，配合 `wx.onNeedPrivacyAuthorization` 动态应答
 - Web 版原型（`拉了么/index.html`）与产品设计文档（`拉了么-产品设计文档.md`）同仓库维护

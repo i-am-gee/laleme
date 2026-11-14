@@ -133,9 +133,12 @@ function pickRecord(id, records) {
 // 本月日历（首页与分享海报共用同一口径）
 // 返回 cells（含 blank/day/count/today/future）、countMap、activeDays 等
 function monthCalendar(records, baseMs) {
-    const now = baseMs ? new Date(baseMs) : new Date();
+    const real = new Date();
+    const now = baseMs ? new Date(baseMs) : real;
     const year = now.getFullYear();
     const month = now.getMonth();
+    // 只有渲染的确实是「当前月」时，才标记今天与未来日期
+    const isCurrent = year === real.getFullYear() && month === real.getMonth();
     const countMap = {};
     (records || []).forEach(function (r) {
         const d = new Date(r.timestamp);
@@ -145,7 +148,7 @@ function monthCalendar(records, baseMs) {
     });
     const offset = (new Date(year, month, 1).getDay() + 6) % 7; // 周一开头
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const today = now.getDate();
+    const today = isCurrent ? real.getDate() : -1;
     const cells = [];
     for (let i = 0; i < offset; i += 1) {
         cells.push({ blank: true, day: 0, count: 0, today: false, future: false });
@@ -158,7 +161,7 @@ function monthCalendar(records, baseMs) {
             count: count,
             pooped: count > 0,
             today: d === today,
-            future: d > today,
+            future: isCurrent && d > today,
         });
     }
     return {
@@ -168,6 +171,7 @@ function monthCalendar(records, baseMs) {
         offset: offset,
         daysInMonth: daysInMonth,
         today: today,
+        isCurrent: isCurrent,
         monthLabel: (month + 1) + ' 月',
         year: year,
         monthIndex: month,

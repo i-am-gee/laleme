@@ -24,15 +24,21 @@
 
         <view class="metrics">
             <view class="metric">
-                <view class="num">{{countText}}</view>
+                <view class="num">
+                    <roll-number value="{{countText}}" size="44" />
+                </view>
                 <view class="lbl">次数</view>
             </view>
             <view class="metric">
-                <view class="num">{{avgText}}</view>
+                <view class="num">
+                    <roll-number value="{{avgNum}}" text="{{avgFallback}}" suffix="分" size="44" suffix-size="24" />
+                </view>
                 <view class="lbl">平均时长</view>
             </view>
             <view class="metric">
-                <view class="num">{{streakText}}</view>
+                <view class="num">
+                    <roll-number value="{{streakText}}" size="44" />
+                </view>
                 <view class="lbl">连续天数</view>
             </view>
         </view>

@@ -6,38 +6,28 @@
     padding: 0 var(--sp-4) calc(env(safe-area-inset-bottom) + 130rpx);
 }
 
-/* 左滑引导：只有图形，箭头循环向左滑出提示手势 */
-.hint {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--sp-2) 0 var(--sp-3);
-    transition: opacity 0.3s ease;
+/* 左滑引导：内嵌在首条记录卡右侧，随首次左滑消失 */
+.h-peek {
+    width: 64rpx;
+    height: 40rpx;
+    flex-shrink: 0;
+    opacity: 0.55;
+    animation: peekNudge 1.8s var(--ease-sheet) infinite;
 }
 
-.hint-icon {
-    width: 96rpx;
-    height: 52rpx;
-    animation: swipeHint 2.4s var(--ease-sheet) infinite;
-}
-
-@keyframes swipeHint {
+@keyframes peekNudge {
     0%, 100% {
         transform: translateX(6rpx);
         opacity: 0.35;
     }
     45% {
-        transform: translateX(-10rpx);
-        opacity: 0.9;
+        transform: translateX(-8rpx);
+        opacity: 0.75;
     }
     70% {
         transform: translateX(6rpx);
         opacity: 0.35;
     }
-}
-
-.hint.dim {
-    opacity: 0.45;
 }
 
 .empty {
@@ -123,9 +113,10 @@
     justify-content: center;
 }
 
+/* 侧滑操作图标：与整体视觉对齐的 56rpx 尺寸 */
 .act-icon {
-    width: 42rpx;
-    height: 42rpx;
+    width: 56rpx;
+    height: 56rpx;
 }
 
 /* iOS 侧滑动作：中性灰 + 系统红，图标一律白 */

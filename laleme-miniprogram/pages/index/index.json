@@ -1,6 +1,7 @@
 {
   "navigationStyle": "custom",
   "usingComponents": {
-    "record-form": "/components/record-form/record-form"
+    "record-form": "/components/record-form/record-form",
+    "roll-number": "/components/roll-number/roll-number"
   }
 }

@@ -1,8 +1,14 @@
 <view class="page">
-    <!-- iOS Large Title：日期与今日状态合并成一行副标题 -->
+    <!-- iOS Large Title + 标题行右侧的挑战好友入口 -->
     <view class="nav-bar {{statusClass}}" style="padding-top: {{navTop}}px;">
-        <view class="nav-title">拉了么</view>
-        <view class="nav-sub">{{dateText}} · <text class="nav-state {{statusClass}}">{{statusSub}}</text></view>
+        <view class="nav-main">
+            <view class="nav-title">拉了么</view>
+            <view class="nav-sub">{{dateText}} · <text class="nav-state {{statusClass}}">{{statusSub}}</text></view>
+        </view>
+        <button class="nav-share" hover-class="nav-share-hover" open-type="share" bindtouchstart="onShareTouch">
+            <image class="nav-share-icon" src="/assets/actions/share.png" mode="aspectFit" />
+            <text class="nav-share-text">挑战</text>
+        </button>
     </view>
 
     <!-- 好友挑战横幅 -->
@@ -22,23 +28,40 @@
             </view>
         </view>
 
-        <!-- iOS 分组统计 -->
+        <!-- iOS 分组统计：数字拉霸滚动 -->
         <view class="chips">
             <view class="chip">
-                <text class="chip-v">{{streakText}}</text>
+                <view class="chip-v">
+                    <roll-number value="{{streakNum}}" text="{{streakFallback}}" suffix="天" size="44" suffix-size="24" />
+                </view>
                 <text class="chip-k">连续记录</text>
             </view>
             <view class="chip">
-                <text class="chip-v">{{monthCountText}}</text>
+                <view class="chip-v">
+                    <roll-number value="{{monthCountNum}}" suffix="次" size="44" suffix-size="24" />
+                </view>
                 <text class="chip-k">近 30 天</text>
             </view>
         </view>
     </view>
 
-    <!-- 本月打卡日历：点某天看当日明细 -->
-    <view class="card cal-card" wx:if="{{calendar}}">
+    <!-- 本月打卡日历：左右滑动切月，点某天看当日明细 -->
+    <view
+        class="card cal-card"
+        wx:if="{{calendar}}"
+        bindtouchstart="onCalTouchStart"
+        bindtouchend="onCalTouchEnd"
+    >
         <view class="cal-title">
-            <text class="cal-month">{{calendar.monthLabel}}</text>
+            <view class="cal-month-wrap">
+                <view class="cal-nav" hover-class="cal-nav-hover" catchtap="onMonthPrev">
+                    <view class="cal-arrow left"></view>
+                </view>
+                <text class="cal-month">{{calendar.monthLabel}}</text>
+                <view class="cal-nav {{monthOffset >= 0 ? 'off' : ''}}" hover-class="cal-nav-hover" catchtap="onMonthNext">
+                    <view class="cal-arrow right"></view>
+                </view>
+            </view>
             <text class="cal-count">已打 {{calendar.activeDays}} 天</text>
         </view>
         <view class="cal-week">
@@ -60,74 +83,13 @@
         </view>
     </view>
 
-    <!-- 最近一次：iOS 列表行 -->
-    <view class="last-line" hover-class="list-row-press" bindtap="goHistory">
+    <!-- 最近一次：纯信息行，不再作为历史入口 -->
+    <view class="last-line">
         <text class="last-k">最近一次</text>
-        <text class="last-v">{{lastText}}</text>
-        <view class="chevron"></view>
-    </view>
-
-    <!-- 挑战好友 -->
-    <button class="ghost-btn" hover-class="ghost-btn-hover" open-type="share" bindtouchstart="onShareTouch">挑战好友</button>
-
-    <view class="footnote" bindtap="goHistory">查看全部历史</view>
-</view>
-
-<!-- 成就庆祝动画 -->
-<view class="celebrate-mask" wx:if="{{showCelebrate}}" bindtap="hideCelebrate">
-    <view class="confetti-piece {{item.round ? 'round' : ''}}"
-        wx:for="{{confetti}}"
-        wx:key="index"
-        style="left: {{item.left}}%; width: {{item.size}}rpx; height: {{item.round ? item.size : item.size * 2}}rpx; background: {{item.color}}; animation-delay: {{item.delay}}s; animation-duration: {{item.duration}}s;">
-    </view>
-    <view class="fw fw1"></view>
-    <view class="fw fw2"></view>
-    <view class="fw fw3"></view>
-    <view class="celebrate-center">
-        <view class="star-man">🌟</view>
-        <view class="star-poop">💩</view>
-        <view class="celebrate-title">打卡成功！</view>
-        <view class="celebrate-sub">{{celebrateText}}</view>
+        <view class="last-v">
+            <text class="last-seg">{{lastTime}}</text>
+            <text class="last-seg" wx:if="{{lastDur}}">{{lastDur}}</text>
+            <text class="last-seg" wx:if="{{lastShape}}">{{lastShape}}</text>
+        </view>
     </view>
 </view>
-
-<!-- 隐私保护指引弹窗 -->
-<view class="privacy-mask" wx:if="{{showPrivacy}}">
-    <view class="privacy-card">
-        <view class="privacy-title">隐私保护指引</view>
-        <scroll-view scroll-y class="privacy-body">
-            <text class="privacy-text">{{privacySummary}}</text>
-        </scroll-view>
-        <view class="privacy-link" bindtap="goPrivacyPage">查看「{{privacyContractName}}」全文 ></view>
-        <button
-            class="privacy-agree"
-            id="agree-btn"
-            open-type="agreePrivacyAuthorization"
-            bindagree="onPrivacyAgree"
-            bindtap="onPrivacyAgree"
-        >同意并继续</button>
-        <view class="privacy-decline" bindtap="onPrivacyDecline">不同意</view>
-    </view>
-</view>
-
-<!-- 记录抽屉：从底部拉起，可下滑收起 -->
-<page-container
-    show="{{sheetShow}}"
-    position="bottom"
-    round="{{true}}"
-    overlay="{{true}}"
-    duration="{{300}}"
-    z-index="{{800}}"
-    close-on-slide-down="{{true}}"
-    custom-style="background:#ffffff;border-radius:32rpx 32rpx 0 0;"
-    bind:beforeleave="onSheetLeave"
-    bind:clickoverlay="onSheetOverlay"
->
-    <view class="sheet">
-        <view class="sheet-bar"></view>
-        <record-form id="recordForm" bind:saved="onSheetSaved" bind:deleted="onSheetSaved" />
-    </view>
-</page-container>
-
-<!-- 分享海报绘制画布（不可见） -->
-<canvas type="2d" id="shareCanvas" class="share-canvas"></canvas>

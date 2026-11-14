@@ -121,11 +121,14 @@
     }
 }
 
+/* 数字容器：接拉霸组件，字号由组件 size 控制 */
 .metric .num {
-    font-size: var(--t-title2);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    height: 54rpx;
     font-weight: 600;
     color: var(--label);
-    line-height: 1.15;
     font-variant-numeric: tabular-nums;
 }
 

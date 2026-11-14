@@ -120,16 +120,9 @@
     transform: scale(0.98);
 }
 
-/* 清空：降级为系统红文字链接，弱化危险操作 */
-.danger-link {
-    text-align: center;
-    font-size: var(--t-subhead);
-    color: var(--red);
-    padding: var(--sp-3) 0 var(--sp-5);
-}
-
 .about {
     padding: var(--sp-4);
+    margin-top: var(--sp-3);
 }
 
 .about-text {

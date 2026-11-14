@@ -1,4 +1,4 @@
-const { fmtDT, fmtDur, bristolLabel, dayStr, todayStr, CHEERS } = require('../../utils/constants.js');
+const { fmtDT, fmtTime, fmtDur, bristolLabel, dayStr, todayStr, CHEERS, monthCalendar } = require('../../utils/constants.js');
 const { createRecordStore } = require('../../utils/record-store.js');
 const haptics = require('../../utils/haptics.js');
 const share = require('../../utils/share.js');
@@ -35,6 +35,9 @@ Page({
         statusTitle: '拉了么？',
         statusSub: '今天还没拉',
         lastText: '还没有记录',
+        lastTime: '还没有记录',
+        lastDur: '',
+        lastShape: '',
         streakText: '未开始',
         monthCountText: '0 次',
         challenge: null,
@@ -48,6 +51,10 @@ Page({
         privacySummary: PRIVACY_SUMMARY,
         privacyContractName: '《小程序隐私保护指引》',
         navTop: 72,
+        monthOffset: 0,
+        streakNum: '',
+        monthCountNum: '0',
+        streakFallback: '未开始',
     },
 
     onLoad(options) {
@@ -104,6 +111,9 @@ Page({
                 });
             }
             let lastText = '还没有记录';
+            let lastTime = '还没有记录';
+            let lastDur = '';
+            let lastShape = '';
             if (records.length > 0) {
                 let latest = records[0];
                 for (let i = 1; i < records.length; i += 1) {
@@ -111,7 +121,14 @@ Page({
                         latest = records[i];
                     }
                 }
-                lastText = fmtDT(latest.timestamp) + ' · ' + fmtDur(latest.durationMin) + ' · ' + bristolLabel(latest.bristol);
+                const ld = new Date(latest.timestamp);
+                // 当天只显示「今天 时:分」，省下的横向空间留给时长与性状
+                lastTime = dayStr(latest.timestamp) === todayStr()
+                    ? '今天 ' + fmtTime(latest.timestamp)
+                    : (ld.getMonth() + 1) + '月' + ld.getDate() + '日 ' + fmtTime(latest.timestamp);
+                lastDur = fmtDur(latest.durationMin);
+                lastShape = bristolLabel(latest.bristol);
+                lastText = lastTime + ' · ' + lastDur + ' · ' + lastShape;
             }
             const monthAgo = Date.now() - 30 * 24 * 3600 * 1000;
             const monthCount = records.filter(function (r) { return r.timestamp >= monthAgo; }).length;
@@ -119,14 +136,24 @@ Page({
             that._stats = stats;
             const now = new Date();
             const WD = ['日', '一', '二', '三', '四', '五', '六'];
-            const dateText = (now.getMonth() + 1) + ' 月 ' + now.getDate() + ' 日 · 星期' + WD[now.getDay()];
+            const dateText = (now.getMonth() + 1) + '月' + now.getDate() + '日 周' + WD[now.getDay()];
+            // 日历默认停在当前月；切月由 shiftMonth 负责重算
+            const monthBase = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+            that._records = records;
             that.setData({
                 lastText: lastText,
+                lastTime: lastTime,
+                lastDur: lastDur,
+                lastShape: lastShape,
                 streakText: stats.streak > 0 ? stats.streak + ' 天' : '未开始',
+                streakNum: stats.streak > 0 ? String(stats.streak) : '',
+                streakFallback: stats.streak > 0 ? '' : '未开始',
                 monthCountText: monthCount + ' 次',
+                monthCountNum: String(monthCount),
                 dateText: dateText,
                 todayCount: today.length,
-                calendar: stats.calendar,
+                monthOffset: 0,
+                calendar: monthCalendar(records, monthBase),
             }, function () {
                 share.ensurePoster(that, that._stats);
             });
@@ -175,6 +202,65 @@ Page({
                 wx.showToast({ title: '打开历史失败', icon: 'none' });
             },
         });
+    },
+
+    /* ---- 日历：左右滑动切换月份 ---- */
+    onCalTouchStart(event) {
+        const t = event.touches && event.touches[0];
+        if (!t) {
+            return;
+        }
+        this._calX = t.clientX;
+        this._calY = t.clientY;
+    },
+
+    onCalTouchEnd(event) {
+        if (this._calX === undefined) {
+            return;
+        }
+        const t = event.changedTouches && event.changedTouches[0];
+        const x0 = this._calX;
+        const y0 = this._calY;
+        this._calX = undefined;
+        if (!t) {
+            return;
+        }
+        const dx = t.clientX - x0;
+        const dy = t.clientY - y0;
+        // 横向位移足够，且明显大于纵向（避免和页面滚动打架）
+        if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.5) {
+            return;
+        }
+        if (dx < 0) {
+            this.stepMonth(1);
+        } else {
+            this.stepMonth(-1);
+        }
+    },
+
+    onMonthPrev() {
+        this.stepMonth(-1);
+    },
+
+    onMonthNext() {
+        this.stepMonth(1);
+    },
+
+    stepMonth(delta) {
+        const next = this.data.monthOffset + delta;
+        if (next > 0) {
+            haptics.light();
+            return; // 不进入未来月份
+        }
+        haptics.light();
+        this.setData({ monthOffset: next });
+        this.renderCalendar();
+    },
+
+    renderCalendar() {
+        const now = new Date();
+        const base = new Date(now.getFullYear(), now.getMonth() + this.data.monthOffset, 1);
+        this.setData({ calendar: monthCalendar(this._records || [], base.getTime()) });
     },
 
     /* ---- 庆祝动画 ---- */

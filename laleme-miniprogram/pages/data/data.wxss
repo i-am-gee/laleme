@@ -93,19 +93,62 @@
     margin-left: var(--sp-2);
 }
 
-/* ---------- 粘贴导入 ---------- */
-.paste-card {
+/* ---------- 手动粘贴：默认折叠 ---------- */
+.collapse {
     margin-top: var(--sp-3);
     background: var(--bg-card);
     border-radius: var(--r-lg);
-    padding: var(--sp-4);
+    overflow: hidden;
 }
 
-.paste-title {
-    font-size: var(--t-headline);
-    font-weight: 600;
+.collapse-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 88rpx;
+    padding: var(--sp-2) var(--sp-4);
+    box-sizing: border-box;
+}
+
+.row-press {
+    background: var(--fill-1);
+}
+
+.collapse-title {
+    font-size: var(--t-body);
     color: var(--label);
-    margin-bottom: var(--sp-2);
+}
+
+/* 折叠箭头：收起朝下，展开朝上 */
+.collapse-arrow {
+    width: 14rpx;
+    height: 14rpx;
+    border-right: 3rpx solid var(--label-3);
+    border-bottom: 3rpx solid var(--label-3);
+    transform: rotate(45deg);
+    transition: transform 0.24s var(--ease-sheet);
+    margin-top: -6rpx;
+}
+
+.collapse-arrow.open {
+    transform: rotate(-135deg);
+    margin-top: 6rpx;
+}
+
+.collapse-body {
+    padding: 0 var(--sp-4) var(--sp-4);
+    animation: collapseIn 0.24s var(--ease-sheet);
+}
+
+@keyframes collapseIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-8rpx);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .paste-box {
@@ -185,4 +228,118 @@
     font-size: var(--t-subhead);
     color: var(--red);
     padding: var(--sp-2) 0;
+}
+
+/* ============================================================
+   导入结果弹窗：iOS Alert 体例
+   ============================================================ */
+.res-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(18, 16, 14, 0.42);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--sp-6) var(--sp-5);
+}
+
+.res-card {
+    width: 100%;
+    max-width: 560rpx;
+    background: var(--bg-card);
+    border-radius: var(--r-lg);
+    padding: var(--sp-5) var(--sp-4) var(--sp-4);
+    box-sizing: border-box;
+    text-align: center;
+    animation: resIn 0.28s var(--ease-spring);
+}
+
+@keyframes resIn {
+    0% {
+        transform: scale(0.92);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.res-badge {
+    width: 96rpx;
+    height: 96rpx;
+    border-radius: 50%;
+    margin: 0 auto var(--sp-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 52rpx;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.res-badge.ok {
+    background: #34c759;
+}
+
+.res-badge.warn {
+    background: var(--orange);
+}
+
+.res-title {
+    font-size: var(--t-title3);
+    font-weight: 600;
+    color: var(--label);
+    letter-spacing: -0.3rpx;
+    margin-bottom: var(--sp-3);
+}
+
+.res-body {
+    background: var(--fill-1);
+    border-radius: var(--r-md);
+    padding: var(--sp-1) var(--sp-3);
+    margin-bottom: var(--sp-3);
+}
+
+.res-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 64rpx;
+    font-size: var(--t-footnote);
+}
+
+.res-k {
+    color: var(--label-2);
+}
+
+.res-v {
+    color: var(--label);
+    font-variant-numeric: tabular-nums;
+}
+
+.res-v.strong {
+    font-weight: 600;
+    color: var(--tint);
+}
+
+.res-note {
+    font-size: var(--t-caption);
+    color: var(--label-3);
+    line-height: 1.55;
+    margin-bottom: var(--sp-3);
+    text-align: left;
+}
+
+.res-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 92rpx;
+    border-radius: var(--r-full);
+    background: var(--tint);
+    color: #ffffff;
+    font-size: var(--t-body);
+    font-weight: 600;
 }
