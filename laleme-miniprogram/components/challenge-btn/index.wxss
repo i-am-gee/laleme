@@ -1,14 +1,13 @@
 /* ============================================================
    转发给你在乎的人
-   - 未集齐：三个可点的转发位（前两个普通便便，第三个金色便便）
-   - 集齐后：收成一枚金色胶囊按钮，不再显示进度
+   一枚与全局大按钮同规格的胶囊（96rpx / r-full / 实色 tint）
+   进度只用一句文字，不占图形
    ============================================================ */
 
 .cb-wrap {
     /* 组件样式隔离，本地兜底一份用到的令牌 */
     --tint: #8b5e3c;
     --tint-strong: #6f4b30;
-    --label-2: rgba(60, 58, 55, 0.6);
     --gold: #b8893c;
     --r-full: 999rpx;
     --t-headline: 34rpx;
@@ -16,107 +15,27 @@
 
     width: 100%;
     /* 两种形态高度一致，解锁时不跳版 */
-    min-height: 136rpx;
+    min-height: 140rpx;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
 }
 
-/* ---------- 三个转发位 ---------- */
-.cb-slots {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 46rpx;
-}
-
-.cb-slot {
-    /* 微信 button 默认宽 184px，这里必须写死圆形尺寸 */
-    width: 96rpx !important;
-    height: 96rpx;
-    min-width: 96rpx;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(120, 104, 88, 0.09);
-    transition: background 0.26s ease, box-shadow 0.26s ease, transform 0.2s var(--ease-spring);
-}
-
-.cb-slot::after {
-    border: none;
-}
-
-.cb-slot-hover {
-    transform: scale(0.94);
-}
-
-.cb-slot-icon {
-    display: block;
-    font-size: 52rpx;
-    line-height: 1;
-    opacity: 0.34;
-    filter: grayscale(1);
-    transition: opacity 0.26s ease, filter 0.26s ease, transform 0.26s var(--ease-spring);
-}
-
-/* 已转发：实心棕底 + 彩色便便 */
-.cb-slot.on {
-    background: var(--tint);
-    box-shadow: 0 8rpx 18rpx rgba(139, 94, 60, 0.22);
-}
-
-.cb-slot.on .cb-slot-icon {
-    opacity: 1;
-    filter: none;
-    transform: scale(1.08);
-}
-
-/* 第三个：金色位，未点也是金色，只是淡 */
-.cb-slot.gold {
-    background: rgba(201, 160, 78, 0.14);
-}
-
-.cb-slot.gold .cb-slot-icon {
-    opacity: 0.6;
-    filter: sepia(1) saturate(3.4) hue-rotate(-14deg) brightness(1.1);
-}
-
-.cb-slot.gold.on {
-    background: linear-gradient(140deg, #b8893c 0%, #e9cb80 52%, #a97c33 100%);
-    box-shadow: 0 10rpx 24rpx rgba(170, 125, 50, 0.32);
-}
-
-.cb-slot.gold.on .cb-slot-icon {
-    opacity: 1;
-    filter: sepia(1) saturate(3.6) hue-rotate(-14deg) brightness(1.2)
-        drop-shadow(0 0 6rpx rgba(255, 220, 150, 0.85));
-}
-
-.cb-caption {
-    margin-top: 8rpx;
-    font-size: 26rpx;
-    color: var(--label-2);
-    letter-spacing: 1rpx;
-    line-height: 1.3;
-}
-
-/* ---------- 集齐后的金色按钮 ---------- */
 .cb {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 12rpx;
+    /* 微信 button 默认宽度 184px，必须显式覆盖 */
     width: 100% !important;
     height: 96rpx;
     margin: 0;
     padding: 0;
     border-radius: var(--r-full);
+    background: var(--tint);
+    box-shadow: 0 10rpx 24rpx rgba(139, 94, 60, 0.22);
     line-height: 1;
     transition: transform 0.2s var(--ease-spring), background-color 0.12s ease, box-shadow 0.2s ease;
 }
@@ -126,7 +45,9 @@
 }
 
 .cb-hover {
+    background: var(--tint-strong);
     transform: scale(0.985);
+    box-shadow: 0 4rpx 12rpx rgba(139, 94, 60, 0.18);
 }
 
 .cb-icon {
@@ -137,10 +58,25 @@
 .cb-text {
     font-size: var(--t-headline);
     font-weight: 600;
-    color: #3a2a11;
+    color: #ffffff;
     letter-spacing: 1.5rpx;
 }
 
+/* ---------- 进度：一句话 ---------- */
+.cb-progress {
+    margin-top: 12rpx;
+    font-size: 22rpx;
+    color: rgba(60, 58, 55, 0.48);
+    letter-spacing: 0.2rpx;
+    line-height: 1.3;
+}
+
+.cb-progress.gold {
+    color: var(--gold);
+    font-weight: 500;
+}
+
+/* ---------- 集齐三次：整枚转金 + 缓慢扫光 ---------- */
 .cb.is-badge {
     overflow: hidden;
     background: linear-gradient(135deg, #b8893c 0%, #e9cb80 46%, #a97c33 100%);
@@ -171,6 +107,11 @@
     45%, 100% {
         left: 128%;
     }
+}
+
+.cb.is-badge .cb-text {
+    color: #3a2a11;
+    letter-spacing: 2rpx;
 }
 
 .cb.is-badge .cb-icon {
