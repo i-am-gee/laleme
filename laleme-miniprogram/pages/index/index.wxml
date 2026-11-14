@@ -72,8 +72,8 @@
                 data-count="{{item.count}}"
                 bindtap="onDayTap"
             >
-                <text class="cal-poop" wx:if="{{item.pooped}}">💩</text>
-                <text class="cal-num" wx:elif="{{!item.blank}}">{{item.day}}</text>
+                <view class="cal-poop" wx:if="{{item.pooped}}">💩</view>
+                <view class="cal-num" wx:elif="{{!item.blank}}">{{item.day}}</view>
                 <view class="cal-badge" wx:if="{{item.count > 1}}">{{item.count}}</view>
             </view>
         </view>

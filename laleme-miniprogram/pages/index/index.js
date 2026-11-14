@@ -83,6 +83,11 @@ Page({
         if (form) {
             form.resume();
         }
+        // 组件 attached 早于页面 onShow，这里主动同步一次分享进度
+        const cb = this.selectComponent('#challengeBtn');
+        if (cb && cb.sync) {
+            cb.sync();
+        }
     },
 
     onReady() {

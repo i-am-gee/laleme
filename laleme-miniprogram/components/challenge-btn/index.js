@@ -6,6 +6,7 @@ const haptics = require('../../utils/haptics.js');
 Component({
     data: {
         count: 0,
+        left: share.SHARE_BADGE_TARGET,
         badge: false,
     },
 
@@ -26,8 +27,9 @@ Component({
         sync() {
             const count = share.shareCount();
             const badge = share.shareBadge();
+            const left = Math.max(0, share.SHARE_BADGE_TARGET - count);
             if (count !== this.data.count || badge !== this.data.badge) {
-                this.setData({ count: count, badge: badge });
+                this.setData({ count: count, left: left, badge: badge });
             }
         },
 

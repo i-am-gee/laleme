@@ -88,6 +88,31 @@ function trackShare() {
     return { count: next, earned: false, badge: false };
 }
 
+// 导出备份时带上，导入时再写回，保证「整份数据」可迁移
+function shareMeta() {
+    return { shareCount: shareCount(), shareBadge: shareBadge() };
+}
+
+function setShareState(count, badge) {
+    const n = Math.max(0, Math.min(parseInt(count, 10) || 0, 99));
+    if (n > 0) {
+        wx.setStorageSync(SHARE_COUNT_KEY, n);
+    } else {
+        wx.removeStorageSync(SHARE_COUNT_KEY);
+    }
+    if (badge) {
+        wx.setStorageSync(SHARE_BADGE_KEY, 1);
+    } else {
+        wx.removeStorageSync(SHARE_BADGE_KEY);
+    }
+}
+
+// 清空全部数据时一并抹掉分享进度与称号
+function clearShareState() {
+    wx.removeStorageSync(SHARE_COUNT_KEY);
+    wx.removeStorageSync(SHARE_BADGE_KEY);
+}
+
 // 页面 onReady/数据就绪后调用；页面需含 <canvas type="2d" id="shareCanvas"/>
 function ensurePoster(page, stats) {
     const key = posterKey(stats);
@@ -340,5 +365,8 @@ module.exports = {
     shareCount: shareCount,
     shareBadge: shareBadge,
     trackShare: trackShare,
+    shareMeta: shareMeta,
+    setShareState: setShareState,
+    clearShareState: clearShareState,
     SHARE_BADGE_TARGET: SHARE_BADGE_TARGET,
 };

@@ -2,6 +2,7 @@ const { pad2 } = require('../../utils/constants.js');
 const { createRecordStore } = require('../../utils/record-store.js');
 const { buildCsv, parseCsv } = require('../../utils/csv.js');
 const haptics = require('../../utils/haptics.js');
+const share = require('../../utils/share.js');
 
 const store = createRecordStore();
 
@@ -16,6 +17,7 @@ Page({
         resultTotal: 0,
         resultAdded: 0,
         resultSkipped: 0,
+        resultShare: '',
     },
 
     onShow() {
@@ -41,7 +43,7 @@ Page({
                 wx.showToast({ title: '暂无数据可导出', icon: 'none' });
                 return;
             }
-            const csv = buildCsv(res.data);
+            const csv = buildCsv(res.data, share.shareMeta());
             const now = new Date();
             const name = 'laleme-' + now.getFullYear() + pad2(now.getMonth() + 1) + pad2(now.getDate()) + '.csv';
             const path = wx.env.USER_DATA_PATH + '/' + name;
@@ -74,7 +76,7 @@ Page({
                 return;
             }
             wx.setClipboardData({
-                data: buildCsv(res.data),
+                data: buildCsv(res.data, share.shareMeta()),
                 success: function () {
                     wx.showToast({ title: '已复制，可发送到电脑保存', icon: 'none' });
                 },
@@ -127,12 +129,47 @@ Page({
         this.importText(text, '粘贴内容');
     },
 
+    // 分享进度随备份一起恢复：合并语义，取本地与备份的较大值，不降级
+    applyShareMeta(meta) {
+        if (!meta || (!meta.shareCount && !meta.shareBadge)) {
+            return '';
+        }
+        const cur = share.shareMeta();
+        const count = Math.max(cur.shareCount, meta.shareCount || 0);
+        const badge = cur.shareBadge || !!meta.shareBadge;
+        if (count === cur.shareCount && badge === cur.shareBadge) {
+            return '';
+        }
+        share.setShareState(count, badge);
+        if (badge && !cur.shareBadge) {
+            return '「大屎官」称号已一并恢复';
+        }
+        return '分享进度已一并恢复';
+    },
+
     // 统一导入入口：解析 → 去重 → 逐条写入
     importText(text, sourceLabel) {
         const that = this;
-        const rows = parseCsv(text);
-        if (!rows.length) {
+        const parsed = parseCsv(text);
+        const rows = parsed.rows;
+        if (!rows.length && !parsed.meta.shareCount && !parsed.meta.shareBadge) {
             this.setStatus('没识别到有效记录：首行应为「时间,时长(分钟),布里斯托类型,感觉」，每行一条。', 'warn');
+            return;
+        }
+        const shareNote = this.applyShareMeta(parsed.meta);
+        if (!rows.length) {
+            // 只有分享进度、没有打卡记录
+            haptics.tap();
+            that.setData({
+                pasteText: '',
+                status: '',
+                resultShow: true,
+                resultTotal: 0,
+                resultAdded: 0,
+                resultSkipped: 0,
+                resultShare: shareNote,
+            });
+            that.refresh();
             return;
         }
         store.list().then(function (cur) {
@@ -176,6 +213,7 @@ Page({
                     resultTotal: rows.length,
                     resultAdded: added,
                     resultSkipped: skipped,
+                    resultShare: shareNote,
                 });
                 that.refresh();
             }
@@ -185,14 +223,19 @@ Page({
     /* -------- 危险操作 -------- */
     clearAll() {
         const that = this;
-        if (!this.data.total) {
+        const meta = share.shareMeta();
+        const hasShare = meta.shareCount > 0 || meta.shareBadge;
+        if (!this.data.total && !hasShare) {
             wx.showToast({ title: '暂无数据', icon: 'none' });
             return;
         }
         haptics.tap();
+        const content = this.data.total
+            ? '将删除本机全部 ' + this.data.total + ' 条记录，以及分享进度和「大屎官」称号，不可恢复。建议先导出备份。'
+            : '将删除分享进度和「大屎官」称号，不可恢复。';
         wx.showModal({
             title: '清空全部数据',
-            content: '将删除本机全部 ' + this.data.total + ' 条记录且不可恢复，建议先导出备份。',
+            content: content,
             confirmText: '清空',
             confirmColor: '#e24b4a',
             success(result) {
@@ -204,7 +247,9 @@ Page({
                         wx.showToast({ title: '清空失败，请重试', icon: 'none' });
                         return;
                     }
-                    that.setStatus('已清空全部记录。', 'info');
+                    // 分享进度与称号也一并抹掉，等同于「这个用户从未来过」
+                    share.clearShareState();
+                    that.setStatus('已清空全部数据，包括分享进度与称号。', 'info');
                     that.refresh();
                     wx.showToast({ title: '已清空', icon: 'success' });
                 });

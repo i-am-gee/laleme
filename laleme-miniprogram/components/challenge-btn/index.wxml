@@ -1,20 +1,25 @@
-<button
-    class="cb {{badge ? 'is-badge' : ''}}"
-    hover-class="cb-hover"
-    hover-stay-time="80"
-    open-type="share"
-    bindtouchstart="onTouch"
->
-    <image class="cb-icon" src="/assets/actions/share-white.png" mode="aspectFit" />
-    <text class="cb-text">{{badge ? '大屎官 · 继续分享' : '喊好友挑战'}}</text>
+<view class="cb-wrap">
+    <button
+        class="cb {{badge ? 'is-badge' : ''}}"
+        hover-class="cb-hover"
+        hover-stay-time="80"
+        open-type="share"
+        bindtouchstart="onTouch"
+    >
+        <image class="cb-icon" src="/assets/actions/share-white.png" mode="aspectFit" />
+        <text class="cb-text">{{badge ? '大屎官 · 继续分享' : '喊好友挑战'}}</text>
+    </button>
 
-    <!-- 进度：三个小大便，凑齐三个解锁「大屎官」 -->
-    <view class="cb-steps" wx:if="{{!badge}}">
-        <text
-            class="cb-step {{index < count ? 'on' : ''}}"
-            wx:for="{{[0, 1, 2]}}"
-            wx:key="*this"
-        >💩</text>
+    <!-- 进度独立成行：三段细条，比在按钮里塞图标更克制 -->
+    <view class="cb-meta">
+        <view class="cb-track">
+            <view
+                class="cb-seg {{badge || i < count ? 'on' : ''}}"
+                wx:for="{{[0, 1, 2]}}"
+                wx:key="*this"
+                wx:for-index="i"
+            ></view>
+        </view>
+        <text class="cb-hint {{badge ? 'gold' : ''}}">{{badge ? '已解锁 · 金色传说' : '再分享 ' + left + ' 次，解锁「大屎官」'}}</text>
     </view>
-    <text class="cb-crown" wx:else>👑</text>
-</button>
+</view>

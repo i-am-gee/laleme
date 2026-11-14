@@ -50,6 +50,10 @@ Page({
 
     onShow() {
         syncTabBar(this, 2);
+        const cb = this.selectComponent('#challengeBtn');
+        if (cb && cb.sync) {
+            cb.sync();
+        }
         const that = this;
         store.list().then(function (res) {
             if (!res.error) {

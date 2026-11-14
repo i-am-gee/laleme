@@ -1,15 +1,22 @@
 /* ============================================================
    喊好友挑战 · 与全局大按钮同规格（96rpx / 胶囊 / 实色 tint）
+   进度独立成行，按钮本身保持干净
    ============================================================ */
 
-.cb {
+.cb-wrap {
     /* 组件样式隔离，本地兜底一份用到的令牌 */
     --tint: #8b5e3c;
     --tint-strong: #6f4b30;
+    --label-3: rgba(60, 58, 55, 0.32);
+    --gold: #b8893c;
     --r-full: 999rpx;
     --t-headline: 34rpx;
     --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
+    width: 100%;
+}
+
+.cb {
     position: relative;
     display: flex;
     align-items: center;
@@ -49,44 +56,46 @@
     letter-spacing: 1.5rpx;
 }
 
-/* ---------- 三次进度：三个大便，未凑齐的做灰 ---------- */
-.cb-steps {
-    position: absolute;
-    right: 26rpx;
-    top: 50%;
-    transform: translateY(-50%);
+/* ---------- 进度：三段细条 + 一行说明 ---------- */
+.cb-meta {
     display: flex;
     align-items: center;
+    gap: 16rpx;
+    margin-top: 14rpx;
+    padding: 0 10rpx;
+}
+
+.cb-track {
+    display: flex;
     gap: 6rpx;
+    flex-shrink: 0;
 }
 
-.cb-step {
-    /* filter 需要非行内盒子才生效 */
-    display: inline-block;
-    font-size: 34rpx;
-    line-height: 1;
-    /* 未点亮：褪成浅灰但保持形状，在深棕底上也能看清 */
-    opacity: 0.62;
-    filter: grayscale(1) brightness(1.9);
-    transition: opacity 0.3s ease, filter 0.3s ease, transform 0.3s var(--ease-spring);
+.cb-seg {
+    width: 60rpx;
+    height: 6rpx;
+    border-radius: 999rpx;
+    background: rgba(120, 104, 88, 0.28);
+    transition: background 0.32s ease;
 }
 
-.cb-step.on {
-    opacity: 1;
-    filter: drop-shadow(0 0 5rpx rgba(255, 219, 150, 0.85));
-    transform: scale(1.1);
+.cb-seg.on {
+    background: var(--tint);
+}
+
+.cb-hint {
+    font-size: 22rpx;
+    color: rgba(60, 58, 55, 0.48);
+    letter-spacing: 0.2rpx;
+    line-height: 1.2;
+}
+
+.cb-hint.gold {
+    color: var(--gold);
+    font-weight: 500;
 }
 
 /* ---------- 大屎官：整条转金色 + 缓慢扫光 ---------- */
-.cb-crown {
-    position: absolute;
-    right: 24rpx;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 34rpx;
-    line-height: 1;
-}
-
 .cb.is-badge {
     overflow: hidden;
     background: linear-gradient(135deg, #b8893c 0%, #e9cb80 46%, #a97c33 100%);
@@ -126,4 +135,8 @@
 
 .cb.is-badge .cb-icon {
     filter: brightness(0) opacity(0.78);
+}
+
+.cb.is-badge + .cb-meta .cb-seg.on {
+    background: linear-gradient(90deg, #c9a04e, #efd79a);
 }

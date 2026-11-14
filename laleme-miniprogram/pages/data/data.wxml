@@ -60,7 +60,7 @@
     <view class="status {{statusType}}" wx:if="{{status}}">{{status}}</view>
 
     <view class="tip">
-        导入按「时间 + 时长」去重，重复的记录不会重复写入。数据全部只在本机，不会上传。
+        导入按「时间 + 时长」去重，重复的记录不会重复写入。备份文件同时包含分享进度与「大屎官」称号，导入即可整体恢复。数据全部只在本机，不会上传。
     </view>
 
     <view class="danger-link" bindtap="clearAll">清空全部数据</view>
@@ -85,6 +85,7 @@
                 <text class="res-v">{{resultSkipped}} 条</text>
             </view>
         </view>
+        <view class="res-note" wx:if="{{resultShare}}">{{resultShare}}</view>
         <view class="res-note" wx:if="{{resultSkipped > 0}}">跳过的是与现有记录重复、或格式不完整的数据</view>
         <view class="res-btn" hover-class="btn-hover" bindtap="closeResult">知道了</view>
     </view>

@@ -71,8 +71,8 @@
 /* 圆按钮容器 */
 .fab-wrap {
     position: relative;
-    width: 296rpx;
-    height: 296rpx;
+    width: 284rpx;
+    height: 284rpx;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -81,8 +81,8 @@
 /* 引导光晕：呼吸式外扩，把视线引向主按钮 */
 .fab-halo {
     position: absolute;
-    width: 272rpx;
-    height: 272rpx;
+    width: 260rpx;
+    height: 260rpx;
     border-radius: 50%;
     background: var(--tint-soft);
     animation: haloBreathe 3s ease-in-out infinite;
@@ -103,8 +103,8 @@
 .fab {
     position: relative;
     overflow: hidden;
-    width: 248rpx;
-    height: 248rpx;
+    width: 236rpx;
+    height: 236rpx;
     border-radius: 50%;
     display: flex;
     flex-direction: column;
@@ -333,7 +333,7 @@
 .cal-cell {
     position: relative;
     width: calc(100% / 7);
-    height: 68rpx;
+    height: 64rpx;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -356,6 +356,9 @@
     font-size: var(--t-callout);
     color: var(--label);
     font-variant-numeric: tabular-nums;
+    /* text 元素上 display:flex 不可靠，用行高 + 文本居中兜住 */
+    text-align: center;
+    line-height: 56rpx;
 }
 
 .cal-cell.future .cal-num {

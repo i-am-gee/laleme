@@ -10,7 +10,9 @@ Object.keys(MOOD_TEXT).forEach(function (k) {
 });
 
 // 组装 CSV 文本
-function buildCsv(records) {
+// meta 为分享进度等附属状态，放在文件末尾的 # 注释行里：
+// 不影响表格阅读，导入时再解析回来，保证「整份数据」可迁移
+function buildCsv(records, meta) {
     const rows = [HEADER];
     (records || []).forEach(function (r) {
         rows.push([
@@ -20,18 +22,40 @@ function buildCsv(records) {
             r.mood ? MOOD_TEXT[r.mood] : '未记',
         ]);
     });
-    return rows.map(function (row) {
+    const body = rows.map(function (row) {
         return row.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(',');
     }).join('\n');
+    const m = meta || {};
+    const extra = [];
+    if (m.shareCount) {
+        extra.push('# 分享次数,' + m.shareCount);
+    }
+    if (m.shareBadge) {
+        extra.push('# 大屎官,1');
+    }
+    return extra.length ? body + '\n' + extra.join('\n') : body;
 }
 
-// CSV 解析：支持引号转义、BOM、无引号、常见日期格式
+// CSV 解析：支持引号转义、BOM、无引号、常见日期格式、末尾 # 附属状态行
 function parseCsv(text) {
     const clean = String(text || '').replace(/^\uFEFF/, '');
     const lines = clean.split(/\r?\n/);
     const out = [];
+    const meta = { shareCount: 0, shareBadge: false };
     lines.forEach(function (line) {
         if (!line.trim()) {
+            return;
+        }
+        // 附属状态行：以 # 开头，不参与记录计数
+        if (line.trim().charAt(0) === '#') {
+            const cells = splitLine(line);
+            const name = String(cells[0] || '').replace(/^#\s*/, '').trim();
+            const value = String(cells[1] || '').trim();
+            if (name.indexOf('分享次数') !== -1) {
+                meta.shareCount = parseInt(value, 10) || 0;
+            } else if (name.indexOf('大屎官') !== -1) {
+                meta.shareBadge = value === '1' || value === 'true';
+            }
             return;
         }
         const cells = splitLine(line);
@@ -60,7 +84,7 @@ function parseCsv(text) {
             mood: mood,
         });
     });
-    return out;
+    return { rows: out, meta: meta };
 }
 
 // 日期解析：ISO 8601 / 2026-11-13 20:00 / 2026/11/13 20:00:00
