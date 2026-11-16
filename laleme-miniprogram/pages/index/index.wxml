@@ -77,7 +77,7 @@
                     <text class="cal-poop-emoji">💩</text>
                 </view>
                 <view class="cal-num" wx:elif="{{!item.blank}}">{{item.day}}</view>
-                <view class="cal-badge" wx:if="{{item.count > 1}}">{{item.count}}</view>
+                <view class="cal-badge {{goldMode ? 'gold' : ''}}" wx:if="{{item.count > 1}}">{{item.count}}</view>
             </view>
         </view>
     </view>

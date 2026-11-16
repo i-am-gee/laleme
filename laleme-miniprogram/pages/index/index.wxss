@@ -431,6 +431,14 @@
     font-variant-numeric: tabular-nums;
 }
 
+/* 黄金模式：同日多次的角标也换成金底深字，不留棕色 */
+.cal-cell .cal-badge.gold {
+    /* 22rpx 的小圆点用纯色比渐变清楚：渐变会把浅端糊成一片奶白 */
+    background: #b8893c;
+    color: #2f2210;
+    box-shadow: 0 0 0 2rpx #fdf8ec, inset 0 1rpx 0 rgba(255, 246, 224, 0.55);
+}
+
 /* ---------- 最近一次：页面末尾的轻量备注 ---------- */
 .last-line {
     display: flex;
