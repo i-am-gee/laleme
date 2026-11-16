@@ -95,15 +95,25 @@
     box-shadow: 0 0 0 3rpx var(--tint) inset, 0 4rpx 14rpx rgba(80, 50, 20, 0.10);
 }
 
-.bs-num {
-    font-size: var(--t-callout);
-    font-weight: 600;
-    color: var(--label-2);
-    line-height: 1.2;
-    font-variant-numeric: tabular-nums;
+.bs-icon {
+    display: block;
+    width: 64rpx;
+    height: 64rpx;
+    margin: 0 auto;
 }
 
-.bs-item.sel .bs-num {
+/* 不确定：没有图形，用一个问号占位，尺寸和图标对齐 */
+.bs-unknown {
+    width: 64rpx;
+    height: 64rpx;
+    margin: 0 auto;
+    line-height: 64rpx;
+    font-size: var(--t-title3);
+    font-weight: 600;
+    color: var(--label-3);
+}
+
+.bs-item.sel .bs-unknown {
     color: var(--tint);
 }
 
@@ -225,4 +235,77 @@
     font-size: var(--t-subhead);
     color: var(--red);
     padding: var(--sp-3) 0 4rpx;
+}
+
+/* ---------- 分节标签 ---------- */
+.sec-label {
+    margin: var(--sp-3) 0 var(--sp-2);
+    font-size: var(--t-caption2);
+    color: var(--label-3);
+    letter-spacing: 1rpx;
+}
+
+/* ---------- 颜色 ---------- */
+.cl-row {
+    display: flex;
+    gap: var(--sp-2);
+}
+
+.cl-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8rpx;
+    padding: 12rpx 0 10rpx;
+    border-radius: var(--r-sm);
+    background: var(--fill-1);
+    box-shadow: 0 0 0 3rpx transparent inset;
+    transition: transform 0.2s var(--ease-spring), background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.cl-item:active {
+    transform: scale(0.95);
+}
+
+.cl-item.sel {
+    background: var(--bg-card);
+    box-shadow: 0 0 0 3rpx var(--tint) inset, 0 4rpx 14rpx rgba(80, 50, 20, 0.10);
+}
+
+.cl-dot {
+    width: 44rpx;
+    height: 44rpx;
+    border-radius: var(--r-full);
+    /* 浅色块在浅底上也要有边，否则像没渲染 */
+    box-shadow: inset 0 0 0 1rpx rgba(60, 40, 20, 0.14);
+}
+
+.cl-name {
+    font-size: 20rpx;
+    color: var(--label-3);
+    line-height: 1.2;
+}
+
+.cl-item.sel .cl-name {
+    color: var(--tint);
+    font-weight: 600;
+}
+
+/* 颜色提示偏提醒语气，和形状提示区分开 */
+.bs-hint.warn {
+    color: #a5641f;
+}
+
+/* ---------- 感受：图标在上，文字在下 ---------- */
+.mood-icon {
+    display: block;
+    width: 46rpx;
+    height: 46rpx;
+    margin: 0 auto 6rpx;
+}
+
+.mood-text {
+    font-size: var(--t-footnote);
+    line-height: 1.2;
 }

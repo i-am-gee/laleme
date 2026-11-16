@@ -54,6 +54,8 @@ Page({
         rows: [],
         summary: '',
         inviteToken: '',
+        rankRows: [],
+        rankPartial: false,
     },
 
     onLoad() {
@@ -70,8 +72,7 @@ Page({
 
     load() {
         const that = this;
-        const key = this.data.period;
-        const period = pk.periodOf(key);
+        const period = pk.periodOf(this.data.period);
 
         pk.getMode().then(function (on) {
             if (!on) {
@@ -92,46 +93,98 @@ Page({
                     pk.pushMyStats(period.stamp, mine);
                     that._mine = mine;
 
-                    const activeId = friends.length
-                        ? (that.data.activeId && friends.filter(function (f) { return f.id === that.data.activeId; }).length
-                            ? that.data.activeId
-                            : friends[0].id)
-                        : '';
+                    // 一份周期内一次性把所有好友的数据拉齐，排名才有意义
+                    return Promise.all(friends.map(function (f) {
+                        return pk.getPeerStats(f.id, period.stamp).catch(function () {
+                            return null;
+                        });
+                    })).then(function (peers) {
+                        const map = {};
+                        friends.forEach(function (f, i) {
+                            map[f.id] = peers[i] || null;
+                        });
+                        that._peers = map;
 
-                    that.setData({
-                        ready: true,
-                        mode: true,
-                        me: { nick: profile.nick, initial: initialOf(profile.nick) },
-                        inviteToken: invite.token,
-                        friends: friends,
-                        activeId: activeId,
-                        mine: {
-                            count: mine.count,
-                            minText: score.formatDuration(mine.avgMin),
-                            qText: mine.avgQuality === null ? '—' : String(mine.avgQuality),
-                        },
+                        const keep = that.data.activeId;
+                        const activeId = friends.length
+                            ? (keep && map[keep] !== undefined ? keep : friends[0].id)
+                            : '';
+
+                        that.setData({
+                            ready: true,
+                            mode: true,
+                            me: { nick: profile.nick, initial: initialOf(profile.nick) },
+                            inviteToken: invite.token,
+                            friends: friends,
+                            activeId: activeId,
+                            mine: {
+                                count: mine.count,
+                                minText: score.formatDuration(mine.avgMin),
+                                qText: mine.avgQuality === null ? '—' : String(mine.avgQuality),
+                            },
+                        }, function () {
+                            const active = friends.filter(function (f) {
+                                return f.id === activeId;
+                            })[0];
+                            if (active) {
+                                that.renderCompare(active, mine, map[active.id]);
+                            } else {
+                                that.setData({
+                                    rows: [],
+                                    summary: '',
+                                    active: { nick: '', initial: '', synced: false },
+                                });
+                            }
+                            that.renderRank(mine, profile.nick, friends, map);
+                        });
                     });
-
-                    if (!activeId) {
-                        that.setData({ rows: [], summary: '', active: { nick: '', initial: '', synced: false } });
-                        return null;
-                    }
-                    return that.loadPeer(activeId, period);
                 });
-        }).catch(function (err) {
+        }).catch(function () {
             that.setData({ ready: true });
         });
     },
 
-    loadPeer(peerId, period) {
-        const that = this;
-        const p = period || pk.periodOf(this.data.period);
-        const friend = this.data.friends.filter(function (f) { return f.id === peerId; })[0];
-        if (!friend) {
-            return Promise.resolve();
-        }
-        return pk.getPeerStats(peerId, p.stamp).then(function (peer) {
-            that.renderCompare(friend, that._mine || score.aggregate([], p.since), peer);
+    // 排名：参与的人按质量分降序，同分比次数
+    renderRank(mine, myNick, friends, map) {
+        const rows = [{
+            id: 'me',
+            nick: myNick,
+            isMe: true,
+            quality: mine.avgQuality,
+            count: mine.count,
+        }];
+        friends.forEach(function (f) {
+            const peer = map[f.id];
+            if (peer) {
+                rows.push({
+                    id: f.id,
+                    nick: f.nick,
+                    isMe: false,
+                    quality: peer.avgQuality === undefined ? null : peer.avgQuality,
+                    count: peer.count || 0,
+                });
+            }
+        });
+        const sorted = rows.slice().sort(function (x, y) {
+            const qx = x.quality === null ? -1 : x.quality;
+            const qy = y.quality === null ? -1 : y.quality;
+            if (qy !== qx) {
+                return qy - qx;
+            }
+            return y.count - x.count;
+        });
+        this.setData({
+            rankRows: sorted.map(function (r, i) {
+                return {
+                    id: r.id,
+                    nick: r.nick,
+                    isMe: r.isMe,
+                    rank: i + 1,
+                    qText: r.quality === null ? '—' : String(r.quality),
+                    cText: r.count + ' 次',
+                };
+            }),
+            rankPartial: sorted.length < 2,
         });
     },
 
@@ -200,7 +253,13 @@ Page({
             return;
         }
         haptics.tap();
-        this.setData({ activeId: id }, () => this.loadPeer(id));
+        const that = this;
+        const friend = this.data.friends.filter(function (f) { return f.id === id; })[0];
+        this.setData({ activeId: id }, function () {
+            if (friend) {
+                that.renderCompare(friend, that._mine, (that._peers || {})[id] || null);
+            }
+        });
     },
 
     enablePk() {

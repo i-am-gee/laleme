@@ -93,6 +93,24 @@
                     <text class="pk-revoke" bindtap="revokeActive">解除关系</text>
                 </view>
             </view>
+
+            <!-- 排名：参与的人都在里面，按质量分降序 -->
+            <view class="card pk-rank">
+                <view class="pk-rank-head">
+                    <text class="pk-rank-t">排名</text>
+                    <text class="pk-rank-sub">按质量分</text>
+                </view>
+                <view class="pk-rank-row {{item.isMe ? 'me' : ''}}" wx:for="{{rankRows}}" wx:key="id">
+                    <text class="pk-rank-n num">{{item.rank}}</text>
+                    <view class="pk-rank-name">
+                        <text class="pk-rank-txt">{{item.nick}}</text>
+                        <text class="pk-rank-tag" wx:if="{{item.isMe}}">我</text>
+                    </view>
+                    <text class="pk-rank-q num">{{item.qText}}</text>
+                    <text class="pk-rank-c num">{{item.cText}}</text>
+                </view>
+                <view class="pk-rank-tip" wx:if="{{rankPartial}}">好友数据同步后，这里才会出现完整排名</view>
+            </view>
         </block>
 
         <view class="pk-empty" wx:else>

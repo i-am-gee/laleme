@@ -1,6 +1,6 @@
 // 记录表单：首页底部抽屉与编辑页共用同一套逻辑
 // 计时以「开始时间戳」为基准换算，切后台再回来不会漏算（v1.5 修复）
-const { BRISTOL, CHEERS, pad2, pickRecord } = require('../../utils/constants.js');
+const { BRISTOL, CHEERS, pad2, pickRecord, POOP_COLORS, MOOD_ICONS } = require('../../utils/constants.js');
 const { createRecordStore } = require('../../utils/record-store.js');
 const haptics = require('../../utils/haptics.js');
 const timer = require('../../utils/timer.js');
@@ -23,17 +23,29 @@ function timeValueOf(ms) {
 
 function bristolOptions(selected) {
     const list = BRISTOL.map(function (b) {
-        return { t: b.t, name: b.name, ideal: b.t === 4, sel: selected === b.t };
+        return { t: b.t, name: b.name, icon: b.icon, ideal: b.t === 4, sel: selected === b.t };
     });
-    list.push({ t: 0, name: '不确定', ideal: false, sel: selected === null || selected === undefined });
+    list.push({ t: 0, name: '不确定', icon: '', ideal: false, sel: selected === null || selected === undefined });
     return list;
+}
+
+// 颜色的提示语：只有少数几档需要提醒，其余留空
+function colorHintOf(key) {
+    const hit = POOP_COLORS.filter(function (c) { return c.key === key; })[0];
+    return hit ? hit.hint : '';
+}
+
+function colorOptions(selected) {
+    return POOP_COLORS.map(function (c) {
+        return { key: c.key, name: c.name, hex: c.hex, sel: selected === c.key };
+    });
 }
 
 function moodOptions(selected) {
     return [
-        { key: 'good', text: '通畅', sel: selected === 'good' },
-        { key: 'normal', text: '一般', sel: selected === 'normal' },
-        { key: 'hard', text: '费劲', sel: selected === 'hard' },
+        { key: 'good', text: '通畅', icon: MOOD_ICONS.good, sel: selected === 'good' },
+        { key: 'normal', text: '一般', icon: MOOD_ICONS.normal, sel: selected === 'normal' },
+        { key: 'hard', text: '费劲', icon: MOOD_ICONS.hard, sel: selected === 'hard' },
     ];
 }
 
@@ -51,6 +63,8 @@ Component({
         manualMin: '',
         bristolOptions: bristolOptions(null),
         bristolHint: '',
+        colorOptions: colorOptions(null),
+        colorHint: '',
         moodOptions: moodOptions(null),
     },
 
@@ -58,6 +72,7 @@ Component({
         created() {
             this.selBristol = null;
             this.selMood = null;
+            this.selColor = null;
             this._startAt = 0;
             this._timer = null;
         },
@@ -143,6 +158,7 @@ Component({
             wx.setStorageSync(DRAFT_KEY, {
                 bristol: this.selBristol,
                 mood: this.selMood,
+                color: this.selColor,
                 savedAt: Date.now(),
             });
         },
@@ -158,9 +174,12 @@ Component({
             if (draft) {
                 this.selBristol = draft.bristol === undefined ? null : draft.bristol;
                 this.selMood = draft.mood === undefined ? null : draft.mood;
+                this.selColor = draft.color === undefined ? null : draft.color;
                 this.setData({
                     bristolOptions: bristolOptions(this.selBristol),
                     bristolHint: this.selBristol ? BRISTOL[this.selBristol - 1].hint : '',
+                    colorOptions: colorOptions(this.selColor),
+                    colorHint: colorHintOf(this.selColor),
                     moodOptions: moodOptions(this.selMood),
                 });
                 return;
@@ -174,9 +193,12 @@ Component({
                 }
                 that.selBristol = last.bristol === undefined ? null : last.bristol;
                 that.selMood = last.mood === undefined ? null : last.mood;
+                that.selColor = last.color === undefined ? null : last.color;
                 that.setData({
                     bristolOptions: bristolOptions(that.selBristol),
                     bristolHint: that.selBristol ? BRISTOL[that.selBristol - 1].hint : '',
+                    colorOptions: colorOptions(that.selColor),
+                    colorHint: colorHintOf(that.selColor),
                     moodOptions: moodOptions(that.selMood),
                 });
             });
@@ -187,6 +209,7 @@ Component({
             const now = Date.now();
             this.selBristol = null;
             this.selMood = null;
+            this.selColor = null;
             this.setData({
                 isEdit: false,
                 manualMin: '',
@@ -194,6 +217,8 @@ Component({
                 timeValue: timeValueOf(now),
                 bristolOptions: bristolOptions(null),
                 bristolHint: '',
+                colorOptions: colorOptions(null),
+                colorHint: '',
                 moodOptions: moodOptions(null),
                 timerText: '00:00',
             });
@@ -228,6 +253,7 @@ Component({
                 that.editId = rec.id;
                 that.selBristol = rec.bristol;
                 that.selMood = rec.mood;
+                that.selColor = rec.color === undefined ? null : rec.color;
                 that.setData({
                     isEdit: true,
                     manualMin: String(rec.durationMin),
@@ -235,6 +261,8 @@ Component({
                     timeValue: timeValueOf(rec.timestamp),
                     bristolOptions: bristolOptions(rec.bristol),
                     bristolHint: rec.bristol ? BRISTOL[rec.bristol - 1].hint : '',
+                    colorOptions: colorOptions(rec.color === undefined ? null : rec.color),
+                    colorHint: colorHintOf(rec.color),
                     moodOptions: moodOptions(rec.mood),
                 });
             });
@@ -263,6 +291,18 @@ Component({
             this.setData({
                 bristolOptions: bristolOptions(this.selBristol),
                 bristolHint: t > 0 ? BRISTOL[t - 1].hint : '',
+            });
+            this.saveDraft();
+        },
+
+        pickColor(event) {
+            haptics.light();
+            const key = event.currentTarget.dataset.color;
+            // 再点一次取消，避免选错了没法回到「未填」
+            this.selColor = this.selColor === key ? null : key;
+            this.setData({
+                colorOptions: colorOptions(this.selColor),
+                colorHint: colorHintOf(this.selColor),
             });
             this.saveDraft();
         },
@@ -302,6 +342,7 @@ Component({
                 durationMin: duration,
                 bristol: this.selBristol,
                 mood: this.selMood,
+                color: this.selColor,
             };
 
             const that = this;

@@ -43,6 +43,7 @@ function createRecordStore() {
                     durationMin: row.durationMin,
                     bristol: row.bristol === undefined ? null : row.bristol,
                     mood: row.mood === undefined ? null : row.mood,
+                    color: row.color === undefined ? null : row.color,
                     createdAt: now,
                     updatedAt: now,
                 };
@@ -74,6 +75,7 @@ function createRecordStore() {
                     durationMin: row.durationMin === undefined ? current.durationMin : row.durationMin,
                     bristol: row.bristol === undefined ? current.bristol : row.bristol,
                     mood: row.mood === undefined ? current.mood : row.mood,
+                    color: row.color === undefined ? current.color : row.color,
                     createdAt: current.createdAt,
                     updatedAt: Date.now(),
                 };
@@ -125,6 +127,9 @@ function hasWritableFields(payload) {
 }
 
 // 从 payload 中提取可写字段；timestamp 为毫秒数、durationMin 为正整数
+// 颜色白名单：只接受定义过的 key，脏数据直接丢弃
+const COLOR_KEYS = ['brown', 'dark', 'tan', 'green', 'black', 'red'];
+
 function toRow(payload) {
     const source = isPlainObject(payload) ? payload : {};
     const row = {};
@@ -149,6 +154,11 @@ function toRow(payload) {
     } else if (source.mood === 'good' || source.mood === 'normal' || source.mood === 'hard') {
         row.mood = source.mood;
     }
+    if (source.color === null) {
+        row.color = null;
+    } else if (COLOR_KEYS.indexOf(source.color) !== -1) {
+        row.color = source.color;
+    }
     return row;
 }
 
@@ -171,6 +181,7 @@ function readRecords() {
                 durationMin: item.durationMin,
                 bristol: item.bristol === undefined ? null : item.bristol,
                 mood: item.mood === undefined ? null : item.mood,
+                color: item.color === undefined ? null : item.color,
                 createdAt: item.createdAt,
                 updatedAt: item.updatedAt,
             };

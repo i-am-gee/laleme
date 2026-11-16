@@ -1,15 +1,38 @@
 // 布里斯托分类与共享常量、展示辅助
 const BRISTOL = [
-    { t: 1, name: '硬球', desc: '一颗颗硬球', hint: '严重便秘，多喝水、多补膳食纤维', level: 'bad' },
-    { t: 2, name: '结块', desc: '腊肠状结块', hint: '轻度便秘，多吃蔬果粗粮', level: 'warn' },
-    { t: 3, name: '干裂', desc: '干裂腊肠', hint: '正常偏干，注意补水', level: 'ok' },
-    { t: 4, name: '理想', desc: '光滑软条', hint: '理想状态，继续保持！', level: 'ok' },
-    { t: 5, name: '软块', desc: '软块边缘清晰', hint: '偏软，建议补充膳食纤维', level: 'ok' },
-    { t: 6, name: '糊状', desc: '糊状蓬松', hint: '轻度腹泻，注意饮食清淡', level: 'warn' },
-    { t: 7, name: '水状', desc: '完全水状', hint: '腹泻，注意补水休息，持续请就医', level: 'bad' },
+    { t: 1, name: '硬球', desc: '一颗颗硬球', hint: '严重便秘，多喝水、多补膳食纤维', level: 'bad', icon: '/assets/bristol/t1.png' },
+    { t: 2, name: '结块', desc: '腊肠状结块', hint: '轻度便秘，多吃蔬果粗粮', level: 'warn', icon: '/assets/bristol/t2.png' },
+    { t: 3, name: '干裂', desc: '干裂腊肠', hint: '正常偏干，注意补水', level: 'ok', icon: '/assets/bristol/t3.png' },
+    { t: 4, name: '理想', desc: '光滑软条', hint: '理想状态，继续保持！', level: 'ok', icon: '/assets/bristol/t4.png' },
+    { t: 5, name: '软块', desc: '软块边缘清晰', hint: '偏软，建议补充膳食纤维', level: 'ok', icon: '/assets/bristol/t5.png' },
+    { t: 6, name: '糊状', desc: '糊状蓬松', hint: '轻度腹泻，注意饮食清淡', level: 'warn', icon: '/assets/bristol/t6.png' },
+    { t: 7, name: '水状', desc: '完全水状', hint: '腹泻，注意补水休息，持续请就医', level: 'bad', icon: '/assets/bristol/t7.png' },
 ];
 
 const MOOD_TEXT = { good: '通畅', normal: '一般', hard: '费劲' };
+
+// 感受的图标（与形状图标同一套视觉）
+const MOOD_ICONS = {
+    good: '/assets/bristol/m-good.png',
+    normal: '/assets/bristol/m-normal.png',
+    hard: '/assets/bristol/m-hard.png',
+};
+
+// 颜色：只留肉眼能稳定分辨的几档。
+// 发黑与带红不做诊断，只给一句就医提示——这是产品该守的边界
+const POOP_COLORS = [
+    { key: 'brown', name: '棕褐', hex: '#8b5e3c', hint: '' },
+    { key: 'dark', name: '深棕', hex: '#5a3b24', hint: '' },
+    { key: 'tan', name: '黄褐', hex: '#b98b4e', hint: '' },
+    { key: 'green', name: '黄绿', hex: '#8a9440', hint: '偏绿多与饮食有关，持续留意' },
+    { key: 'black', name: '发黑', hex: '#3a3633', hint: '持续发黑建议就医' },
+    { key: 'red', name: '带红', hex: '#a23b2e', hint: '带血建议就医' },
+];
+
+const COLOR_TEXT = {};
+POOP_COLORS.forEach(function (c) {
+    COLOR_TEXT[c.key] = c.name;
+});
 
 const CHEERS = ['顺风顺水！', '今天也畅通了！', '一身轻松！', '完美完成任务！', '肠道谢谢你！', '纪录 +1，继续加油！'];
 
@@ -188,6 +211,9 @@ function monthCalendar(records, baseMs) {
 module.exports = {
     BRISTOL: BRISTOL,
     MOOD_TEXT: MOOD_TEXT,
+    MOOD_ICONS: MOOD_ICONS,
+    POOP_COLORS: POOP_COLORS,
+    COLOR_TEXT: COLOR_TEXT,
     CHEERS: CHEERS,
     STORAGE_KEY: STORAGE_KEY,
     BADGES: BADGES,

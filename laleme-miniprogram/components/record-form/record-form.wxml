@@ -14,7 +14,8 @@
         </view>
     </view>
 
-    <!-- 性状：图形化选择 -->
+    <!-- 形状：图形选择，一眼对得上 -->
+    <view class="sec-label">形状</view>
     <view class="bs-grid">
         <view
             class="bs-item {{item.sel ? 'sel' : ''}} {{item.ideal ? 'ideal' : ''}}"
@@ -23,13 +24,31 @@
             data-t="{{item.t}}"
             bindtap="pickBristol"
         >
-            <view class="bs-num">{{item.t === 0 ? '?' : item.t}}</view>
+            <image class="bs-icon" wx:if="{{item.icon}}" src="{{item.icon}}" mode="aspectFit" />
+            <view class="bs-unknown" wx:else>?</view>
             <view class="bs-name">{{item.name}}</view>
         </view>
     </view>
-    <view class="bs-hint">{{bristolHint}}</view>
+    <view class="bs-hint" wx:if="{{bristolHint}}">{{bristolHint}}</view>
 
-    <!-- 感觉 -->
+    <!-- 颜色 -->
+    <view class="sec-label">颜色</view>
+    <view class="cl-row">
+        <view
+            class="cl-item {{item.sel ? 'sel' : ''}}"
+            wx:for="{{colorOptions}}"
+            wx:key="key"
+            data-color="{{item.key}}"
+            bindtap="pickColor"
+        >
+            <view class="cl-dot" style="background: {{item.hex}};"></view>
+            <view class="cl-name">{{item.name}}</view>
+        </view>
+    </view>
+    <view class="bs-hint warn" wx:if="{{colorHint}}">{{colorHint}}</view>
+
+    <!-- 感受 -->
+    <view class="sec-label">感受</view>
     <view class="mood-row">
         <view
             class="mood-item {{item.sel ? 'sel' : ''}}"
@@ -37,7 +56,10 @@
             wx:key="key"
             data-mood="{{item.key}}"
             bindtap="pickMood"
-        >{{item.text}}</view>
+        >
+            <image class="mood-icon" src="{{item.icon}}" mode="aspectFit" />
+            <text class="mood-text">{{item.text}}</text>
+        </view>
     </view>
 
     <!-- 时间 -->

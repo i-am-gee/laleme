@@ -316,3 +316,106 @@
     font-size: var(--t-footnote);
     color: var(--label-3);
 }
+
+/* ---------- 排名 ---------- */
+.pk-rank {
+    margin-top: var(--sp-4);
+    padding: var(--sp-4);
+}
+
+.pk-rank-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: var(--sp-2);
+}
+
+.pk-rank-t {
+    font-size: var(--t-headline);
+    font-weight: 600;
+    color: var(--label);
+}
+
+.pk-rank-sub {
+    font-size: var(--t-caption);
+    color: var(--label-3);
+}
+
+.pk-rank-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: 14rpx 0;
+    border-bottom: 0.5rpx solid var(--sep);
+}
+
+.pk-rank-row:last-of-type {
+    border-bottom: none;
+}
+
+.pk-rank-n {
+    width: 40rpx;
+    flex-shrink: 0;
+    font-size: var(--t-subhead);
+    font-weight: 600;
+    color: var(--label-3);
+    text-align: center;
+}
+
+/* 自己那一行：名次转品牌色，一眼找到 */
+.pk-rank-row.me .pk-rank-n {
+    color: var(--tint);
+}
+
+.pk-rank-name {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8rpx;
+}
+
+.pk-rank-txt {
+    font-size: var(--t-callout);
+    color: var(--label);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pk-rank-tag {
+    flex-shrink: 0;
+    padding: 0 8rpx;
+    height: 28rpx;
+    line-height: 28rpx;
+    border-radius: var(--r-sm);
+    background: var(--tint-soft);
+    color: var(--tint);
+    font-size: 18rpx;
+}
+
+.pk-rank-q {
+    width: 70rpx;
+    text-align: right;
+    font-size: var(--t-callout);
+    font-weight: 600;
+    color: var(--label);
+    flex-shrink: 0;
+}
+
+.pk-rank-c {
+    width: 76rpx;
+    text-align: right;
+    font-size: var(--t-caption);
+    color: var(--label-3);
+    flex-shrink: 0;
+}
+
+.pk-rank-tip {
+    margin-top: var(--sp-2);
+    padding-top: var(--sp-2);
+    border-top: 0.5rpx solid var(--sep);
+    font-size: var(--t-caption);
+    color: var(--label-3);
+    line-height: 1.5;
+}

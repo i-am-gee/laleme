@@ -3,7 +3,7 @@
 > 这份文档是给**后续接手的 AI 或开发者**看的。
 > 目标：读完这一份，不需要翻历史对话，就能安全地继续改这个项目。
 >
-> 最后更新：2026-11-16 · 对应版本 v1.9.0
+> 最后更新：2026-11-16 · 对应版本 v1.10.0
 
 ---
 
@@ -14,7 +14,7 @@
 | 产品 | 「拉了么」——极度克制的肠道健康记录小程序 |
 | 形态 | 微信原生小程序，**零第三方依赖**，数据 100% 存本机 |
 | 代码位置 | `laleme-miniprogram/`（仓库根目录还有 Web 原型与图标生成脚本） |
-| 当前版本 | **1.9.0**（已上传体验版，等待后台提审） |
+| 当前版本 | **1.10.0**（已上传体验版，等待后台提审） |
 | 包体 | 上传约 154KB / 源码 416KB |
 | AppID | `wxc8c0a431489d7ea7` |
 | 仓库 | https://github.com/i-am-gee/laleme |
@@ -106,7 +106,7 @@ laleme-miniprogram/
 │   ├── challenge-btn/       分享入口：首页与统计页共用，见下方「分享状态机」
 │   └── timer-bar/           计时浮条：任意 Tab 页贴在 tabBar 上方，点击回首页继续记录
 ├── custom-tab-bar/          自定义底部导航（原生 tabBar 加不了震动反馈）
-├── assets/                  tabbar(4×2) / badges(4×2) / actions(5)
+├── assets/                  tabbar(4×2) / badges(4×2) / actions(5) / bristol(7 形状 + 3 感受)
 └── utils/
     ├── constants.js         布里斯托 7 型、徽章定义、月历口径、分享文案、隐私文本
     ├── record-store.js      存储层：list/create/update/remove，统一返回 {data, error}
@@ -148,7 +148,10 @@ laleme-miniprogram/
 | `laleme_pk_peer_stats` | 对端周期统计快照（按 peerId + 周期 stamp） | 同上 |
 | `laleme_pk_my_stats` | 本机周期统计的「上报」留痕 | 同上 |
 
-**记录字段**：`id` / `timestamp`(ms) / `durationMin`(1–720) / `bristol`(1–7，可空) / `mood`(`good|normal|hard`，可空)
+**记录字段**：`id` / `timestamp`(ms) / `durationMin`(1–720) / `bristol`(1–7，可空) / `mood`(`good|normal|hard`，可空) / `color`(`brown|dark|tan|green|black|red`，可空)
+
+**记录形态**：形状（布里斯托 1–7，可空）+ 颜色（6 档，可空）+ 感受（通畅/一般/费劲，可空）。
+颜色只做记录与展示，不参与 PK 评分；发黑/带红只给一句就医提示，不做诊断。
 
 **分享状态机**：
 
@@ -217,6 +220,7 @@ pages/pk/*  ──►  utils/pk/api.js  ──►  local-api.js    （现在）
 | 现象 | 根因 | 解法 |
 |---|---|---|
 | 文字/图标颜色怎么调都不生效 | 类名与本页其他块重名，后写的覆盖了 | 加前缀，或直接改类名 |
+| 新加的字段存进去读出来就没了 | `readRecords` 用固定形状做投影，没列出的字段会被静默丢弃 | 加字段要**同时改三处**：`toRow` 白名单、`create/update` 落库、`readRecords` 投影 |
 | `<text>` 上设 `display:flex` 不居中 | 小程序 text 组件不完全支持 flex | 改用 `<view>`，或 `text-align` + `line-height` |
 | CSS `filter` 没反应 | 作用对象是行内元素 | 加 `display: block / inline-block` |
 | 遮罩不铺满全屏 | `inset: 0` 在部分基础库不生效 | 写死 `top/right/bottom/left: 0` |
@@ -278,6 +282,7 @@ wechatide -c ide auto_preview --project $P
 
 | 版本 | 关键变化 |
 |---|---|
+| 1.10.0 | 记录浮层改成图形化：7 型形状图标 + 6 档颜色 + 3 种感受表情；统计页新增「每天几次」，一天一行、每次用形状图标 + 颜色条表示；PK 页新增排名榜 |
 | 1.9.0 | 新增好友 PK：三维对比（次数/平均时长/质量分）、邀请授权落地页、退出与解除关系；服务端未接入，走 local-api 适配器 |
 | 1.8.6 | 金色模式下日历里「同日多次」的角标也镀金（金底深字 + 奶白描边），不再留棕色 |
 | 1.8.5 | 修「沿用上次选择」一直取到最旧一条（readRecords 是倒序，应取 list[0]）；草稿不再存时长；按钮文案「轻触结束」改「计时中」 |

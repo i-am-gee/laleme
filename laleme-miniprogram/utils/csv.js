@@ -1,12 +1,18 @@
 // CSV 导出/导入：备份恢复页与「我的」页共用
-const { MOOD_TEXT, bristolLabel } = require('./constants.js');
+const { MOOD_TEXT, COLOR_TEXT, bristolLabel } = require('./constants.js');
 
-const HEADER = ['时间', '时长(分钟)', '布里斯托类型', '感觉'];
+// 颜色是后来加的列，放在最后：老文件只有 4 列，导入时按缺省处理
+const HEADER = ['时间', '时长(分钟)', '布里斯托类型', '感觉', '颜色'];
 
 // 与文本对应的满意度 key（导入用）
 const MOOD_KEYS = {};
 Object.keys(MOOD_TEXT).forEach(function (k) {
     MOOD_KEYS[MOOD_TEXT[k]] = k;
+});
+
+const COLOR_KEYS = {};
+Object.keys(COLOR_TEXT).forEach(function (k) {
+    COLOR_KEYS[COLOR_TEXT[k]] = k;
 });
 
 // 组装 CSV 文本
@@ -20,6 +26,7 @@ function buildCsv(records, meta) {
             String(r.durationMin),
             bristolLabel(r.bristol),
             r.mood ? MOOD_TEXT[r.mood] : '未记',
+            r.color ? COLOR_TEXT[r.color] : '未记',
         ]);
     });
     const body = rows.map(function (row) {
@@ -77,11 +84,18 @@ function parseCsv(text) {
         if (moodText && MOOD_KEYS[moodText]) {
             mood = MOOD_KEYS[moodText];
         }
+        // 第 5 列是后加的，老文件没有这一格
+        let color = null;
+        const colorText = String(cells[4] || '').trim();
+        if (colorText && COLOR_KEYS[colorText]) {
+            color = COLOR_KEYS[colorText];
+        }
         out.push({
             timestamp: ts,
             durationMin: Math.min(dur, 720),
             bristol: bristol,
             mood: mood,
+            color: color,
         });
     });
     return { rows: out, meta: meta };

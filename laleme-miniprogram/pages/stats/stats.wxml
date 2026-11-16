@@ -43,6 +43,32 @@
             </view>
         </view>
 
+        <!-- 每天几次：一天一行，每次用形状图标表示，颜色点在右下角 -->
+        <view class="card daily-card">
+            <view class="daily-head">
+                <text class="card-title daily-title">每天几次</text>
+                <text class="daily-sub">最近 7 天</text>
+            </view>
+            <view class="daily-row" wx:for="{{dailyList}}" wx:key="key">
+                <view class="daily-day">
+                    <text class="daily-date">{{item.date}}</text>
+                    <text class="daily-wd">{{item.wd}}</text>
+                </view>
+                <view class="daily-shots">
+                    <block wx:if="{{item.count}}">
+                        <view class="shot" wx:for="{{item.shots}}" wx:for-item="shot" wx:key="index">
+                            <image class="shot-icon" wx:if="{{shot.icon}}" src="{{shot.icon}}" mode="aspectFit" />
+                            <view class="shot-empty" wx:else></view>
+                            <view class="shot-bar" style="background: {{shot.color || '#e6e2db'}};"></view>
+                        </view>
+                        <text class="shot-more" wx:if="{{item.more}}">+{{item.more}}</text>
+                    </block>
+                    <text class="shot-none" wx:else>没记</text>
+                </view>
+                <text class="daily-n">{{item.count}}</text>
+            </view>
+        </view>
+
         <view class="card">
             <view class="card-title">布里斯托性状分布</view>
             <view wx:if="{{!hasDist}}" class="empty-small">该时段暂无性状数据</view>
