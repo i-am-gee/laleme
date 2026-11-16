@@ -1,0 +1,318 @@
+/* ============================================================
+   好友 PK
+   共用 .card / .segmented / .btn-primary，这里只写 PK 独有的部分
+   ============================================================ */
+
+.pk-seg {
+    margin: var(--sp-3) 0 var(--sp-4);
+}
+
+/* ---------- 开启前的边界说明 ---------- */
+
+.pk-consent {
+    margin-top: var(--sp-4);
+    padding: var(--sp-4);
+}
+
+.pk-consent-h {
+    font-size: var(--t-headline);
+    font-weight: 600;
+    color: var(--label);
+    margin-bottom: var(--sp-3);
+}
+
+.pk-consent-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12rpx;
+    padding: 10rpx 0;
+}
+
+.pk-bullet {
+    width: 10rpx;
+    height: 10rpx;
+    margin-top: 14rpx;
+    border-radius: var(--r-full);
+    background: var(--tint-fill);
+    flex-shrink: 0;
+}
+
+.pk-consent-t {
+    flex: 1;
+    font-size: var(--t-footnote);
+    color: var(--label-2);
+    line-height: 1.55;
+}
+
+.pk-hint {
+    margin-top: var(--sp-3);
+    font-size: var(--t-caption);
+    color: var(--label-3);
+    text-align: center;
+    line-height: 1.6;
+}
+
+/* ---------- 我的三项 ---------- */
+
+.pk-me {
+    margin-top: var(--sp-4);
+    padding: var(--sp-4);
+}
+
+.pk-me-head {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+}
+
+.pk-avatar {
+    width: 88rpx;
+    height: 88rpx;
+    border-radius: var(--r-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--tint-soft);
+    color: var(--tint);
+    font-size: 40rpx;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+
+
+.pk-me-id {
+    flex: 1;
+    min-width: 0;
+}
+
+.pk-me-name {
+    font-size: var(--t-headline);
+    font-weight: 600;
+    color: var(--label);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pk-rename {
+    margin-top: 4rpx;
+    font-size: var(--t-caption2);
+    color: var(--label-3);
+}
+
+.pk-me-stats {
+    display: flex;
+    margin-top: var(--sp-4);
+    padding-top: var(--sp-4);
+    border-top: 0.5rpx solid var(--sep);
+}
+
+.pk-st {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6rpx;
+}
+
+.pk-st-v {
+    font-size: var(--t-title3);
+    font-weight: 600;
+    color: var(--label);
+}
+
+.pk-st-k {
+    font-size: var(--t-caption2);
+    color: var(--label-3);
+}
+
+/* ---------- 好友选择 ---------- */
+
+.pk-friends {
+    margin-top: var(--sp-4);
+    white-space: nowrap;
+}
+
+.pk-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 12rpx 26rpx;
+    margin-right: 12rpx;
+    border-radius: var(--r-full);
+    background: var(--fill-1);
+    border: 2rpx solid transparent;
+    transition: background-color 0.18s var(--ease-sheet), border-color 0.18s ease;
+}
+
+.pk-chip.on {
+    background: var(--tint-soft);
+    border-color: var(--tint-fill);
+}
+
+.pk-chip-n {
+    font-size: var(--t-footnote);
+    color: var(--label-2);
+    max-width: 180rpx;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pk-chip.on .pk-chip-n {
+    color: var(--tint-strong);
+    font-weight: 600;
+}
+
+/* ---------- 三维对比 ---------- */
+
+.pk-cmp {
+    margin-top: var(--sp-4);
+    padding: var(--sp-4);
+}
+
+.pk-cmp-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: var(--sp-3);
+    border-bottom: 0.5rpx solid var(--sep);
+}
+
+.pk-cmp-side {
+    font-size: var(--t-subhead);
+    color: var(--label-2);
+    max-width: 240rpx;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pk-cmp-side.right {
+    text-align: right;
+}
+
+.pk-cmp-vs {
+    font-size: var(--t-caption2);
+    font-weight: 600;
+    color: var(--label-3);
+    letter-spacing: 1rpx;
+}
+
+.pk-row {
+    display: flex;
+    align-items: center;
+    padding: var(--sp-3) 0;
+    border-bottom: 0.5rpx solid var(--sep);
+}
+
+.pk-row:last-of-type {
+    border-bottom: none;
+}
+
+.pk-val {
+    flex: 1;
+    font-size: var(--t-title3);
+    font-weight: 600;
+    color: var(--label);
+}
+
+.pk-val.right {
+    text-align: right;
+}
+
+/* 胜出的一侧转金：金色只在这一处代表「赢」，不做别的用途 */
+.pk-val.win {
+    color: #b8893c;
+}
+
+.pk-mid {
+    width: 210rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rpx;
+}
+
+.pk-k {
+    font-size: var(--t-caption);
+    color: var(--label-3);
+}
+
+.pk-tip {
+    font-size: 20rpx;
+    color: var(--label-3);
+}
+
+.pk-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: var(--sp-3);
+    padding-top: var(--sp-3);
+    border-top: 0.5rpx solid var(--sep);
+}
+
+.pk-sum {
+    font-size: var(--t-footnote);
+    font-weight: 600;
+    color: var(--label-2);
+}
+
+.pk-revoke {
+    font-size: var(--t-caption);
+    color: var(--label-3);
+}
+
+/* ---------- 空态 ---------- */
+
+.pk-empty {
+    padding: var(--sp-6) var(--sp-4) var(--sp-4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.pk-empty-icon {
+    font-size: 88rpx;
+    line-height: 1;
+    opacity: 0.55;
+}
+
+.pk-empty-t {
+    margin-top: var(--sp-3);
+    font-size: var(--t-body);
+    font-weight: 600;
+    color: var(--label-2);
+}
+
+.pk-empty-d {
+    margin-top: var(--sp-2);
+    font-size: var(--t-caption);
+    color: var(--label-3);
+    text-align: center;
+    line-height: 1.6;
+    max-width: 480rpx;
+}
+
+/* ---------- 底部动作 ---------- */
+
+.pk-main-btn {
+    /* 微信 button 默认 184px 宽，必须显式覆盖 */
+    width: 100% !important;
+    margin: var(--sp-5) 0 0;
+    height: 100rpx;
+    line-height: 1;
+}
+
+.pk-main-btn::after {
+    border: none;
+}
+
+.pk-exit {
+    margin-top: var(--sp-4);
+    padding: var(--sp-2) 0 var(--sp-4);
+    text-align: center;
+    font-size: var(--t-footnote);
+    color: var(--label-3);
+}

@@ -296,3 +296,35 @@
 .cb-area {
     margin-top: var(--sp-5);
 }
+
+/* ---------- 好友 PK 入口 ---------- */
+.pk-entry {
+    margin-top: var(--sp-4);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+}
+
+.pk-entry-press {
+    background: var(--fill-1);
+}
+
+.pk-entry-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.pk-entry-t {
+    font-size: var(--t-headline);
+    font-weight: 600;
+    color: var(--label);
+}
+
+.pk-entry-d {
+    margin-top: 6rpx;
+    font-size: var(--t-caption);
+    color: var(--label-3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

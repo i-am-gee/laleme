@@ -2,6 +2,7 @@ const { BRISTOL, BADGES, streakDays, dayStr } = require('../../utils/constants.j
 const { createRecordStore } = require('../../utils/record-store.js');
 const haptics = require('../../utils/haptics.js');
 const share = require('../../utils/share.js');
+const pk = require('../../utils/pk/api.js');
 const { getNavTop } = require('../../utils/nav.js');
 
 const store = createRecordStore();
@@ -42,6 +43,9 @@ Page({
         gotCount: 0,
         hasDist: false,
         navTop: 72,
+        pkOn: false,
+        pkFriends: 0,
+        pkEntryLine: '和朋友比比谁更顺',
     },
 
     onLoad() {
@@ -62,6 +66,35 @@ Page({
             }
         });
         this.render(this.data.period);
+        this.syncPkEntry();
+    },
+
+    // 入口只显示状态，具体对比在 PK 页拉
+    syncPkEntry() {
+        const that = this;
+        pk.getMode().then(function (on) {
+            that.setData({ pkOn: !!on });
+            if (!on) {
+                that.setData({ pkEntryLine: '和朋友比比谁更顺' });
+                return null;
+            }
+            return pk.listFriends();
+        }).then(function (list) {
+            if (!list) {
+                return;
+            }
+            that.setData({
+                pkFriends: list.length,
+                pkEntryLine: list.length
+                    ? list.length + ' 位好友 · 互见次数、时长、质量'
+                    : '已开启，等第一位好友进来',
+            });
+        }).catch(function () {});
+    },
+
+    openPk() {
+        haptics.tap();
+        wx.navigateTo({ url: '/pages/pk/pk' });
     },
 
     onReady() {

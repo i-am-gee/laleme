@@ -3,7 +3,7 @@
 > 这份文档是给**后续接手的 AI 或开发者**看的。
 > 目标：读完这一份，不需要翻历史对话，就能安全地继续改这个项目。
 >
-> 最后更新：2026-11-16 · 对应版本 v1.8.6
+> 最后更新：2026-11-16 · 对应版本 v1.9.0
 
 ---
 
@@ -14,7 +14,7 @@
 | 产品 | 「拉了么」——极度克制的肠道健康记录小程序 |
 | 形态 | 微信原生小程序，**零第三方依赖**，数据 100% 存本机 |
 | 代码位置 | `laleme-miniprogram/`（仓库根目录还有 Web 原型与图标生成脚本） |
-| 当前版本 | **1.8.6**（已上传体验版，等待后台提审） |
+| 当前版本 | **1.9.0**（已上传体验版，等待后台提审） |
 | 包体 | 上传约 154KB / 源码 416KB |
 | AppID | `wxc8c0a431489d7ea7` |
 | 仓库 | https://github.com/i-am-gee/laleme |
@@ -90,7 +90,7 @@ print([ (x,y) for y in range(700,850) for x in range(200,260) if px[x,y][0] > 20
 laleme-miniprogram/
 ├── app.wxss                 设计系统：全部 CSS 变量在这里，改颜色/字号/间距只改这一处
 ├── app.js                   隐私授权应答（onNeedPrivacyAuthorization）
-├── app.json                 7 个页面 + custom tabBar + __usePrivacyCheck__
+├── app.json                 9 个页面 + custom tabBar + __usePrivacyCheck__
 ├── pages/
 │   ├── index/               首页：Large Title / 大圆按钮 / 统计卡 / 六行日历 / 分享入口 / 庆祝动画
 │   ├── history/             历史：按天分组、左滑改删、逐条飞入、日历锚定
@@ -98,6 +98,7 @@ laleme-miniprogram/
 │   ├── me/                  我的：数据概览、入口聚合、致谢与开源地址
 │   ├── data/                备份恢复：导出/复制/导入（含确认）/清空
 │   ├── record/              记录页薄壳，复用 record-form 组件
+│   ├── pk/                  **好友 PK**：pk 主页面（三态）+ invite 授权落地页
 │   └── privacy/             隐私指引全文
 ├── components/
 │   ├── record-form/         记录表单：首页抽屉与编辑页共用，计时器在这里
@@ -112,6 +113,10 @@ laleme-miniprogram/
     ├── share.js             分享信息 + 5:4 海报绘制 + **分享计数/称号/金色开关**
     ├── timer.js             **全局计时**：以开始时间戳为准，跨页面/切后台都不中断
     ├── csv.js               CSV 导出解析（含末尾 # 附属状态行）
+    ├── pk/                  **好友 PK 数据层**，见下方「PK 模块」
+    │   ├── api.js           门面：周期口径 + 适配器切换（setAdapter）
+    │   ├── local-api.js     本地实现：无服务端时的适配器，契约与云端一致
+    │   └── score.js         评分：时长倒 U 曲线 + 布里斯托质量分
     ├── nav.js               Large Title 顶部安全距离
     └── haptics.js           震动三档：light / tap / strong
 ```
@@ -137,6 +142,11 @@ laleme-miniprogram/
 | `laleme_thanks_flag` | 分享后待播放的致谢（时间戳） | `share.js` 写入、首页消费 |
 | `laleme_timer_start` | 计时开始时间戳（有值即在计时） | `timer.js` 维护 |
 | `laleme_draft` | 未保存的草稿：性状/感受/手填时长，24 小时过期 | `record-form` 读写 |
+| `laleme_pk_profile` | PK 身份：随机 id + 可改昵称 | `pk/local-api.js` |
+| `laleme_pk_mode` | 是否开启 PK（=1）。未开启时不产生任何 PK 数据 | 同上 |
+| `laleme_pk_friends` | 已授权好友：id / nick / since | 同上 |
+| `laleme_pk_peer_stats` | 对端周期统计快照（按 peerId + 周期 stamp） | 同上 |
+| `laleme_pk_my_stats` | 本机周期统计的「上报」留痕 | 同上 |
 
 **记录字段**：`id` / `timestamp`(ms) / `durationMin`(1–720) / `bristol`(1–7，可空) / `mood`(`good|normal|hard`，可空)
 
@@ -149,6 +159,25 @@ count >= 3  →  badge=1, gold=1  →  金色按钮 + 日历便便镀金 + 「�
 ```
 
 备份导出时，分享状态以 `# 分享次数,N` / `# 大屎官,1` 两行附在 CSV 末尾；导入按合并语义取较大值，不会降级。
+
+**PK 模块（v1.9.0 新增）**
+
+```
+pages/pk/*  ──►  utils/pk/api.js  ──►  local-api.js    （现在）
+                                   └─►  remote-api.js   （接云开发后）
+```
+
+- 页面只 require `api.js`，**永远不知道背后是本地还是云端**。换实现只有一行：
+  `require('./utils/pk/api.js').setAdapter(require('./utils/pk/remote-api.js'))`
+- 当前只有本地实现，且**没有跨设备能力**：邀请 token 只带邀请人的 id 与昵称，
+  对端统计一律返回 null，页面显示「等待对方同步数据」。
+  **不要为了演示在客户端伪造好友数据**——那会让「授权后才互见」这件事失去意义。
+- 三个维度各自判定：次数比大；平均时长比谁更接近 5.5 分钟；质量分比高。
+  时长故意做成倒 U（`D(t) = 100 · exp(−(ln(t/5.5))²/2)`），因为久蹲不是优点，
+  线性「越久越高」会直接制造刷分行为。
+- 授权：一次性 token（48 小时有效），双向只存一条关系；任一方可解除，退出 PK 会清掉关系与对端快照。
+- 服务端上线后要改的只有三处：local-api 换 remote-api、评分公式复制进云函数作唯一权威、
+  `records` 增加 `clientId` 幂等键与 `source` 字段（手动补录不入榜）。
 
 ---
 
@@ -249,6 +278,7 @@ wechatide -c ide auto_preview --project $P
 
 | 版本 | 关键变化 |
 |---|---|
+| 1.9.0 | 新增好友 PK：三维对比（次数/平均时长/质量分）、邀请授权落地页、退出与解除关系；服务端未接入，走 local-api 适配器 |
 | 1.8.6 | 金色模式下日历里「同日多次」的角标也镀金（金底深字 + 奶白描边），不再留棕色 |
 | 1.8.5 | 修「沿用上次选择」一直取到最旧一条（readRecords 是倒序，应取 list[0]）；草稿不再存时长；按钮文案「轻触结束」改「计时中」 |
 | 1.8.4 | 计时中按按钮只拉起浮层，表继续走、按钮保持计时态，直到点「完成记录」才停表复位 |

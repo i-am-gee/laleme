@@ -67,6 +67,15 @@
             </view>
         </view>
 
+        <!-- 好友 PK 入口：只在这里露一个状态，详细对比在独立页 -->
+        <view class="card pk-entry" bindtap="openPk" hover-class="pk-entry-press" hover-stay-time="80">
+            <view class="pk-entry-main">
+                <view class="pk-entry-t">好友 PK</view>
+                <view class="pk-entry-d">{{pkEntryLine}}</view>
+            </view>
+            <view class="chevron"></view>
+        </view>
+
         <!-- 与首页同一个分享组件，进度与称号共享 -->
         <view class="cb-area">
             <challenge-btn id="challengeBtn" />

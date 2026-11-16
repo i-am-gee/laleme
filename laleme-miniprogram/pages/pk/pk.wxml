@@ -1,0 +1,109 @@
+<view class="page">
+    <view class="nav-bar" style="padding-top: {{navTop}}px;">
+        <view class="nav-title">好友 PK</view>
+        <view class="nav-sub" wx:if="{{!mode}}">和朋友比比谁更顺</view>
+        <view class="nav-sub" wx:elif="{{!friends.length}}">等第一位好友进来</view>
+        <view class="nav-sub" wx:else>{{friends.length}} 位好友 · {{period === 'month' ? '近 30 天' : '本周'}}</view>
+    </view>
+
+    <!-- 未开启：先把共享边界说清楚，再谈开启 -->
+    <block wx:if="{{ready && !mode}}">
+        <view class="card pk-consent">
+            <view class="pk-consent-h">开启前先说清楚</view>
+            <view class="pk-consent-row">
+                <text class="pk-bullet"></text>
+                <text class="pk-consent-t">只共享三项汇总：次数、平均时长、质量分</text>
+            </view>
+            <view class="pk-consent-row">
+                <text class="pk-bullet"></text>
+                <text class="pk-consent-t">不共享每条记录的时间、时长与性状</text>
+            </view>
+            <view class="pk-consent-row">
+                <text class="pk-bullet"></text>
+                <text class="pk-consent-t">必须对方同意才互见，随时可以退出</text>
+            </view>
+        </view>
+
+        <button class="btn-primary pk-main-btn" hover-class="btn-primary-press" bindtap="enablePk">同意并开启</button>
+        <view class="pk-hint">开启后这三项会离开本机，其余数据仍然只在你的手机里。</view>
+    </block>
+
+    <block wx:elif="{{mode}}">
+        <view class="segmented pk-seg">
+            <view class="segmented-item {{period === 'week' ? 'on' : ''}}" data-p="week" bindtap="setPeriod">本周</view>
+            <view class="segmented-item {{period === 'month' ? 'on' : ''}}" data-p="month" bindtap="setPeriod">近 30 天</view>
+        </view>
+
+        <!-- 我的三项 -->
+        <view class="card pk-me">
+            <view class="pk-me-head">
+                <view class="pk-avatar">{{me.initial}}</view>
+                <view class="pk-me-id">
+                    <view class="pk-me-name">{{me.nick}}</view>
+                    <view class="pk-rename" bindtap="rename">改个名字</view>
+                </view>
+            </view>
+            <view class="pk-me-stats">
+                <view class="pk-st">
+                    <text class="pk-st-v num">{{mine.count}}</text>
+                    <text class="pk-st-k">次数</text>
+                </view>
+                <view class="pk-st">
+                    <text class="pk-st-v num">{{mine.minText}}</text>
+                    <text class="pk-st-k">平均时长</text>
+                </view>
+                <view class="pk-st">
+                    <text class="pk-st-v num">{{mine.qText}}</text>
+                    <text class="pk-st-k">质量分</text>
+                </view>
+            </view>
+        </view>
+
+        <block wx:if="{{friends.length}}">
+            <scroll-view class="pk-friends" scroll-x="true" show-scrollbar="false">
+                <view
+                    class="pk-chip {{item.id === activeId ? 'on' : ''}}"
+                    wx:for="{{friends}}"
+                    wx:key="id"
+                    data-id="{{item.id}}"
+                    bindtap="selectFriend"
+                >
+                    <text class="pk-chip-n">{{item.nick}}</text>
+                </view>
+            </scroll-view>
+
+            <view class="card pk-cmp">
+                <view class="pk-cmp-head">
+                    <text class="pk-cmp-side">我</text>
+                    <text class="pk-cmp-vs">VS</text>
+                    <text class="pk-cmp-side right">{{active.nick}}</text>
+                </view>
+
+                <view class="pk-row" wx:for="{{rows}}" wx:key="key">
+                    <text class="pk-val num {{item.win === 'me' ? 'win' : ''}}">{{item.meText}}</text>
+                    <view class="pk-mid">
+                        <text class="pk-k">{{item.label}}</text>
+                        <text class="pk-tip" wx:if="{{item.key === 'duration'}}">越近 5:30 越好</text>
+                    </view>
+                    <text class="pk-val right num {{item.win === 'peer' ? 'win' : ''}}">{{item.peerText}}</text>
+                </view>
+
+                <view class="pk-foot">
+                    <text class="pk-sum">{{summary}}</text>
+                    <text class="pk-revoke" bindtap="revokeActive">解除关系</text>
+                </view>
+            </view>
+        </block>
+
+        <view class="pk-empty" wx:else>
+            <view class="pk-empty-icon">💩</view>
+            <view class="pk-empty-t">还没有好友</view>
+            <view class="pk-empty-d">把邀请发给一个朋友，对方同意后，你们才会互见这三项</view>
+        </view>
+
+        <button class="btn-primary pk-main-btn" hover-class="btn-primary-press" open-type="share">
+            邀好友 PK
+        </button>
+        <view class="pk-exit" bindtap="exitPk">退出 PK</view>
+    </block>
+</view>

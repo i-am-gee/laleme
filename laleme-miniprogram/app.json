@@ -6,7 +6,9 @@
     "pages/me/me",
     "pages/record/record",
     "pages/data/data",
-    "pages/privacy/privacy"
+    "pages/privacy/privacy",
+    "pages/pk/pk",
+    "pages/pk/invite"
   ],
   "window": {
     "navigationBarTitleText": "拉了么",
