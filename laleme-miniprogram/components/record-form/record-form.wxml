@@ -2,7 +2,8 @@
     <!-- 计时区：新建时显示计时器，编辑时只保留时长输入 -->
     <!-- 计时区：点数字就能手动指定时长，不再单独占一行输入位 -->
     <view class="timer-box" hover-class="timer-box-hover" hover-stay-time="60" bindtap="openDuration">
-        <view class="t-display">{{manualMin ? manualText : timerText}}</view>
+        <view class="t-display" wx:if="{{!isEdit}}">{{timerText}}</view>
+        <view class="t-display" wx:else>{{durationLabel}}</view>
         <view class="t-hint">{{durationHint}}</view>
     </view>
 
@@ -77,23 +78,25 @@
         </view>
         <view class="dur-body">
             <view class="dur-band"></view>
-            <view
-                class="dur-wheel"
-                bindtouchstart="onWheelStart"
-                catchtouchmove="onWheelMove"
-                bindtouchend="onWheelEnd"
-                bindtouchcancel="onWheelEnd"
+            <scroll-view
+                class="dur-scroll"
+                scroll-y
+                enhanced
+                show-scrollbar="{{false}}"
+                scroll-top="{{durScrollTop}}"
+                scroll-with-animation="{{durAnim}}"
+                bindscroll="onDurScroll"
             >
-                <view class="dur-track {{durMoving ? 'moving' : ''}}" style="transform: translate3d(0, {{durOffset}}px, 0);">
-                    <view
-                        class="dur-row {{index === durActive ? 'on' : ''}}"
-                        wx:for="{{durOptions}}"
-                        wx:key="value"
-                        data-index="{{index}}"
-                        bindtap="onDurRowTap"
-                    >{{item.label}}</view>
-                </view>
-            </view>
+                <view class="dur-space"></view>
+                <view
+                    class="dur-row {{index === durActive ? 'on' : ''}}"
+                    wx:for="{{durOptions}}"
+                    wx:key="value"
+                    data-index="{{index}}"
+                    bindtap="onDurRowTap"
+                >{{item.label}}</view>
+                <view class="dur-space"></view>
+            </scroll-view>
             <view class="dur-fade dur-fade-top"></view>
             <view class="dur-fade dur-fade-bottom"></view>
         </view>
