@@ -3,7 +3,7 @@
 > 一款极度克制的肠道健康记录小程序。
 > 数据只属于你，从未离开你的手机。
 
-[![Version](https://img.shields.io/badge/version-1.13.0-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
+[![Version](https://img.shields.io/badge/version-1.14.0-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
 
 > **接手开发请先读 [CLAUDE.md](./CLAUDE.md)** —— 项目结构、数据层、设计令牌、踩坑清单与发布流程都在那里，读完即可上手。
 
@@ -39,7 +39,7 @@
 - **段位制度**：连续 3 / 7 / 10 / 14 / 21 / 30 / 60 天分别解锁「倔强青铜大屎 → 最强王者大屎」七档段位；每档配一枚越往后越贵的便便图标，首页「记一次」按钮用当前段位那张；断签会掉级，爬回历史最高档会有「重回」动画
 - **连续打卡与成就系统**：4 枚成就徽章（七日全勤/闪电侠/马拉松选手/收藏家），记录即奖励
 - **庆祝动画**：彩带 + 烟花 + 星星人，献给每一次如释重负
-- **转发给你在乎的人**：分享三次解锁「黄金大屎官」——主按钮转黑金、日历里每一坨便便同步镀金，还能手动切回普通身份对比着看
+- **分享给你在乎的人**：分享三次解锁「黄金大屎官」——主按钮转黑金、日历里每一坨便便同步镀金，还能手动切回普通身份对比着看
 - **分享海报**：canvas 生成 5:4 专属海报——本月日历图形 + 已点亮徽章，一图看懂打卡节奏；首页/统计/我的三处发出内容完全一致（纯分享机制，不读取任何好友数据）
 - **数据可携带**：CSV 导出成文件 / 复制到剪贴板，备份里连分享进度和称号一起带走；**导入前先列出差异（新增几条、跳过几条、进度变化），确认后才真正写入**
 - **触感反馈**：全站按钮（含底部导航）均有震动，主操作走设备上限强度，只在手指按下瞬间触发

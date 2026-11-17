@@ -941,6 +941,28 @@
     animation-iteration-count: infinite;
 }
 
+/* 关闭：右上角、落在微信胶囊下方。safe-area 在不同机型上为 0 或 44pt，
+   直接叠 env() 会在无刘海机型上撞到状态栏，所以用固定值兜住 */
+.celeb-close {
+    position: absolute;
+    top: 178rpx;
+    right: 36rpx;
+    width: 64rpx;
+    height: 64rpx;
+    line-height: 62rpx;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 30rpx;
+    color: rgba(255, 255, 255, 0.86);
+    background: rgba(255, 255, 255, 0.14);
+    box-shadow: inset 0 0 0 2rpx rgba(255, 255, 255, 0.26);
+    z-index: 2;
+}
+
+.celeb-close:active {
+    background: rgba(255, 255, 255, 0.18);
+}
+
 .celeb-actions {
     display: flex;
     justify-content: center;
@@ -949,23 +971,87 @@
 }
 
 .celeb-btn {
-    width: 380rpx !important;
-    height: 88rpx;
-    line-height: 88rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12rpx;
+    width: 440rpx !important;
+    height: 96rpx;
+    line-height: 1;
     padding: 0;
     margin: 0;
     border-radius: var(--r-full);
     font-size: var(--t-callout);
     font-weight: 600;
+    position: relative;
+    overflow: hidden;
 }
 
 .celeb-btn::after {
     border: none;
 }
 
+/* 与「分享给你在乎的人」同款：金渐变 + 缓慢扫光 + 轻微呼吸，把按钮做成"想点"的样子 */
 .celeb-btn.solid {
-    background: #e9cb80;
-    color: #3f2c10;
+    background: linear-gradient(135deg, #f0d89a 0%, #e9cb80 44%, #cfa74f 100%);
+    color: #3a2a11;
+    box-shadow: 0 10rpx 26rpx rgba(196, 150, 60, 0.34);
+    animation: celebBreath 2.6s ease-in-out infinite;
+}
+
+.celeb-btn.solid::before {
+    content: "";
+    position: absolute;
+    top: -60%;
+    bottom: -60%;
+    width: 36%;
+    left: -60%;
+    background: linear-gradient(
+        100deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.62) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-18deg);
+    animation: celebSheen 3.4s ease-in-out 0.9s infinite;
+}
+
+.celeb-btn-icon {
+    position: relative;
+    z-index: 1;
+    width: 34rpx;
+    height: 34rpx;
+    /* 白图标压到深棕，才在金色上看得清 */
+    filter: brightness(0) opacity(0.72);
+}
+
+.celeb-btn-text {
+    position: relative;
+    z-index: 1;
+    font-size: var(--t-callout);
+    font-weight: 600;
+    letter-spacing: 1rpx;
+    color: #3a2a11;
+}
+
+@keyframes celebBreath {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 10rpx 26rpx rgba(196, 150, 60, 0.30);
+    }
+    50% {
+        transform: scale(1.035);
+        box-shadow: 0 14rpx 34rpx rgba(196, 150, 60, 0.46);
+    }
+}
+
+@keyframes celebSheen {
+    0% {
+        left: -60%;
+    }
+    42%, 100% {
+        left: 130%;
+    }
 }
 
 .celeb-btn-hover {

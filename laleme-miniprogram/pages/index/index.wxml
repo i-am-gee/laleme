@@ -127,6 +127,8 @@
 
 <!-- 成就庆祝动画：打卡成功 / 获得称号 -->
 <view class="celebrate-mask {{celebrateGrand ? 'grand' : ''}} {{celebrateHold ? 'hold' : ''}}" wx:if="{{showCelebrate}}" bindtap="onCelebrateMaskTap">
+    <!-- 晋级庆祝常驻，右上角留一个关闭；点了按钮不会误关 -->
+    <view class="celeb-close" wx:if="{{celebrateActions}}" catchtap="hideCelebrate">✕</view>
     <view
         class="confetti-piece {{item.round ? 'round' : ''}}"
         wx:for="{{confetti}}"
@@ -149,7 +151,10 @@
         <view class="celebrate-sub">{{celebrateText}}</view>
         <!-- 晋级才有的操作：动画一直播，点空白处关掉，按钮只负责分享战报 -->
         <view class="celeb-actions" wx:if="{{celebrateActions}}">
-            <button class="celeb-btn solid" hover-class="celeb-btn-hover" open-type="share" catchtap="onCelebrateShare">邀请好友挑战</button>
+            <button class="celeb-btn solid" hover-class="celeb-btn-hover" open-type="share" catchtap="onCelebrateShare">
+                <image class="celeb-btn-icon" src="/assets/actions/share-white.png" mode="aspectFit" />
+                <text class="celeb-btn-text">邀请好友挑战</text>
+            </button>
         </view>
     </view>
 </view>

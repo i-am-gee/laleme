@@ -30,9 +30,11 @@
                 <view class="h-actions">
                     <view class="h-act act-edit" data-g="{{gi}}" data-i="{{ii}}" bindtap="onEdit">
                         <image class="act-icon" src="/assets/actions/edit.png" mode="aspectFit" />
+                        <text class="act-label">编辑</text>
                     </view>
                     <view class="h-act act-del" data-g="{{gi}}" data-i="{{ii}}" bindtap="onDelete">
                         <image class="act-icon" src="/assets/actions/trash.png" mode="aspectFit" />
+                        <text class="act-label">删除</text>
                     </view>
                 </view>
                 <view

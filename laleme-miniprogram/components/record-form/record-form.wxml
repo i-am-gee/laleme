@@ -78,11 +78,22 @@
             <text class="dur-title">本次时长</text>
             <text class="dur-done" bindtap="confirmDuration">完成</text>
         </view>
-        <picker-view class="dur-wheel" value="{{durIndex}}" indicator-style="height: 88rpx;" bindchange="onDurChange">
-            <picker-view-column>
-                <view class="dur-item" wx:for="{{durOptions}}" wx:key="value">{{item.label}}</view>
-            </picker-view-column>
-        </picker-view>
+        <view class="dur-body">
+            <picker-view
+                class="dur-wheel"
+                value="{{durIndex}}"
+                indicator-style="height: 88rpx; background: rgba(139, 94, 60, 0.05); border-radius: 20rpx;"
+                bindchange="onDurChange"
+            >
+                <picker-view-column>
+                    <view class="dur-item" wx:for="{{durOptions}}" wx:key="value">{{item.label}}</view>
+                </picker-view-column>
+            </picker-view>
+            <view class="dur-fade dur-fade-top"></view>
+            <view class="dur-fade dur-fade-bottom"></view>
+        </view>
+        <view class="dur-gap" wx:if="{{tabbarSpace}}"></view>
+        <view class="dur-foot">蹲久了伤膝盖 · 最近的你还好吗</view>
     </view>
 </view>
 </view>

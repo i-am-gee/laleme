@@ -54,20 +54,17 @@ function moodOptions(selected) {
 }
 
 
-// 时长拉霸：0 位留给「取计时时长」，之后逐分钟到 1 小时，再按 5/10/30 分钟递进
+// 时长拉霸：0 位留给「计时中」，之后逐分钟，到 60 分钟为止
 const MINUTE_STEPS = (function () {
     const list = [];
     for (let m = 1; m <= 60; m += 1) list.push(m);
-    for (let m = 65; m <= 120; m += 5) list.push(m);
-    for (let m = 130; m <= 300; m += 10) list.push(m);
-    for (let m = 330; m <= 720; m += 30) list.push(m);
     return list;
 })();
 
 const DURATION_DEFAULT = 5;
 
 function durationOptions(isEdit) {
-    const list = isEdit ? [] : [{ value: 0, label: '取计时时长' }];
+    const list = isEdit ? [] : [{ value: 0, label: '计时中' }];
     MINUTE_STEPS.forEach(function (m) {
         list.push({ value: m, label: m + ' 分钟' });
     });
@@ -118,8 +115,8 @@ Component({
         dateValue: '',
         timeValue: '',
         manualMin: '',
-        durationLabel: '取计时时长',
-        durationTip: '点一下手动指定，默认按计时',
+        durationLabel: '计时中',
+        durationTip: '手动输入时长',
         durOpen: false,
         durOptions: [],
         durIndex: [0],
@@ -340,10 +337,8 @@ Component({
             const min = parseInt(this.data.manualMin, 10);
             const has = !isNaN(min) && min > 0;
             this.setData({
-                durationLabel: has ? min + ' 分钟' : '取计时时长',
-                durationTip: this.data.isEdit
-                    ? '点一下改时长'
-                    : (has ? '已手动指定，优先于计时' : '点一下手动指定，默认按计时'),
+                durationLabel: has ? min + ' 分钟' : '计时中',
+                durationTip: '手动输入时长',
             });
         },
 
@@ -360,6 +355,8 @@ Component({
         },
 
         onDurChange(event) {
+            // 拉霸每停在一档震一下，不出声
+            haptics.light();
             this._durIndex = event.detail.value[0];
         },
 

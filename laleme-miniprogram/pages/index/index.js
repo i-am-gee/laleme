@@ -519,8 +519,12 @@ Page({
         this.setTabBarDim(false);
     },
 
-    // 点按钮以外的任意区域关闭；按钮自己 catchtap，不会走到这里
+    // 晋级庆祝常驻期间不响应空白处点击，只认右上角的关闭；
+    // 其余一次性庆祝（打卡成功等）保持「点一下就走」
     onCelebrateMaskTap() {
+        if (this.data.celebrateActions) {
+            return;
+        }
         this.hideCelebrate();
     },
 

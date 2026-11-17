@@ -7,7 +7,7 @@
         bindtouchstart="onTouch"
     >
         <image class="cb-icon" src="/assets/actions/share-white.png" mode="aspectFit" />
-        <text class="cb-text">转发给你在乎的人</text>
+        <text class="cb-text">分享给你在乎的人</text>
     </button>
 
     <!-- 进度与身份：解锁后点这行可以在普通 / 金色之间切换 -->

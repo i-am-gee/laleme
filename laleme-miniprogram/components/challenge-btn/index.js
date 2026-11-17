@@ -1,4 +1,4 @@
-// 转发给你在乎的人：首页与统计页共用
+// 分享给你在乎的人：首页与统计页共用
 // 分享次数、称号与金色开关都在 utils/share.js，这里只负责展示与交互
 const share = require('../../utils/share.js');
 const haptics = require('../../utils/haptics.js');

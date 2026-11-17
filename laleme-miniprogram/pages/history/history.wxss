@@ -138,14 +138,25 @@
 .h-act {
     width: 68px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 2rpx;
 }
 
-/* 侧滑操作图标：与整体视觉对齐的 56rpx 尺寸 */
+/* 侧滑操作：图标在上、文字在下，比纯图标更好认，也更接近 iOS 列表的操作样式 */
 .act-icon {
-    width: 56rpx;
-    height: 56rpx;
+    width: 46rpx;
+    height: 46rpx;
+    opacity: 0.96;
+}
+
+.act-label {
+    margin-top: 8rpx;
+    font-size: 20rpx;
+    line-height: 1;
+    letter-spacing: 1rpx;
+    color: rgba(255, 255, 255, 0.92);
 }
 
 /* iOS 侧滑动作：中性灰 + 系统红，图标一律白 */
