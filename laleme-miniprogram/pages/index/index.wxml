@@ -188,7 +188,7 @@
 >
     <view class="sheet">
         <view class="sheet-bar"></view>
-        <record-form id="recordForm" bind:saved="onSheetSaved" bind:deleted="onSheetSaved" />
+        <record-form id="recordForm" tabbar-space="{{true}}" bind:saved="onSheetSaved" bind:deleted="onSheetSaved" />
     </view>
 </page-container>
 

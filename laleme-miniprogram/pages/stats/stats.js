@@ -63,7 +63,7 @@ Page({
     },
 
     onShow() {
-        syncTabBar(this, 2);
+        syncTabBar(this, 1);
         const cb = this.selectComponent('#challengeBtn');
         if (cb && cb.sync) {
             cb.sync();

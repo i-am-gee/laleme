@@ -1,10 +1,11 @@
 // 自定义 tabBar：原生 tabBar 无法拦截点击，加不了震动反馈，所以自己画一条
 const haptics = require('../utils/haptics.js');
 
+// 段位紧跟首页：它是主线的延伸，历史和我的都属于「次级」
 const LIST = [
     { path: '/pages/index/index', text: '首页', icon: '/assets/tabbar/home.png', active: '/assets/tabbar/home-active.png' },
-    { path: '/pages/history/history', text: '历史', icon: '/assets/tabbar/history.png', active: '/assets/tabbar/history-active.png' },
     { path: '/pages/stats/stats', text: '段位', icon: '/assets/tabbar/rank.png', active: '/assets/tabbar/rank-active.png' },
+    { path: '/pages/history/history', text: '历史', icon: '/assets/tabbar/history.png', active: '/assets/tabbar/history-active.png' },
     { path: '/pages/me/me', text: '我的', icon: '/assets/tabbar/me.png', active: '/assets/tabbar/me-active.png' },
 ];
 

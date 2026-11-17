@@ -53,10 +53,63 @@ function moodOptions(selected) {
     ];
 }
 
+
+// 时长拉霸：0 位留给「取计时时长」，之后逐分钟到 1 小时，再按 5/10/30 分钟递进
+const MINUTE_STEPS = (function () {
+    const list = [];
+    for (let m = 1; m <= 60; m += 1) list.push(m);
+    for (let m = 65; m <= 120; m += 5) list.push(m);
+    for (let m = 130; m <= 300; m += 10) list.push(m);
+    for (let m = 330; m <= 720; m += 30) list.push(m);
+    return list;
+})();
+
+const DURATION_DEFAULT = 5;
+
+function durationOptions(isEdit) {
+    const list = isEdit ? [] : [{ value: 0, label: '取计时时长' }];
+    MINUTE_STEPS.forEach(function (m) {
+        list.push({ value: m, label: m + ' 分钟' });
+    });
+    return list;
+}
+
+// 编辑态的时长可能不在步进里（比如 63 分钟），插进有序列表，别让拉霸错位
+function withValue(list, value) {
+    if (!(value > 0)) {
+        return list;
+    }
+    const exists = list.some(function (o) { return o.value === value; });
+    if (exists) {
+        return list;
+    }
+    const out = list.slice();
+    let pos = out.length;
+    for (let i = 0; i < out.length; i += 1) {
+        if (out[i].value > value) {
+            pos = i;
+            break;
+        }
+    }
+    out.splice(pos, 0, { value: value, label: value + ' 分钟' });
+    return out;
+}
+
+function indexOfValue(list, value) {
+    for (let i = 0; i < list.length; i += 1) {
+        if (list[i].value === value) {
+            return i;
+        }
+    }
+    return 0;
+}
+
 Component({
     properties: {
         // 传入则为编辑模式
         recordId: { type: String, value: '' },
+        // 首页浮层底下压着自定义 tabBar，时长面板要给人家让出位置
+        tabbarSpace: { type: Boolean, value: false },
     },
 
     data: {
@@ -65,6 +118,11 @@ Component({
         dateValue: '',
         timeValue: '',
         manualMin: '',
+        durationLabel: '取计时时长',
+        durationTip: '点一下手动指定，默认按计时',
+        durOpen: false,
+        durOptions: [],
+        durIndex: [0],
         bristolOptions: bristolOptions(null),
         bristolHint: '',
         colorOptions: colorOptions(null),
@@ -225,7 +283,9 @@ Component({
                 colorHint: '',
                 moodOptions: moodOptions(null),
                 timerText: '00:00',
+                durOpen: false,
             });
+            this.updateDurationLabel();
 
             // 草稿优先，其次沿用上一次的性状与感受
             this.restoreSelection();
@@ -268,15 +328,58 @@ Component({
                     colorOptions: colorOptions(rec.color === undefined ? null : rec.color),
                     colorHint: colorHintOf(rec.color),
                     moodOptions: moodOptions(rec.mood),
+                    durOpen: false,
                 });
+                that.updateDurationLabel();
             });
         },
 
         /* ---------- 交互 ---------- */
-        onManualMin(event) {
-            this.setData({ manualMin: event.detail.value });
-            this.saveDraft();
+        /* ---------- 时长拉霸 ---------- */
+        updateDurationLabel() {
+            const min = parseInt(this.data.manualMin, 10);
+            const has = !isNaN(min) && min > 0;
+            this.setData({
+                durationLabel: has ? min + ' 分钟' : '取计时时长',
+                durationTip: this.data.isEdit
+                    ? '点一下改时长'
+                    : (has ? '已手动指定，优先于计时' : '点一下手动指定，默认按计时'),
+            });
         },
+
+        openDuration() {
+            haptics.light();
+            const isEdit = this.data.isEdit;
+            const cur = parseInt(this.data.manualMin, 10);
+            const target = (!isNaN(cur) && cur > 0) ? cur : DURATION_DEFAULT;
+            const list = withValue(durationOptions(isEdit), target);
+            const index = indexOfValue(list, target);
+            this._durIndex = index;
+            // picker-view 的 value 必须是数组，传数字会永远停在第一项
+            this.setData({ durOpen: true, durOptions: list, durIndex: [index] });
+        },
+
+        onDurChange(event) {
+            this._durIndex = event.detail.value[0];
+        },
+
+        confirmDuration() {
+            haptics.tap();
+            const list = this.data.durOptions || [];
+            const idx = typeof this._durIndex === 'number' ? this._durIndex : this.data.durIndex[0];
+            const opt = list[idx];
+            const value = opt && opt.value > 0 ? opt.value : 0;
+            this.setData({ durOpen: false, manualMin: value > 0 ? String(value) : '' });
+            this.updateDurationLabel();
+        },
+
+        closeDuration() {
+            haptics.light();
+            this.setData({ durOpen: false });
+        },
+
+        // 拉霸打开时挡住底层滚动
+        stopTouch() {},
 
         onDateChange(event) {
             haptics.light();

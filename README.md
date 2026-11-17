@@ -3,7 +3,7 @@
 > 一款极度克制的肠道健康记录小程序。
 > 数据只属于你，从未离开你的手机。
 
-[![Version](https://img.shields.io/badge/version-1.12.0-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
+[![Version](https://img.shields.io/badge/version-1.13.0-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
 
 > **接手开发请先读 [CLAUDE.md](./CLAUDE.md)** —— 项目结构、数据层、设计令牌、踩坑清单与发布流程都在那里，读完即可上手。
 
@@ -32,7 +32,7 @@
 
 ## 功能一览
 
-- **快速记录**：首页大圆按钮一键拉起底部抽屉，下滑即可收起；计时器 / 手动时长 / 日期时间补记，切后台时长照常累加，单次上限 12 小时（超过该去挂号了）
+- **快速记录**：首页大圆按钮一键拉起底部抽屉，下滑即可收起；计时器 / 拉霸改时长 / 日期时间补记，切后台时长照常累加，单次上限 12 小时（超过该去挂号了）
 - **布里斯托 7 型分类**：附「不确定」选项，每型配医学描述与通俗提示
 - **健康统计**：周/月/自定义任意时间范围，频次、平均时长、性状分布
 - **打卡日历**：💩 图标标记每一次打卡，一天 2 次以上自动出角标；点某天直接跳历史并锚定高亮当天明细

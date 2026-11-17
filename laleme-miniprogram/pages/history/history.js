@@ -22,7 +22,7 @@ Page({
     },
 
     onShow() {
-        syncTabBar(this, 1);
+        syncTabBar(this, 2);
         // 每次进入都重播「逐条飞入」：animKey 带上递增值，节点重建才会重跑动画
         this._animSeq = (this._animSeq || 0) + 1;
         const app = getApp();

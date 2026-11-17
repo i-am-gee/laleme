@@ -30,16 +30,16 @@
         "selectedIconPath": "assets/tabbar/home-active.png"
       },
       {
-        "pagePath": "pages/history/history",
-        "text": "历史",
-        "iconPath": "assets/tabbar/history.png",
-        "selectedIconPath": "assets/tabbar/history-active.png"
-      },
-      {
         "pagePath": "pages/stats/stats",
         "text": "段位",
         "iconPath": "assets/tabbar/rank.png",
         "selectedIconPath": "assets/tabbar/rank-active.png"
+      },
+      {
+        "pagePath": "pages/history/history",
+        "text": "历史",
+        "iconPath": "assets/tabbar/history.png",
+        "selectedIconPath": "assets/tabbar/history-active.png"
       },
       {
         "pagePath": "pages/me/me",
