@@ -509,15 +509,24 @@
     z-index: 0;
 }
 
-.dur-scroll {
+.dur-wheel {
     position: relative;
     z-index: 1;
     height: 360rpx;
+    overflow: hidden;
 }
 
-/* 上下各留半屏，首尾两档才能滚到正中 */
-.dur-space {
-    height: 136rpx;
+/* 轨道自己算位移：不依赖原生惯性，抬手后一定落在整行上 */
+.dur-track {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    will-change: transform;
+}
+
+.dur-track.moving {
+    transition: transform 0.3s cubic-bezier(0.22, 0.9, 0.25, 1);
 }
 
 .dur-row {

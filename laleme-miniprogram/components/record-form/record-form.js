@@ -69,7 +69,8 @@ const MINUTE_STEPS = (function () {
 })();
 
 const DURATION_DEFAULT = 5;
-const DUR_ITEM_RPX = 88; // 一行高度，与 wxss 的 .dur-row 保持一致
+const DUR_ITEM_RPX = 88;   // 一行高度，与 wxss 的 .dur-row 保持一致
+const DUR_WHEEL_RPX = 360; // 滚轮可视高度，与 wxss 的 .dur-wheel 一致
 
 function durationOptions(isEdit) {
     const list = isEdit ? [] : [{ value: 0, label: '计时中' }];
@@ -125,13 +126,14 @@ Component({
         manualMin: '',
         durationLabel: '计时中',
         durationHint: '点一下手动指定时长',
+        manualText: '',
         bristolWarn: false,
         colorWarn: false,
         moodWarn: false,
         durOpen: false,
         durOptions: [],
-        durScrollTop: 0,
-        durAnim: false,
+        durOffset: 0,
+        durMoving: false,
         durActive: 0,
         bristolOptions: bristolOptions(null),
         bristolHint: '',
@@ -365,7 +367,13 @@ Component({
             this.setData({
                 durationLabel: has ? min + ' 分钟' : '计时中',
                 durationHint: hint,
+                manualText: has ? this.formatMin(min) : '',
             });
+        },
+
+        // 时长按计时器同样的 mm:ss 展示，手动指定时用它顶替计时位置
+        formatMin(min) {
+            return pad2(Math.floor(min / 60)) + ':' + pad2(min % 60);
         },
 
         openDuration() {
@@ -375,49 +383,87 @@ Component({
             const target = (!isNaN(cur) && cur > 0) ? cur : DURATION_DEFAULT;
             const list = withValue(durationOptions(isEdit), target);
             const index = indexOfValue(list, target);
+            this._wheelTimers = this._wheelTimers || [];
             this._itemH = this.rpxToPx(DUR_ITEM_RPX);
+            this._wheelH = this.rpxToPx(DUR_WHEEL_RPX);
+            // 轨道偏移：让第 index 行正好落在中间
+            this._half = (this._wheelH - this._itemH) / 2;
+            this._maxOffset = this._half - (list.length - 1) * this._itemH;
+            this._offset = this.offsetOf(index);
             this._durIndex = index;
             this.setData({
                 durOpen: true,
                 durOptions: list,
-                durScrollTop: index * this._itemH,
-                durAnim: false,
                 durActive: index,
+                durOffset: this._offset,
+                durMoving: false,
             });
         },
 
-        // rpx → px：scroll-view 的 scrollTop 只认 px
+        // rpx → px：transform 只认 px
         rpxToPx(rpx) {
             const info = wx.getSystemInfoSync();
             return (info.windowWidth || 375) / 750 * rpx;
         },
 
-        // 滚轮每翻过一行震一下（不出声）；停稳后再对齐到整行
-        onDurScroll(event) {
-            const h = this._itemH;
-            if (!h) {
+        offsetOf(index) {
+            return this._half - index * this._itemH;
+        },
+
+        indexOfOffset(offset) {
+            const max = (this.data.durOptions || []).length - 1;
+            const i = Math.round((this._half - offset) / this._itemH);
+            return Math.max(0, Math.min(max, i));
+        },
+
+        /* ---------- 滚轮：自己算位移，不再依赖 scroll-view 的惯性 ---------- */
+        onWheelStart(event) {
+            this.cancelWheelAnim();
+            const y = event.touches[0].clientY;
+            this._dragY = y;
+            this._dragOffset = this._offset;
+            this._lastY = y;
+            this._lastT = Date.now();
+            this._velocity = 0;
+            this.setData({ durMoving: false });
+        },
+
+        onWheelMove(event) {
+            const y = event.touches[0].clientY;
+            let offset = this._dragOffset + (y - this._dragY);
+            offset = Math.max(this._maxOffset, Math.min(this._half, offset));
+            const now = Date.now();
+            const dt = now - this._lastT;
+            if (dt > 0) {
+                // 记录瞬时速度，抬手时用它做惯性投影
+                this._velocity = (y - this._lastY) / dt;
+                this._lastY = y;
+                this._lastT = now;
+            }
+            this._offset = offset;
+            const idx = this.indexOfOffset(offset);
+            if (idx !== this.data.durActive) {
+                haptics.light();
+                this._lastPaint = offset;
+                this.setData({ durOffset: offset, durActive: idx });
                 return;
             }
-            const max = (this.data.durOptions || []).length - 1;
-            let i = Math.round(event.detail.scrollTop / h);
-            i = Math.max(0, Math.min(max, i));
-            if (i !== this._scrollIdx) {
-                this._scrollIdx = i;
-                if (!this._snapping) {
-                    haptics.light();
-                }
-                if (i !== this.data.durActive) {
-                    this.setData({ durActive: i });
-                }
+            // 位移没超过半像素就不必惊动 setData
+            if (Math.abs(offset - (this._lastPaint || 0)) < 0.5) {
+                return;
             }
-            // 连续 140ms 没有新的滚动事件，就认为惯性结束，吸附到整行
-            if (this._settleTimer) {
-                clearTimeout(this._settleTimer);
-            }
-            const that = this;
-            this._settleTimer = setTimeout(function () {
-                that.snapDur();
-            }, 140);
+            this._lastPaint = offset;
+            this.setData({ durOffset: offset });
+        },
+
+        onWheelEnd() {
+            // 惯性投影：按抬手速度往前推一段，再吸附到整行
+            const v = Math.max(-1.4, Math.min(1.4, this._velocity || 0));
+            const projected = this._offset + v * 160;
+            const idx = this.indexOfOffset(
+                Math.max(this._maxOffset, Math.min(this._half, projected))
+            );
+            this.settleTo(idx);
         },
 
         onDurRowTap(event) {
@@ -425,29 +471,42 @@ Component({
             if (isNaN(i)) {
                 return;
             }
-            this._durIndex = i;
             haptics.light();
-            this._snapping = true;
-            this.setData({ durScrollTop: i * this._itemH, durAnim: true, durActive: i });
-            this._scrollIdx = i;
-            const that = this;
-            setTimeout(function () {
-                that._snapping = false;
-            }, 320);
+            this.settleTo(i);
         },
 
-        snapDur() {
-            const i = typeof this._scrollIdx === 'number' ? this._scrollIdx : this.data.durActive;
-            this._durIndex = i;
-            if (i * this._itemH === this.data.durScrollTop) {
+        // 带过渡地滑到第 i 行，跨过的每一个数字都补一下震动
+        settleTo(index) {
+            const from = this.data.durActive;
+            const target = this.offsetOf(index);
+            const dist = Math.abs(target - this._offset);
+            if (dist < 0.5) {
                 return;
             }
-            this._snapping = true;
-            this.setData({ durScrollTop: i * this._itemH, durAnim: true, durActive: i });
-            const that = this;
-            setTimeout(function () {
-                that._snapping = false;
-            }, 320);
+            const duration = 300; // 与 .dur-track.moving 的过渡时长保持一致
+            this._offset = target;
+            this._durIndex = index;
+            this.cancelWheelAnim();
+            this.setData({ durMoving: true, durOffset: target, durActive: index });
+            // 过渡期间按路程补震动（easeOut 近似：跨行时间靠前）
+            const steps = Math.abs(index - from);
+            if (steps > 0) {
+                const dir = index > from ? 1 : -1;
+                for (let k = 1; k <= steps; k += 1) {
+                    const frac = k / (steps + 0.6);
+                    const t = (1 - Math.pow(1 - frac, 1 / 3)) * duration;
+                    this._wheelTimers.push(setTimeout(function () {
+                        haptics.light();
+                    }, t));
+                }
+            }
+        },
+
+        cancelWheelAnim() {
+            (this._wheelTimers || []).forEach(function (t) {
+                clearTimeout(t);
+            });
+            this._wheelTimers = [];
         },
 
         confirmDuration() {
@@ -456,9 +515,19 @@ Component({
             const idx = typeof this._durIndex === 'number' ? this._durIndex : this.data.durActive;
             const opt = list[idx];
             const value = opt && opt.value > 0 ? opt.value : 0;
+            const hasManual = value > 0;
             this.clearDurTimer();
-            this.setData({ durOpen: false, manualMin: value > 0 ? String(value) : '' });
+            this.setData({ durOpen: false, manualMin: hasManual ? String(value) : '' });
             this.updateDurationLabel();
+            // 手动指定之后就不再计时了：停表，位置改成显示指定时长
+            if (!this.data.isEdit) {
+                if (hasManual) {
+                    this.stopTimer();
+                    timer.stop();
+                } else if (!timer.running()) {
+                    this.startTimer();
+                }
+            }
         },
 
         closeDuration() {
@@ -468,10 +537,7 @@ Component({
         },
 
         clearDurTimer() {
-            if (this._settleTimer) {
-                clearTimeout(this._settleTimer);
-                this._settleTimer = null;
-            }
+            this.cancelWheelAnim();
         },
 
         // 拉霸打开时挡住底层滚动
