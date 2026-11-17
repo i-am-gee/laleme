@@ -14,3 +14,6 @@ laleme-icon/compare_sizes.png
 # 依赖与构建产物
 node_modules/
 dist/
+
+# 文档流水线中间产物
+output/
