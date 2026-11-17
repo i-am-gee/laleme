@@ -48,8 +48,26 @@
                     bindtouchcancel="onTouchEnd"
                     bindtap="onItemTap"
                 >
-                    <view class="h-top">
-                        <text class="h-time">{{item.time}}</text>
+                    <view class="h-row">
+                        <!-- 形状用图标直接说话，颜色用圆点，感受用小表情 -->
+                        <image class="h-shape" wx:if="{{item.shapeIcon}}" src="{{item.shapeIcon}}" mode="aspectFit" />
+                        <view class="h-shape h-shape-none" wx:else>?</view>
+                        <view class="h-body">
+                            <view class="h-top">
+                                <text class="h-time">{{item.time}}</text>
+                                <text class="h-dur">{{item.durText}}</text>
+                            </view>
+                            <view class="h-meta">
+                                <view class="h-chip" wx:if="{{item.colorHex}}">
+                                    <view class="h-dot" style="background: {{item.colorHex}};"></view>
+                                    <text class="h-chip-t">{{item.colorName}}</text>
+                                </view>
+                                <view class="h-chip" wx:if="{{item.moodIcon}}">
+                                    <image class="h-mood" src="{{item.moodIcon}}" mode="aspectFit" />
+                                    <text class="h-chip-t">{{item.moodText}}</text>
+                                </view>
+                            </view>
+                        </view>
                         <image
                             wx:if="{{gi === 0 && ii === 0 && !hintDim}}"
                             class="h-peek"
@@ -58,7 +76,6 @@
                         />
                         <text wx:else class="h-arrow">⋯</text>
                     </view>
-                    <view class="h-detail">{{item.detail}}</view>
                 </view>
             </view>
         </block>

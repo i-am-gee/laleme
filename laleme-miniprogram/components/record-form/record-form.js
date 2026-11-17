@@ -24,12 +24,19 @@ function timeValueOf(ms) {
 // 4 型（理想）排第一位：它是最常选的一档，放首屏第一格能少找一次
 const BRISTOL_ORDER = [4, 1, 2, 3, 5, 6, 7];
 
-function bristolOptions(selected) {
+// picked：是否真的选过。「不确定」在值为 null 时会被误显示成选中，必填场景必须区分
+function bristolOptions(selected, picked) {
     const list = BRISTOL_ORDER.map(function (t) {
         const b = BRISTOL[t - 1];
         return { t: b.t, name: b.name, icon: b.icon, ideal: b.t === 4, sel: selected === b.t };
     });
-    list.push({ t: 0, name: '不确定', icon: '', ideal: false, sel: selected === null || selected === undefined });
+    list.push({
+        t: 0,
+        name: '不确定',
+        icon: '',
+        ideal: false,
+        sel: !!picked && (selected === null || selected === undefined),
+    });
     return list;
 }
 
@@ -117,7 +124,10 @@ Component({
         timeValue: '',
         manualMin: '',
         durationLabel: '计时中',
-        durationTip: '手动输入时长',
+        durationHint: '点一下手动指定时长',
+        bristolWarn: false,
+        colorWarn: false,
+        moodWarn: false,
         durOpen: false,
         durOptions: [],
         durScrollTop: 0,
@@ -135,6 +145,7 @@ Component({
             this.selBristol = null;
             this.selMood = null;
             this.selColor = null;
+            this.bristolPicked = false;
             this._startAt = 0;
             this._timer = null;
         },
@@ -237,8 +248,9 @@ Component({
                 this.selBristol = draft.bristol === undefined ? null : draft.bristol;
                 this.selMood = draft.mood === undefined ? null : draft.mood;
                 this.selColor = draft.color === undefined ? null : draft.color;
+                this.bristolPicked = draft.bristol !== undefined;
                 this.setData({
-                    bristolOptions: bristolOptions(this.selBristol),
+                    bristolOptions: bristolOptions(this.selBristol, this.bristolPicked),
                     bristolHint: this.selBristol ? BRISTOL[this.selBristol - 1].hint : '',
                     colorOptions: colorOptions(this.selColor),
                     colorHint: colorHintOf(this.selColor),
@@ -256,8 +268,9 @@ Component({
                 that.selBristol = last.bristol === undefined ? null : last.bristol;
                 that.selMood = last.mood === undefined ? null : last.mood;
                 that.selColor = last.color === undefined ? null : last.color;
+                that.bristolPicked = last.bristol !== undefined;
                 that.setData({
-                    bristolOptions: bristolOptions(that.selBristol),
+                    bristolOptions: bristolOptions(that.selBristol, that.bristolPicked),
                     bristolHint: that.selBristol ? BRISTOL[that.selBristol - 1].hint : '',
                     colorOptions: colorOptions(that.selColor),
                     colorHint: colorHintOf(that.selColor),
@@ -272,12 +285,13 @@ Component({
             this.selBristol = null;
             this.selMood = null;
             this.selColor = null;
+            this.bristolPicked = false;
             this.setData({
                 isEdit: false,
                 manualMin: '',
                 dateValue: dateValueOf(now),
                 timeValue: timeValueOf(now),
-                bristolOptions: bristolOptions(null),
+                bristolOptions: bristolOptions(null, false),
                 bristolHint: '',
                 colorOptions: colorOptions(null),
                 colorHint: '',
@@ -315,6 +329,7 @@ Component({
                     return;
                 }
                 that.editId = rec.id;
+                that.bristolPicked = true;
                 that.selBristol = rec.bristol;
                 that.selMood = rec.mood;
                 that.selColor = rec.color === undefined ? null : rec.color;
@@ -323,7 +338,7 @@ Component({
                     manualMin: String(rec.durationMin),
                     dateValue: dateValueOf(rec.timestamp),
                     timeValue: timeValueOf(rec.timestamp),
-                    bristolOptions: bristolOptions(rec.bristol),
+                    bristolOptions: bristolOptions(rec.bristol, true),
                     bristolHint: rec.bristol ? BRISTOL[rec.bristol - 1].hint : '',
                     colorOptions: colorOptions(rec.color === undefined ? null : rec.color),
                     colorHint: colorHintOf(rec.color),
@@ -339,9 +354,17 @@ Component({
         updateDurationLabel() {
             const min = parseInt(this.data.manualMin, 10);
             const has = !isNaN(min) && min > 0;
+            let hint;
+            if (this.data.isEdit) {
+                hint = '点一下改时长';
+            } else if (has) {
+                hint = '已手动指定 ' + min + ' 分钟 · 点一下修改';
+            } else {
+                hint = '点一下数字手动指定时长';
+            }
             this.setData({
                 durationLabel: has ? min + ' 分钟' : '计时中',
-                durationTip: '手动输入时长',
+                durationHint: hint,
             });
         },
 
@@ -468,9 +491,11 @@ Component({
             haptics.light();
             const t = Number(event.currentTarget.dataset.t);
             this.selBristol = t === 0 ? null : t;
+            this.bristolPicked = true;
             this.setData({
-                bristolOptions: bristolOptions(this.selBristol),
+                bristolOptions: bristolOptions(this.selBristol, true),
                 bristolHint: t > 0 ? BRISTOL[t - 1].hint : '',
+                bristolWarn: false,
             });
             this.saveDraft();
         },
@@ -478,11 +503,12 @@ Component({
         pickColor(event) {
             haptics.light();
             const key = event.currentTarget.dataset.color;
-            // 再点一次取消，避免选错了没法回到「未填」
-            this.selColor = this.selColor === key ? null : key;
+            // 颜色是必填项，再点同一档不再取消，只做选中
+            this.selColor = key;
             this.setData({
                 colorOptions: colorOptions(this.selColor),
                 colorHint: colorHintOf(this.selColor),
+                colorWarn: false,
             });
             this.saveDraft();
         },
@@ -491,12 +517,33 @@ Component({
             haptics.light();
             const key = event.currentTarget.dataset.mood;
             this.selMood = key;
-            this.setData({ moodOptions: moodOptions(key) });
+            this.setData({ moodOptions: moodOptions(key), moodWarn: false });
             this.saveDraft();
         },
 
         submit() {
             haptics.tap();
+            // 形状 / 颜色 / 感受都是必填：缺哪个就把哪个标红并提示
+            const missing = [];
+            if (!this.bristolPicked) {
+                missing.push('形状');
+            }
+            if (this.selColor === null || this.selColor === undefined) {
+                missing.push('颜色');
+            }
+            if (!this.selMood) {
+                missing.push('感受');
+            }
+            if (missing.length) {
+                this.setData({
+                    bristolWarn: !this.bristolPicked,
+                    colorWarn: this.selColor === null || this.selColor === undefined,
+                    moodWarn: !this.selMood,
+                });
+                wx.showToast({ title: '请选择' + missing[0], icon: 'none' });
+                return;
+            }
+
             const manual = parseInt(this.data.manualMin, 10);
             let duration;
             if (!isNaN(manual) && manual > 0) {

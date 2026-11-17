@@ -179,11 +179,75 @@
     will-change: transform;
 }
 
+.h-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+}
+
+.h-shape {
+    flex: none;
+    width: 72rpx;
+    height: 72rpx;
+}
+
+.h-shape-none {
+    line-height: 72rpx;
+    text-align: center;
+    font-size: var(--t-subhead);
+    color: var(--label-4);
+    background: var(--fill-1);
+    border-radius: var(--r-full);
+}
+
+.h-body {
+    flex: 1;
+    min-width: 0;
+}
+
 .h-top {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
     gap: var(--sp-2);
+}
+
+.h-dur {
+    font-size: var(--t-footnote);
+    color: var(--label-2);
+    font-variant-numeric: tabular-nums;
+}
+
+/* 第二行：颜色圆点 + 感受小脸，一行看完这一次长什么样 */
+.h-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin-top: 6rpx;
+}
+
+.h-chip {
+    display: flex;
+    align-items: center;
+    gap: 8rpx;
+}
+
+.h-dot {
+    width: 22rpx;
+    height: 22rpx;
+    border-radius: var(--r-full);
+    box-shadow: inset 0 0 0 1rpx rgba(60, 40, 20, 0.14);
+}
+
+.h-mood {
+    width: 32rpx;
+    height: 32rpx;
+}
+
+.h-chip-t {
+    font-size: var(--t-caption);
+    color: var(--label-3);
+    line-height: 1.2;
 }
 
 .h-time {

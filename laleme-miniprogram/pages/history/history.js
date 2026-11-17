@@ -1,9 +1,40 @@
-const { dayStr, todayStr, fmtTime, fmtDur, bristolLabel, MOOD_TEXT } = require('../../utils/constants.js');
+const {
+    BRISTOL, POOP_COLORS, MOOD_ICONS, MOOD_TEXT,
+    dayStr, todayStr, fmtTime, fmtDur, bristolLabel,
+} = require('../../utils/constants.js');
 const { createRecordStore } = require('../../utils/record-store.js');
 const haptics = require('../../utils/haptics.js');
 const { getNavTop } = require('../../utils/nav.js');
 
 const store = createRecordStore();
+
+
+const CN_NUM = ['日', '一', '二', '三', '四', '五', '六'];
+const COLOR_HEX = {};
+POOP_COLORS.forEach(function (c) {
+    COLOR_HEX[c.key] = c.hex;
+});
+const COLOR_NAME = {};
+POOP_COLORS.forEach(function (c) {
+    COLOR_NAME[c.key] = c.name;
+});
+
+// 'YYYY-MM-DD' → 「11月17日 · 今天」；昨天写昨天，更早写周几
+function dayLabelOf(key) {
+    const parts = String(key).split('-');
+    const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    const md = (d.getMonth() + 1) + '月' + d.getDate() + '日';
+    const today = todayStr();
+    if (key === today) {
+        return md + ' · 今天';
+    }
+    const y = new Date();
+    y.setDate(y.getDate() - 1);
+    if (key === dayStr(y.getTime())) {
+        return md + ' · 昨天';
+    }
+    return md + ' · 周' + CN_NUM[d.getDay()];
+}
 
 const ACTION_W = 68; // 单个操作按钮宽度（px），与 wxss 保持一致
 const OPEN_X = -ACTION_W * 2;
@@ -54,7 +85,7 @@ Page({
                     lastDay = day;
                     groups.push({
                         key: day,
-                        day: day === todayStr() ? '今天' : day,
+                        day: dayLabelOf(day),
                         count: 0,
                         items: [],
                     });
@@ -64,7 +95,13 @@ Page({
                 g.items.push({
                     id: r.id,
                     time: fmtTime(r.timestamp),
-                    detail: fmtDur(r.durationMin) + ' · ' + bristolLabel(r.bristol) + (r.mood ? ' · ' + MOOD_TEXT[r.mood] : ''),
+                    durText: fmtDur(r.durationMin),
+                    shapeIcon: r.bristol ? BRISTOL[r.bristol - 1].icon : '',
+                    shapeName: bristolLabel(r.bristol),
+                    colorHex: r.color ? COLOR_HEX[r.color] || '' : '',
+                    colorName: r.color ? COLOR_NAME[r.color] || '' : '',
+                    moodIcon: r.mood ? MOOD_ICONS[r.mood] : '',
+                    moodText: r.mood ? MOOD_TEXT[r.mood] : '',
                     x: 0,
                 });
             });

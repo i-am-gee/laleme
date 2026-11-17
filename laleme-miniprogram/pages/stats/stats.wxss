@@ -293,9 +293,6 @@
 }
 
 /* ---------- 挑战入口：与首页共用组件 ---------- */
-.cb-area {
-    margin-top: var(--sp-5);
-}
 
 /* ---------- 好友 PK 入口 ---------- */
 .pk-entry {
@@ -484,4 +481,84 @@
     font-size: var(--t-caption2);
     color: var(--label-3);
     line-height: 1.55;
+}
+
+/* ---------- 挑战入口：与晋级庆祝同一套金色语言，宽度随内容区 ---------- */
+.rank-cta {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12rpx;
+    width: 100% !important;
+    height: 96rpx;
+    margin: var(--sp-3) 0 0;
+    padding: 0;
+    border-radius: var(--r-full);
+    overflow: hidden;
+    background: linear-gradient(135deg, #f0d89a 0%, #e9cb80 44%, #cfa74f 100%);
+    box-shadow: 0 10rpx 26rpx rgba(196, 150, 60, 0.26);
+    animation: ctaBreath 2.8s ease-in-out infinite;
+}
+
+.rank-cta::after {
+    border: none;
+}
+
+.rank-cta::before {
+    content: "";
+    position: absolute;
+    top: -60%;
+    bottom: -60%;
+    width: 32%;
+    left: -60%;
+    background: linear-gradient(
+        100deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.6) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-18deg);
+    animation: ctaSheen 3.6s ease-in-out 1s infinite;
+}
+
+.rank-cta-hover {
+    transform: scale(0.985);
+}
+
+.rank-cta-icon {
+    position: relative;
+    z-index: 1;
+    width: 34rpx;
+    height: 34rpx;
+    filter: brightness(0) opacity(0.72);
+}
+
+.rank-cta-text {
+    position: relative;
+    z-index: 1;
+    font-size: var(--t-callout);
+    font-weight: 600;
+    letter-spacing: 1rpx;
+    color: #3a2a11;
+}
+
+@keyframes ctaBreath {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 10rpx 26rpx rgba(196, 150, 60, 0.24);
+    }
+    50% {
+        transform: scale(1.02);
+        box-shadow: 0 14rpx 32rpx rgba(196, 150, 60, 0.38);
+    }
+}
+
+@keyframes ctaSheen {
+    0% {
+        left: -60%;
+    }
+    42%, 100% {
+        left: 130%;
+    }
 }

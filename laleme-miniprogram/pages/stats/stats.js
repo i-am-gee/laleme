@@ -64,10 +64,6 @@ Page({
 
     onShow() {
         syncTabBar(this, 1);
-        const cb = this.selectComponent('#challengeBtn');
-        if (cb && cb.sync) {
-            cb.sync();
-        }
         const that = this;
         store.list().then(function (res) {
             if (!res.error) {
@@ -115,7 +111,17 @@ Page({
 
     onShareAppMessage() {
         share.trackShare();
-        return share.makeShareInfo(this._shareStats);
+        // 从段位页发出的分享，带的是段位战报 + 挑战邀请
+        const info = {
+            title: '我连续 ' + (this.data.rankDays || 0) + ' 天，段位「' + (this.data.rankName || '未定级') + '」，敢来挑战吗',
+            path: '/pages/index/index?challenge=1&streak=' + (this.data.rankDays || 0)
+                + '&month=' + ((this._shareStats && this._shareStats.monthDays) || 0),
+        };
+        const poster = share.getPosterPath();
+        if (poster) {
+            info.imageUrl = poster;
+        }
+        return info;
     },
 
     // 分享按钮按下即震（主操作，双段强调）

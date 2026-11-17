@@ -32,6 +32,18 @@
         <view class="rk-hint">{{rankHint}}</view>
     </view>
 
+    <!-- 挑战入口：与晋级庆祝同一个按钮语言，宽度随内容区自适应 -->
+    <button
+        class="rank-cta"
+        hover-class="rank-cta-hover"
+        hover-stay-time="80"
+        open-type="share"
+        bindtouchstart="onShareTouch"
+    >
+        <image class="rank-cta-icon" src="/assets/actions/share-white.png" mode="aspectFit" />
+        <text class="rank-cta-text">邀请好友挑战</text>
+    </button>
+
     <!-- 好友 PK：紧接段位，方便直接拿段位去比 -->
     <view class="card pk-entry" bindtap="openPk" hover-class="pk-entry-press" hover-stay-time="80">
         <view class="pk-entry-main">
@@ -102,11 +114,6 @@
                 <view class="a-name">{{item.name}}</view>
                 <view class="a-desc">{{item.desc}}</view>
             </view>
-        </view>
-
-        <!-- 与首页同一个分享组件，进度与称号共享 -->
-        <view class="cb-area">
-            <challenge-btn id="challengeBtn" />
         </view>
 </view>
 

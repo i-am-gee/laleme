@@ -2,7 +2,6 @@
   "navigationStyle": "custom",
   "usingComponents": {
     "roll-number": "/components/roll-number/roll-number",
-    "challenge-btn": "/components/challenge-btn/index",
     "timer-bar": "/components/timer-bar/index"
   }
 }

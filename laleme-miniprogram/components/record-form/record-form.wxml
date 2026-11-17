@@ -1,16 +1,14 @@
 <view class="form">
     <!-- 计时区：新建时显示计时器，编辑时只保留时长输入 -->
-    <view class="timer-box">
+    <!-- 计时区：点数字就能手动指定时长，不再单独占一行输入位 -->
+    <view class="timer-box" hover-class="timer-box-hover" hover-stay-time="60" bindtap="openDuration">
         <view class="t-display" wx:if="{{!isEdit}}">{{timerText}}</view>
-        <view class="dur-field" hover-class="dur-field-hover" bindtap="openDuration">
-            <text class="dur-value">{{durationLabel}}</text>
-            <text class="dur-tip">{{durationTip}}</text>
-            <view class="dur-arrow"></view>
-        </view>
+        <view class="t-display" wx:else>{{durationLabel}}</view>
+        <view class="t-hint">{{durationHint}}</view>
     </view>
 
     <!-- 形状：图形选择，一眼对得上 -->
-    <view class="sec-label">形状</view>
+    <view class="sec-label {{bristolWarn ? 'warn' : ''}}">形状<text class="req">*</text></view>
     <view class="bs-grid">
         <view
             class="bs-item {{item.sel ? 'sel' : ''}} {{item.ideal ? 'ideal' : ''}}"
@@ -27,7 +25,7 @@
     <view class="bs-hint" wx:if="{{bristolHint}}">{{bristolHint}}</view>
 
     <!-- 颜色 -->
-    <view class="sec-label">颜色</view>
+    <view class="sec-label {{colorWarn ? 'warn' : ''}}">颜色<text class="req">*</text></view>
     <view class="cl-row">
         <view
             class="cl-item {{item.sel ? 'sel' : ''}}"
@@ -43,7 +41,7 @@
     <view class="bs-hint warn" wx:if="{{colorHint}}">{{colorHint}}</view>
 
     <!-- 感受 -->
-    <view class="sec-label">感受</view>
+    <view class="sec-label {{moodWarn ? 'warn' : ''}}">感受<text class="req">*</text></view>
     <view class="mood-row">
         <view
             class="mood-item {{item.sel ? 'sel' : ''}}"
