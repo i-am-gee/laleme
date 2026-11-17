@@ -410,8 +410,8 @@
     display: flex;
     align-items: center;
     gap: var(--sp-2);
-    padding: 18rpx var(--sp-3);
-    border-radius: var(--r-md);
+    padding: var(--sp-2) var(--sp-3);
+    border-radius: var(--r-sm);
     background: var(--fill-1);
     transition: background-color 0.15s ease;
 }
@@ -421,7 +421,7 @@
 }
 
 .dur-value {
-    font-size: var(--t-callout);
+    font-size: var(--t-footnote);
     font-weight: 600;
     color: var(--label);
     font-variant-numeric: tabular-nums;
@@ -429,8 +429,8 @@
 
 .dur-tip {
     flex: 1;
-    font-size: var(--t-caption);
-    color: var(--label-3);
+    font-size: var(--t-footnote);
+    color: var(--label-2);
 }
 
 .dur-arrow {
@@ -499,9 +499,43 @@
     padding: 0 var(--sp-4);
 }
 
-.dur-wheel {
-    width: 100%;
+/* 中间的选中带：铺在滚轮底下，形成一条"刻度线" */
+.dur-band {
+    position: absolute;
+    left: var(--sp-4);
+    right: var(--sp-4);
+    top: 50%;
+    height: 88rpx;
+    margin-top: -44rpx;
+    border-radius: 20rpx;
+    background: rgba(139, 94, 60, 0.055);
+    z-index: 0;
+}
+
+.dur-scroll {
+    position: relative;
+    z-index: 1;
     height: 360rpx;
+}
+
+/* 上下各留半屏，首尾两档才能滚到正中 */
+.dur-space {
+    height: 136rpx;
+}
+
+.dur-row {
+    height: 88rpx;
+    line-height: 88rpx;
+    text-align: center;
+    font-size: var(--t-title3);
+    color: var(--label-3);
+    font-variant-numeric: tabular-nums;
+    transition: color 0.16s ease;
+}
+
+.dur-row.on {
+    color: var(--label);
+    font-weight: 600;
 }
 
 /* 上下淡出：让滚出视野的行柔和消失，比硬切一刀显得讲究 */
@@ -511,16 +545,17 @@
     right: var(--sp-4);
     height: 88rpx;
     pointer-events: none;
+    z-index: 2;
 }
 
 .dur-fade-top {
     top: 0;
-    background: linear-gradient(180deg, #ffffff 12%, rgba(255, 255, 255, 0));
+    background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.62) 52%, rgba(255, 255, 255, 0));
 }
 
 .dur-fade-bottom {
     bottom: 0;
-    background: linear-gradient(0deg, #ffffff 12%, rgba(255, 255, 255, 0));
+    background: linear-gradient(0deg, #ffffff 0%, rgba(255, 255, 255, 0.62) 52%, rgba(255, 255, 255, 0));
 }
 
 /* 底部一句关心：空白处放话，面板不至于空荡 */
@@ -531,13 +566,4 @@
     font-size: 22rpx;
     letter-spacing: 0.6rpx;
     color: var(--label-3);
-}
-
-.dur-item {
-    height: 88rpx;
-    line-height: 88rpx;
-    text-align: center;
-    font-size: var(--t-title3);
-    color: var(--label);
-    font-variant-numeric: tabular-nums;
 }

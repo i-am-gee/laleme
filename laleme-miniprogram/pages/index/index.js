@@ -107,6 +107,13 @@ Page({
 
     onShow() {
         syncTabBar(this, 0);
+        // 从分享面板回来：分享动作已经完成，把晋级庆祝收掉
+        if (this._closeAfterShare) {
+            this._closeAfterShare = false;
+            if (this.data.showCelebrate) {
+                this.hideCelebrate();
+            }
+        }
         // refresh 读完记录后顺手结算段位，再决定播哪一场庆祝（顺序不能拆开）
         this.refresh();
         this.checkPrivacy();
@@ -234,6 +241,8 @@ Page({
     onShareAppMessage() {
         this.afterShare(share.trackShare());
         if (this._shareRank) {
+            // 微信不回调分享结果，只能借"分享后回到前台"这一刻收掉庆祝层
+            this._closeAfterShare = true;
             return this.rankShareInfo(this._shareRank);
         }
         return share.makeShareInfo(this._stats);

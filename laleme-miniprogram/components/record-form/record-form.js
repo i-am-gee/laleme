@@ -62,6 +62,7 @@ const MINUTE_STEPS = (function () {
 })();
 
 const DURATION_DEFAULT = 5;
+const DUR_ITEM_RPX = 88; // 一行高度，与 wxss 的 .dur-row 保持一致
 
 function durationOptions(isEdit) {
     const list = isEdit ? [] : [{ value: 0, label: '计时中' }];
@@ -119,7 +120,9 @@ Component({
         durationTip: '手动输入时长',
         durOpen: false,
         durOptions: [],
-        durIndex: [0],
+        durScrollTop: 0,
+        durAnim: false,
+        durActive: 0,
         bristolOptions: bristolOptions(null),
         bristolHint: '',
         colorOptions: colorOptions(null),
@@ -349,30 +352,103 @@ Component({
             const target = (!isNaN(cur) && cur > 0) ? cur : DURATION_DEFAULT;
             const list = withValue(durationOptions(isEdit), target);
             const index = indexOfValue(list, target);
+            this._itemH = this.rpxToPx(DUR_ITEM_RPX);
             this._durIndex = index;
-            // picker-view 的 value 必须是数组，传数字会永远停在第一项
-            this.setData({ durOpen: true, durOptions: list, durIndex: [index] });
+            this.setData({
+                durOpen: true,
+                durOptions: list,
+                durScrollTop: index * this._itemH,
+                durAnim: false,
+                durActive: index,
+            });
         },
 
-        onDurChange(event) {
-            // 拉霸每停在一档震一下，不出声
+        // rpx → px：scroll-view 的 scrollTop 只认 px
+        rpxToPx(rpx) {
+            const info = wx.getSystemInfoSync();
+            return (info.windowWidth || 375) / 750 * rpx;
+        },
+
+        // 滚轮每翻过一行震一下（不出声）；停稳后再对齐到整行
+        onDurScroll(event) {
+            const h = this._itemH;
+            if (!h) {
+                return;
+            }
+            const max = (this.data.durOptions || []).length - 1;
+            let i = Math.round(event.detail.scrollTop / h);
+            i = Math.max(0, Math.min(max, i));
+            if (i !== this._scrollIdx) {
+                this._scrollIdx = i;
+                if (!this._snapping) {
+                    haptics.light();
+                }
+                if (i !== this.data.durActive) {
+                    this.setData({ durActive: i });
+                }
+            }
+            // 连续 140ms 没有新的滚动事件，就认为惯性结束，吸附到整行
+            if (this._settleTimer) {
+                clearTimeout(this._settleTimer);
+            }
+            const that = this;
+            this._settleTimer = setTimeout(function () {
+                that.snapDur();
+            }, 140);
+        },
+
+        onDurRowTap(event) {
+            const i = Number(event.currentTarget.dataset.index);
+            if (isNaN(i)) {
+                return;
+            }
+            this._durIndex = i;
             haptics.light();
-            this._durIndex = event.detail.value[0];
+            this._snapping = true;
+            this.setData({ durScrollTop: i * this._itemH, durAnim: true, durActive: i });
+            this._scrollIdx = i;
+            const that = this;
+            setTimeout(function () {
+                that._snapping = false;
+            }, 320);
+        },
+
+        snapDur() {
+            const i = typeof this._scrollIdx === 'number' ? this._scrollIdx : this.data.durActive;
+            this._durIndex = i;
+            if (i * this._itemH === this.data.durScrollTop) {
+                return;
+            }
+            this._snapping = true;
+            this.setData({ durScrollTop: i * this._itemH, durAnim: true, durActive: i });
+            const that = this;
+            setTimeout(function () {
+                that._snapping = false;
+            }, 320);
         },
 
         confirmDuration() {
             haptics.tap();
             const list = this.data.durOptions || [];
-            const idx = typeof this._durIndex === 'number' ? this._durIndex : this.data.durIndex[0];
+            const idx = typeof this._durIndex === 'number' ? this._durIndex : this.data.durActive;
             const opt = list[idx];
             const value = opt && opt.value > 0 ? opt.value : 0;
+            this.clearDurTimer();
             this.setData({ durOpen: false, manualMin: value > 0 ? String(value) : '' });
             this.updateDurationLabel();
         },
 
         closeDuration() {
             haptics.light();
+            this.clearDurTimer();
             this.setData({ durOpen: false });
+        },
+
+        clearDurTimer() {
+            if (this._settleTimer) {
+                clearTimeout(this._settleTimer);
+                this._settleTimer = null;
+            }
         },
 
         // 拉霸打开时挡住底层滚动

@@ -79,16 +79,26 @@
             <text class="dur-done" bindtap="confirmDuration">完成</text>
         </view>
         <view class="dur-body">
-            <picker-view
-                class="dur-wheel"
-                value="{{durIndex}}"
-                indicator-style="height: 88rpx; background: rgba(139, 94, 60, 0.05); border-radius: 20rpx;"
-                bindchange="onDurChange"
+            <view class="dur-band"></view>
+            <scroll-view
+                class="dur-scroll"
+                scroll-y
+                enhanced
+                show-scrollbar="{{false}}"
+                scroll-top="{{durScrollTop}}"
+                scroll-with-animation="{{durAnim}}"
+                bindscroll="onDurScroll"
             >
-                <picker-view-column>
-                    <view class="dur-item" wx:for="{{durOptions}}" wx:key="value">{{item.label}}</view>
-                </picker-view-column>
-            </picker-view>
+                <view class="dur-space"></view>
+                <view
+                    class="dur-row {{index === durActive ? 'on' : ''}}"
+                    wx:for="{{durOptions}}"
+                    wx:key="value"
+                    data-index="{{index}}"
+                    bindtap="onDurRowTap"
+                >{{item.label}}</view>
+                <view class="dur-space"></view>
+            </scroll-view>
             <view class="dur-fade dur-fade-top"></view>
             <view class="dur-fade dur-fade-bottom"></view>
         </view>
