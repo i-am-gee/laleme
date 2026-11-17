@@ -13,12 +13,18 @@
         <view class="challenge-close" bindtap="dismissChallenge">✕</view>
     </view>
 
+    <!-- 段位掉级提示：只在掉级后 3 天内出现，点掉即走 -->
+    <view class="challenge-banner rank-banner" wx:if="{{rankNotice}}">
+        <view class="challenge-text rank-text">{{rankNotice}}</view>
+        <view class="challenge-close" bindtap="dismissRankNotice">✕</view>
+    </view>
+
     <!-- 主视觉：居中的大圆按钮 -->
     <view class="hero {{statusClass}} {{goldMode ? 'is-badge' : ''}}">
         <view class="fab-wrap">
             <view class="fab-halo"></view>
             <view class="fab {{fabPressed ? 'fab-pressed' : ''}}" hover-class="fab-hover" bindtouchstart="onFabTouchStart" bindtap="onFabTap">
-                <text class="fab-emoji" wx:if="{{!ticking}}">💩</text>
+                <image class="fab-img" wx:if="{{!ticking}}" src="{{rankIcon}}" mode="aspectFit" />
                 <text class="fab-time" wx:else>{{timerText}}</text>
                 <text class="fab-label">{{ticking ? '计时中' : '记一次'}}</text>
                 <view class="fab-ripple" wx:if="{{fabPressed}}"></view>
@@ -31,7 +37,7 @@
                 <view class="chip-v">
                     <roll-number value="{{streakNum}}" text="{{streakFallback}}" suffix="天" size="44" suffix-size="24" />
                 </view>
-                <text class="chip-k">连续记录</text>
+                <text class="chip-k {{rankShort ? 'rank' : ''}}">{{rankLabel}}</text>
             </view>
             <view class="chip">
                 <view class="chip-v">
@@ -120,7 +126,7 @@
 </view>
 
 <!-- 成就庆祝动画：打卡成功 / 获得称号 -->
-<view class="celebrate-mask {{celebrateGrand ? 'grand' : ''}}" wx:if="{{showCelebrate}}" bindtap="hideCelebrate">
+<view class="celebrate-mask {{celebrateGrand ? 'grand' : ''}} {{celebrateHold ? 'hold' : ''}}" wx:if="{{showCelebrate}}" bindtap="onCelebrateMaskTap">
     <view
         class="confetti-piece {{item.round ? 'round' : ''}}"
         wx:for="{{confetti}}"
@@ -131,10 +137,20 @@
     <view class="fw fw2"></view>
     <view class="fw fw3"></view>
     <view class="celebrate-center">
-        <view class="star-man">{{celebrateGrand ? '👑' : '🌟'}}</view>
-        <view class="star-poop">💩</view>
+        <view class="celebrate-vis" wx:if="{{celebrateIcon}}">
+            <view class="celebrate-crown" wx:if="{{celebrateGrand}}">👑</view>
+            <image class="celebrate-icon" src="{{celebrateIcon}}" mode="aspectFit" />
+        </view>
+        <block wx:else>
+            <view class="star-man">{{celebrateGrand ? '👑' : '🌟'}}</view>
+            <view class="star-poop">💩</view>
+        </block>
         <view class="celebrate-title">{{celebrateTitle}}</view>
         <view class="celebrate-sub">{{celebrateText}}</view>
+        <!-- 晋级才有的操作：动画一直播，点空白处关掉，按钮只负责分享战报 -->
+        <view class="celeb-actions" wx:if="{{celebrateActions}}">
+            <button class="celeb-btn solid" hover-class="celeb-btn-hover" open-type="share" catchtap="onCelebrateShare">邀请好友挑战</button>
+        </view>
     </view>
 </view>
 

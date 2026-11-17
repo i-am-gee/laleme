@@ -21,8 +21,12 @@ function timeValueOf(ms) {
     return pad2(d.getHours()) + ':' + pad2(d.getMinutes());
 }
 
+// 4 型（理想）排第一位：它是最常选的一档，放首屏第一格能少找一次
+const BRISTOL_ORDER = [4, 1, 2, 3, 5, 6, 7];
+
 function bristolOptions(selected) {
-    const list = BRISTOL.map(function (b) {
+    const list = BRISTOL_ORDER.map(function (t) {
+        const b = BRISTOL[t - 1];
         return { t: b.t, name: b.name, icon: b.icon, ideal: b.t === 4, sel: selected === b.t };
     });
     list.push({ t: 0, name: '不确定', icon: '', ideal: false, sel: selected === null || selected === undefined });

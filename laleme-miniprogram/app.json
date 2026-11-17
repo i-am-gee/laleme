@@ -37,9 +37,9 @@
       },
       {
         "pagePath": "pages/stats/stats",
-        "text": "统计",
-        "iconPath": "assets/tabbar/stats.png",
-        "selectedIconPath": "assets/tabbar/stats-active.png"
+        "text": "段位",
+        "iconPath": "assets/tabbar/rank.png",
+        "selectedIconPath": "assets/tabbar/rank-active.png"
       },
       {
         "pagePath": "pages/me/me",

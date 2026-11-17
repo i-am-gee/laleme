@@ -3,7 +3,7 @@
 > 一款极度克制的肠道健康记录小程序。
 > 数据只属于你，从未离开你的手机。
 
-[![Version](https://img.shields.io/badge/version-1.10.0-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
+[![Version](https://img.shields.io/badge/version-1.12.0-brown)]() [![Platform](https://img.shields.io/badge/platform-WeChat%20MiniProgram-green)]() [![Storage](https://img.shields.io/badge/storage-100%25%20local-orange)]() [![Dependencies](https://img.shields.io/badge/dependencies-zero-blue)]()
 
 > **接手开发请先读 [CLAUDE.md](./CLAUDE.md)** —— 项目结构、数据层、设计令牌、踩坑清单与发布流程都在那里，读完即可上手。
 
@@ -36,6 +36,7 @@
 - **布里斯托 7 型分类**：附「不确定」选项，每型配医学描述与通俗提示
 - **健康统计**：周/月/自定义任意时间范围，频次、平均时长、性状分布
 - **打卡日历**：💩 图标标记每一次打卡，一天 2 次以上自动出角标；点某天直接跳历史并锚定高亮当天明细
+- **段位制度**：连续 3 / 7 / 10 / 14 / 21 / 30 / 60 天分别解锁「倔强青铜大屎 → 最强王者大屎」七档段位；每档配一枚越往后越贵的便便图标，首页「记一次」按钮用当前段位那张；断签会掉级，爬回历史最高档会有「重回」动画
 - **连续打卡与成就系统**：4 枚成就徽章（七日全勤/闪电侠/马拉松选手/收藏家），记录即奖励
 - **庆祝动画**：彩带 + 烟花 + 星星人，献给每一次如释重负
 - **转发给你在乎的人**：分享三次解锁「黄金大屎官」——主按钮转黑金、日历里每一坨便便同步镀金，还能手动切回普通身份对比着看
@@ -70,7 +71,7 @@ laleme-miniprogram/       微信小程序（原生框架，零依赖）
 │   ├── index/            首页：Large Title + 挑战入口 / 拉霸计数 / 大圆按钮 / 可滑动切月日历 / 庆祝动画
 │   ├── history/          历史：按天分组、左滑修改或删除、日历锚定高亮
 │   ├── record/           记录页：独立编辑入口（薄壳，复用 record-form）
-│   ├── stats/            统计页：周月自定义指标、分布图、徽章成就墙
+│   ├── stats/            **段位页**：段位卡与七档解锁进度 → 好友 PK → 周月指标 / 分布图 / 徽章墙
 │   ├── data/             数据备份与恢复：剪贴板与粘贴两条导入通道，导出与清空
 │   ├── privacy/          隐私保护指引全文
 │   └── me/               我的：数据概览、入口聚合
@@ -81,6 +82,7 @@ laleme-miniprogram/       微信小程序（原生框架，零依赖）
 │   └── challenge-btn/    分享入口：首页与统计页共用，含三次进度与黄金大屎官
 ├── assets/
 │   ├── tabbar/           四枚 tabBar 图标（双状态）
+│   ├── rank/             八枚段位便便图标（未定级 + 七档，材质递进）
 │   ├── badges/           四枚成就徽章图标（点亮/未点亮）
 │   └── actions/          铅笔 / 垃圾桶 / 左滑引导 / 分享图标（棕、白两版）
 └── utils/

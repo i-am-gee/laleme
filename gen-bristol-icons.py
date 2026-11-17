@@ -116,17 +116,18 @@ def t7():
 
 # ---------- 感受：三种表情 ----------
 def face(name, kind):
+    # 表情要占满画布：原来是 48/96 的圆，四周一圈空白，落到 84rpx 的格子里只剩 47rpx
     im = canvas()
     d = ImageDraw.Draw(im)
-    d.ellipse([sc(24), sc(24), sc(72), sc(72)], outline=INK, width=sc(5))
-    circle(d, 39, 44, 3.4)
-    circle(d, 57, 44, 3.4)
+    d.ellipse([sc(6), sc(6), sc(90), sc(90)], outline=INK, width=sc(7))
+    circle(d, 34, 42, 5)
+    circle(d, 62, 42, 5)
     if kind == "good":
-        d.arc([sc(36), sc(44), sc(60), sc(64)], 15, 165, fill=INK, width=sc(4.4))
+        d.arc([sc(26), sc(40), sc(70), sc(76)], 15, 165, fill=INK, width=sc(6))
     elif kind == "normal":
-        d.line([sc(38), sc(56), sc(58), sc(56)], fill=INK, width=sc(4.4))
+        d.line([sc(30), sc(60), sc(66), sc(60)], fill=INK, width=sc(6))
     else:
-        d.arc([sc(36), sc(50), sc(60), sc(70)], 195, 345, fill=INK, width=sc(4.4))
+        d.arc([sc(26), sc(46), sc(70), sc(82)], 195, 345, fill=INK, width=sc(6))
     save(im, name)
 
 

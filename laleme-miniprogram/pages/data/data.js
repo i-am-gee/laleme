@@ -3,6 +3,7 @@ const { createRecordStore } = require('../../utils/record-store.js');
 const { buildCsv, parseCsv } = require('../../utils/csv.js');
 const haptics = require('../../utils/haptics.js');
 const share = require('../../utils/share.js');
+const rank = require('../../utils/rank.js');
 
 const store = createRecordStore();
 
@@ -267,8 +268,8 @@ Page({
         }
         haptics.tap();
         const content = this.data.total
-            ? '将删除本机全部 ' + this.data.total + ' 条记录，以及分享进度和「大屎官」称号，不可恢复。建议先导出备份。'
-            : '将删除分享进度和「大屎官」称号，不可恢复。';
+            ? '将删除本机全部 ' + this.data.total + ' 条记录，以及分享进度、「大屎官」称号和段位，不可恢复。建议先导出备份。'
+            : '将删除分享进度、「大屎官」称号和段位，不可恢复。';
         wx.showModal({
             title: '清空全部数据',
             content: content,
@@ -283,10 +284,11 @@ Page({
                         wx.showToast({ title: '清空失败，请重试', icon: 'none' });
                         return;
                     }
-                    // 分享进度、称号与未保存的草稿一并抹掉，等同于「这个用户从未来过」
+                    // 分享进度、称号、段位与未保存的草稿一并抹掉，等同于「这个用户从未来过」
                     share.clearShareState();
+                    rank.clear();
                     wx.removeStorageSync('laleme_draft');
-                    that.setStatus('已清空全部数据，包括分享进度与称号。', 'info');
+                    that.setStatus('已清空全部数据，包括分享进度、称号与段位。', 'info');
                     that.refresh();
                     wx.showToast({ title: '已清空', icon: 'success' });
                 });

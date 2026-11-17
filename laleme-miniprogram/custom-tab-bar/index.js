@@ -4,7 +4,7 @@ const haptics = require('../utils/haptics.js');
 const LIST = [
     { path: '/pages/index/index', text: '首页', icon: '/assets/tabbar/home.png', active: '/assets/tabbar/home-active.png' },
     { path: '/pages/history/history', text: '历史', icon: '/assets/tabbar/history.png', active: '/assets/tabbar/history-active.png' },
-    { path: '/pages/stats/stats', text: '统计', icon: '/assets/tabbar/stats.png', active: '/assets/tabbar/stats-active.png' },
+    { path: '/pages/stats/stats', text: '段位', icon: '/assets/tabbar/rank.png', active: '/assets/tabbar/rank-active.png' },
     { path: '/pages/me/me', text: '我的', icon: '/assets/tabbar/me.png', active: '/assets/tabbar/me-active.png' },
 ];
 

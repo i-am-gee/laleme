@@ -1,7 +1,44 @@
 <view class="page">
     <!-- iOS Large Title -->
     <view class="nav-bar" style="padding-top: {{navTop}}px;">
-        <view class="nav-title">统计</view>
+        <view class="nav-title">段位</view>
+    </view>
+
+    <!-- 段位：只看连续天数，断签掉级 -->
+    <view class="card rank-card">
+        <view class="rk-head">
+            <image class="rk-badge" src="{{rankIcon}}" mode="aspectFit" />
+            <view class="rk-main">
+                <text class="rk-name">{{rankName}}</text>
+                <text class="rk-sub">{{rankSub}}</text>
+            </view>
+            <text class="rk-peak" wx:if="{{rankPeakName}}">最高 {{rankPeakName}}</text>
+        </view>
+        <view class="rk-track">
+            <view class="rk-fill" style="width: {{rankPct}}%;"></view>
+        </view>
+        <view class="rk-next">{{rankNextLine}}</view>
+        <!-- 解锁进度：每达成一档点亮一个便便图标，与首页「记一次」共用同一套 -->
+        <view class="rk-ladder">
+            <view class="rk-step {{item.on ? 'on' : ''}} {{item.cur ? 'cur' : ''}}" wx:for="{{rankTicks}}" wx:key="days">
+                <view class="rk-line" wx:if="{{index < rankTicks.length - 1}}"></view>
+                <view class="rk-rail">
+                    <image class="rk-icon" src="{{item.icon}}" mode="aspectFit" />
+                </view>
+                <view class="rk-day">{{item.dayLabel}}</view>
+                <view class="rk-brief">{{item.brief}}</view>
+            </view>
+        </view>
+        <view class="rk-hint">{{rankHint}}</view>
+    </view>
+
+    <!-- 好友 PK：紧接段位，方便直接拿段位去比 -->
+    <view class="card pk-entry" bindtap="openPk" hover-class="pk-entry-press" hover-stay-time="80">
+        <view class="pk-entry-main">
+            <view class="pk-entry-t">好友 PK</view>
+            <view class="pk-entry-d">{{pkEntryLine}}</view>
+        </view>
+        <view class="chevron"></view>
     </view>
 
     <view class="seg">
@@ -43,32 +80,6 @@
             </view>
         </view>
 
-        <!-- 每天几次：一天一行，每次用形状图标表示，颜色点在右下角 -->
-        <view class="card daily-card">
-            <view class="daily-head">
-                <text class="card-title daily-title">每天几次</text>
-                <text class="daily-sub">最近 7 天</text>
-            </view>
-            <view class="daily-row" wx:for="{{dailyList}}" wx:key="key">
-                <view class="daily-day">
-                    <text class="daily-date">{{item.date}}</text>
-                    <text class="daily-wd">{{item.wd}}</text>
-                </view>
-                <view class="daily-shots">
-                    <block wx:if="{{item.count}}">
-                        <view class="shot" wx:for="{{item.shots}}" wx:for-item="shot" wx:key="index">
-                            <image class="shot-icon" wx:if="{{shot.icon}}" src="{{shot.icon}}" mode="aspectFit" />
-                            <view class="shot-empty" wx:else></view>
-                            <view class="shot-bar" style="background: {{shot.color || '#e6e2db'}};"></view>
-                        </view>
-                        <text class="shot-more" wx:if="{{item.more}}">+{{item.more}}</text>
-                    </block>
-                    <text class="shot-none" wx:else>没记</text>
-                </view>
-                <text class="daily-n">{{item.count}}</text>
-            </view>
-        </view>
-
         <view class="card">
             <view class="card-title">布里斯托性状分布</view>
             <view wx:if="{{!hasDist}}" class="empty-small">该时段暂无性状数据</view>
@@ -91,15 +102,6 @@
                 <view class="a-name">{{item.name}}</view>
                 <view class="a-desc">{{item.desc}}</view>
             </view>
-        </view>
-
-        <!-- 好友 PK 入口：只在这里露一个状态，详细对比在独立页 -->
-        <view class="card pk-entry" bindtap="openPk" hover-class="pk-entry-press" hover-stay-time="80">
-            <view class="pk-entry-main">
-                <view class="pk-entry-t">好友 PK</view>
-                <view class="pk-entry-d">{{pkEntryLine}}</view>
-            </view>
-            <view class="chevron"></view>
         </view>
 
         <!-- 与首页同一个分享组件，进度与称号共享 -->

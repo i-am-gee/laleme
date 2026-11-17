@@ -4,6 +4,7 @@ const haptics = require('../../utils/haptics.js');
 const share = require('../../utils/share.js');
 const { getNavTop } = require('../../utils/nav.js');
 const timer = require('../../utils/timer.js');
+const rank = require('../../utils/rank.js');
 
 const store = createRecordStore();
 
@@ -82,6 +83,14 @@ Page({
         streakNum: '',
         monthCountNum: '0',
         streakFallback: '未开始',
+        rankShort: '',
+        rankLabel: '连续记录',
+        rankName: '',
+        rankNotice: '',
+        rankIcon: '/assets/rank/none.png',
+        celebrateIcon: '',
+        celebrateActions: false,
+        celebrateHold: false,
     },
 
     onLoad(options) {
@@ -98,8 +107,8 @@ Page({
 
     onShow() {
         syncTabBar(this, 0);
+        // refresh 读完记录后顺手结算段位，再决定播哪一场庆祝（顺序不能拆开）
         this.refresh();
-        this.maybeCelebrate();
         this.checkPrivacy();
         // 回到前台时把抽屉里的计时补上（切后台期间也计入）
         const form = this.selectComponent('#recordForm');
@@ -180,6 +189,14 @@ Page({
             const monthCount = records.filter(function (r) { return r.timestamp >= monthAgo; }).length;
             const stats = share.makeStats(records);
             that._stats = stats;
+            // 段位结算：记录变化时同步一次，顺带拿到是否晋升 / 是否掉级
+            const rk = rank.sync(records);
+            // 晋级动画挂在存储里，首页与统计页谁先结算都不丢；这里取走并负责播。
+            // 只在取到东西时覆盖：同一屏可能连跑两次 refresh，后一次的空值会把待播动画冲掉
+            const pendingUp = rank.takePendingUp();
+            if (pendingUp) {
+                that._rankUp = pendingUp;
+            }
             const now = new Date();
             const WD = ['日', '一', '二', '三', '四', '五', '六'];
             const dateText = (now.getMonth() + 1) + '月' + now.getDate() + '日 周' + WD[now.getDay()];
@@ -192,8 +209,8 @@ Page({
                 lastDur: lastDur,
                 lastShape: lastShape,
                 streakText: stats.streak > 0 ? stats.streak + ' 天' : '未开始',
-                streakNum: stats.streak > 0 ? String(stats.streak) : '',
-                streakFallback: stats.streak > 0 ? '' : '未开始',
+                streakNum: stats.streak > 0 ? String(stats.streak) : (rk.level >= 0 ? '0' : ''),
+                streakFallback: stats.streak > 0 || rk.level >= 0 ? '' : '未开始',
                 monthCountText: monthCount + ' 次',
                 monthCountNum: String(monthCount),
                 dateText: dateText,
@@ -201,15 +218,39 @@ Page({
                 monthOffset: 0,
                 calendar: monthCalendar(records, monthBase),
                 goldMode: share.shareGold(),
+                rankShort: rk.level >= 0 ? rk.short : '',
+                rankLabel: rk.level >= 0 ? '段位 · ' + rk.short : '连续记录',
+                rankName: rk.name,
+                rankIcon: rk.icon,
+                rankNotice: rank.notice(),
             }, function () {
                 share.ensurePoster(that, that._stats);
+                that.autoHideRankNotice();
+                that.maybeCelebrate();
             });
         });
     },
 
     onShareAppMessage() {
         this.afterShare(share.trackShare());
+        if (this._shareRank) {
+            return this.rankShareInfo(this._shareRank);
+        }
         return share.makeShareInfo(this._stats);
+    },
+
+    // 晋级战报：把「我刚升到哪一档」说清楚，后半句转成挑战邀请
+    rankShareInfo(up) {
+        const month = (this._stats && this._stats.monthDays) || 0;
+        const info = {
+            title: '我连续 ' + up.days + ' 天，升到「' + up.name + '」，你敢来挑战吗',
+            path: '/pages/index/index?challenge=1&streak=' + up.days + '&month=' + month,
+        };
+        const poster = share.getPosterPath();
+        if (poster) {
+            info.imageUrl = poster;
+        }
+        return info;
     },
 
     // 分享被拉起后的本地记账；称号达成的标记由 share.trackShare 写入
@@ -226,9 +267,9 @@ Page({
     onShareTimeline() {
         const stats = this._stats || { streak: 0, monthDays: 0 };
         const streak = stats.streak || 0;
-        const info = {
-            title: '今天拉了么？我已经连续 ' + streak + ' 天了',
-        };
+        const info = this._shareRank
+            ? { title: '我连续 ' + this._shareRank.days + ' 天，升到「' + this._shareRank.name + '」，来挑战' }
+            : { title: '今天拉了么？我已经连续 ' + streak + ' 天了' };
         const path = share.getPosterPath();
         if (path) {
             info.imageUrl = path;
@@ -338,7 +379,27 @@ Page({
             return;
         }
 
-        // 其次：转发之后的致谢，比称号庆祝轻，一闪即走
+        // 其次：连续天数晋段，比普通打卡值得单开一场
+        if (this._rankUp) {
+            const up = this._rankUp;
+            this._rankUp = null;
+            wx.removeStorageSync('laleme_celebrate_flag');
+            // 分享按钮要用这条战报，点「确认」后才释放
+            this._shareRank = up;
+            haptics.strong();
+            this.playCelebrate(
+                (up.recovered ? '重回 ' : '晋升 ') + up.name,
+                up.recovered
+                    ? '断过一段，还是爬回来了。\n连续 ' + up.days + ' 天，接着守。'
+                    : '连续 ' + up.days + ' 天。\n断了就会掉，别松手。',
+                true,
+                0,
+                { persistent: true, icon: up.icon }
+            );
+            return;
+        }
+
+        // 再次：转发之后的致谢，比称号庆祝轻，一闪即走
         const thanksFlag = wx.getStorageSync('laleme_thanks_flag');
         if (thanksFlag && Date.now() - Number(thanksFlag) < 60000) {
             wx.removeStorageSync('laleme_thanks_flag');
@@ -385,7 +446,29 @@ Page({
         this.setTabBarDim(false);
     },
 
-    playCelebrate(title, text, grand, duration) {        const that = this;
+    // 首页纵向预算很紧，掉级横幅露 8 秒自己收走；点 ✕ 则当天不再出现
+    autoHideRankNotice() {
+        if (!this.data.rankNotice || this._noticeTimer) {
+            return;
+        }
+        const that = this;
+        this._noticeTimer = setTimeout(function () {
+            that._noticeTimer = null;
+            that.setData({ rankNotice: '' });
+        }, 8000);
+    },
+
+    // 掉级横幅：点掉之后不再打扰，下次再掉才会重新出现
+    dismissRankNotice() {
+        haptics.light();
+        rank.dismissNotice();
+        this.setData({ rankNotice: '' });
+    },
+
+    // persistent：不自动退场，等用户点「确认」；用于晋级，让动画一直跑到用户看完
+    playCelebrate(title, text, grand, duration, opts) {
+        const that = this;
+        const hold = !!(opts && opts.persistent);
         if (this._celebrateTimer) {
             clearTimeout(this._celebrateTimer);
             this._celebrateTimer = null;
@@ -396,8 +479,14 @@ Page({
             celebrateTitle: title,
             celebrateText: text,
             celebrateGrand: !!grand,
+            celebrateIcon: (opts && opts.icon) || '',
+            celebrateActions: hold,
+            celebrateHold: hold,
             confetti: buildConfetti(),
         });
+        if (hold) {
+            return;
+        }
         this._celebrateTimer = setTimeout(function () {
             that.setData({ showCelebrate: false });
             that.setTabBarDim(false);
@@ -420,8 +509,24 @@ Page({
             clearTimeout(this._celebrateTimer);
             this._celebrateTimer = null;
         }
-        this.setData({ showCelebrate: false });
+        this._shareRank = null;
+        this.setData({
+            showCelebrate: false,
+            celebrateActions: false,
+            celebrateHold: false,
+            celebrateIcon: '',
+        });
         this.setTabBarDim(false);
+    },
+
+    // 点按钮以外的任意区域关闭；按钮自己 catchtap，不会走到这里
+    onCelebrateMaskTap() {
+        this.hideCelebrate();
+    },
+
+    // 庆祝层里点分享：记一次分享行为，内容换成这条晋级战报
+    onCelebrateShare() {
+        haptics.tap();
     },
 
     /* ---- 隐私授权 ---- */
@@ -635,13 +740,17 @@ Page({
         this.syncTiming();
         const that = this;
         setTimeout(function () {
+            // refresh 内部会结算段位并挑一场庆祝，这里不再重复调 maybeCelebrate
             that.refresh();
-            that.maybeCelebrate();
         }, 260);
     },
 
     onHide() {
         this.stopTick();
+        if (this._noticeTimer) {
+            clearTimeout(this._noticeTimer);
+            this._noticeTimer = null;
+        }
         const form = this.selectComponent('#recordForm');
         if (form) {
             form.pause();

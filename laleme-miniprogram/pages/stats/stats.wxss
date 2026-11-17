@@ -299,7 +299,7 @@
 
 /* ---------- 好友 PK 入口 ---------- */
 .pk-entry {
-    margin-top: var(--sp-4);
+    margin-top: var(--sp-3);
     display: flex;
     align-items: center;
     gap: var(--sp-3);
@@ -329,114 +329,159 @@
     white-space: nowrap;
 }
 
-/* ---------- 每天几次 ---------- */
-.daily-card {
-    margin-top: var(--sp-4);
+/* ---------- 段位卡：只看连续天数，断签掉级 ---------- */
+.rank-card {
+    padding: var(--sp-4);
+    margin-top: var(--sp-3);
 }
 
-.daily-head {
+.rk-head {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
-    margin-bottom: var(--sp-2);
+    gap: var(--sp-3);
 }
 
-.daily-title {
-    margin-bottom: 0;
+/* 当前段位的便便图标，与首页大按钮同一张图 */
+.rk-badge {
+    flex: none;
+    width: 104rpx;
+    height: 104rpx;
 }
 
-.daily-sub {
+.rk-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.rk-name {
+    display: block;
+    font-size: var(--t-title3);
+    font-weight: 600;
+    color: var(--label);
+    letter-spacing: 1rpx;
+}
+
+.rk-sub {
+    display: block;
+    margin-top: 6rpx;
+    font-size: var(--t-footnote);
+    color: var(--label-2);
+    font-variant-numeric: tabular-nums;
+}
+
+.rk-peak {
+    flex-shrink: 0;
+    padding-top: 8rpx;
     font-size: var(--t-caption);
     color: var(--label-3);
 }
 
-.daily-row {
+.rk-track {
+    height: 10rpx;
+    margin-top: var(--sp-3);
+    border-radius: var(--r-full);
+    background: var(--fill-1);
+    overflow: hidden;
+}
+
+.rk-fill {
+    height: 100%;
+    border-radius: var(--r-full);
+    background: linear-gradient(90deg, #b8893c, #e9cb80);
+    transition: width 0.45s var(--ease-sheet);
+}
+
+.rk-next {
+    margin-top: 10rpx;
+    font-size: var(--t-caption);
+    color: var(--label-2);
+}
+
+.rk-ladder {
     display: flex;
-    align-items: center;
-    gap: var(--sp-2);
-    padding: 14rpx 0;
-    border-bottom: 0.5rpx solid var(--sep);
+    align-items: flex-start;
+    margin-top: var(--sp-3);
 }
 
-.daily-row:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-}
-
-.daily-day {
-    width: 92rpx;
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-}
-
-.daily-date {
-    font-size: var(--t-footnote);
-    color: var(--label);
-    font-variant-numeric: tabular-nums;
-}
-
-.daily-wd {
-    font-size: 20rpx;
-    color: var(--label-3);
-    line-height: 1.3;
-}
-
-.daily-shots {
+/* 一列一个里程碑：圆点居中，天数与段位简称在下面 —— 只看天数，与质量无关 */
+.rk-step {
+    position: relative;
     flex: 1;
-    min-width: 0;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8rpx;
-}
-
-.shot {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 4rpx;
 }
 
-.shot-icon {
-    width: 44rpx;
-    height: 44rpx;
+.rk-line {
+    position: absolute;
+    top: 26rpx;
+    left: 50%;
+    right: -50%;
+    height: 2rpx;
+    background: var(--label-4);
 }
 
-/* 没填形状时用一个空心圆占位，保持行高一致 */
-.shot-empty {
-    width: 44rpx;
-    height: 44rpx;
-    border-radius: var(--r-full);
-    background: var(--fill-1);
+.rk-step.on .rk-line {
+    background: var(--tint-fill);
 }
 
-/* 颜色放在图标下方：不与剪影打架，读起来是「形状 + 颜色」一对 */
-.shot-bar {
-    width: 28rpx;
-    height: 8rpx;
-    border-radius: var(--r-full);
-    /* 浅色（黄褐、黄绿）在白卡上也要看得见 */
-    box-shadow: inset 0 0 0 1rpx rgba(60, 40, 20, 0.12);
+.rk-rail {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 52rpx;
 }
 
-.shot-more {
+/* 未解锁：压暗但保留轮廓，让人看得见下一档长什么样 */
+.rk-icon {
+    width: 48rpx;
+    height: 48rpx;
+    opacity: 0.32;
+    transition: opacity 0.25s ease, transform 0.25s var(--ease-spring);
+}
+
+.rk-step.on .rk-icon {
+    opacity: 1;
+}
+
+.rk-step.cur .rk-icon {
+    transform: scale(1.16);
+}
+
+.rk-day {
+    margin-top: 4rpx;
     font-size: 20rpx;
-    color: var(--label-3);
-    margin-left: 2rpx;
-}
-
-.shot-none {
-    font-size: var(--t-caption);
-    color: var(--label-4);
-}
-
-.daily-n {
-    width: 56rpx;
-    text-align: right;
-    font-size: var(--t-subhead);
-    font-weight: 600;
+    line-height: 1.2;
     color: var(--label-2);
     font-variant-numeric: tabular-nums;
-    flex-shrink: 0;
+}
+
+.rk-step.on .rk-day {
+    color: var(--label);
+}
+
+.rk-brief {
+    font-size: 20rpx;
+    line-height: 1.2;
+    color: var(--label-3);
+}
+
+.rk-step.on .rk-brief {
+    color: var(--label-2);
+}
+
+.rk-step.cur .rk-day,
+.rk-step.cur .rk-brief {
+    color: var(--tint-strong);
+    font-weight: 500;
+}
+.rk-hint {
+    margin-top: var(--sp-2);
+    font-size: var(--t-caption2);
+    color: var(--label-3);
+    line-height: 1.55;
 }

@@ -49,6 +49,21 @@
     padding: 4rpx 8rpx;
 }
 
+/* ---------- 掉级横幅：同一套骨架，用暖金强调，避免"报错"的压迫感 ---------- */
+.rank-banner {
+    background: rgba(184, 137, 60, 0.10);
+}
+
+.rank-text {
+    color: #7d5b21;
+}
+
+/* 段位名替代「连续记录」：有段位时用品牌色，弱化但可辨 */
+.chip-k.rank {
+    color: var(--tint-strong);
+    font-weight: 500;
+}
+
 /* ---------- 副标题里的状态词随状态变色，日期保持中性 ---------- */
 .nav-state.done {
     color: #248a63;
@@ -125,7 +140,7 @@
     animation: fabPress 0.36s var(--ease-spring);
 }
 
-.fab-pressed .fab-emoji {
+.fab-pressed .fab-img {
     animation: poopWobble 0.5s var(--ease-spring);
 }
 
@@ -160,13 +175,12 @@
     100% { transform: scale(1.2); opacity: 0; }
 }
 
-.fab-emoji {
+.fab-img {
     position: relative;
     z-index: 1;
-    /* filter 对行内元素不生效，emoji 必须是块级才能被染色 */
     display: block;
-    font-size: 96rpx;
-    line-height: 1;
+    width: 132rpx;
+    height: 132rpx;
 }
 
 .fab-label {
@@ -203,9 +217,8 @@
     box-shadow: 0 18rpx 46rpx rgba(44, 31, 12, 0.44), inset 0 0 0 2rpx rgba(228, 192, 120, 0.62);
 }
 
-.hero.is-badge .fab-emoji {
-    filter: sepia(1) saturate(3.6) hue-rotate(-14deg) brightness(1.16) contrast(1.06)
-        drop-shadow(0 2rpx 10rpx rgba(255, 214, 130, 0.55));
+.hero.is-badge .fab-img {
+    filter: drop-shadow(0 2rpx 12rpx rgba(255, 214, 130, 0.5));
 }
 
 .hero.is-badge .fab-label {
@@ -431,12 +444,18 @@
     font-variant-numeric: tabular-nums;
 }
 
-/* 黄金模式：同日多次的角标也换成金底深字，不留棕色 */
+/* 黄金模式：同日多次的角标也换金色，白字比深字更清爽 */
 .cal-cell .cal-badge.gold {
-    /* 22rpx 的小圆点用纯色比渐变清楚：渐变会把浅端糊成一片奶白 */
+    /* 小圆点用纯色比渐变清楚：渐变会把浅端糊成一片奶白 */
+    min-width: 26rpx;
+    height: 26rpx;
+    line-height: 26rpx;
+    font-size: 17rpx;
+    font-weight: 700;
     background: #b8893c;
-    color: #2f2210;
-    box-shadow: 0 0 0 2rpx #fdf8ec, inset 0 1rpx 0 rgba(255, 246, 224, 0.55);
+    color: #ffffff;
+    /* 奶白环把角标从金色便便上「切」出来，避免金压金糊成一团 */
+    box-shadow: 0 0 0 3rpx #fdf9f0, 0 2rpx 6rpx rgba(120, 82, 30, 0.22);
 }
 
 /* ---------- 最近一次：页面末尾的轻量备注 ---------- */
@@ -893,4 +912,62 @@
     border-radius: var(--r-full);
     background: var(--fill-3);
     margin: var(--sp-2) auto var(--sp-1);
+}
+
+/* ---------- 晋级庆祝：图标、按钮、常驻循环 ---------- */
+.celebrate-vis {
+    display: inline-block;
+    position: relative;
+}
+
+.celebrate-crown {
+    font-size: 68rpx;
+    line-height: 1;
+    margin-bottom: -14rpx;
+    animation: star-bounce 1.6s ease-in-out infinite;
+}
+
+.celebrate-icon {
+    display: block;
+    width: 240rpx;
+    height: 240rpx;
+    margin: 0 auto;
+    animation: star-bounce 1.8s ease-in-out infinite;
+}
+
+/* 常驻时让彩带与烟花一直循环：晋级这件事值得多看一会儿 */
+.celebrate-mask.hold .confetti-piece,
+.celebrate-mask.hold .fw {
+    animation-iteration-count: infinite;
+}
+
+.celeb-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--sp-5);
+    padding: 0 var(--sp-4);
+}
+
+.celeb-btn {
+    width: 380rpx !important;
+    height: 88rpx;
+    line-height: 88rpx;
+    padding: 0;
+    margin: 0;
+    border-radius: var(--r-full);
+    font-size: var(--t-callout);
+    font-weight: 600;
+}
+
+.celeb-btn::after {
+    border: none;
+}
+
+.celeb-btn.solid {
+    background: #e9cb80;
+    color: #3f2c10;
+}
+
+.celeb-btn-hover {
+    opacity: 0.82;
 }

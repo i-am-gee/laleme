@@ -81,7 +81,7 @@
     background: var(--fill-1);
     border: none;
     border-radius: var(--r-sm);
-    padding: 14rpx 0;
+    padding: 16rpx 0 14rpx;
     text-align: center;
     transition: transform 0.2s var(--ease-spring), background-color 0.18s ease, box-shadow 0.18s ease;
 }
@@ -97,17 +97,17 @@
 
 .bs-icon {
     display: block;
-    width: 64rpx;
-    height: 64rpx;
+    width: 108rpx;
+    height: 108rpx;
     margin: 0 auto;
 }
 
 /* 不确定：没有图形，用一个问号占位，尺寸和图标对齐 */
 .bs-unknown {
-    width: 64rpx;
-    height: 64rpx;
+    width: 108rpx;
+    height: 108rpx;
     margin: 0 auto;
-    line-height: 64rpx;
+    line-height: 108rpx;
     font-size: var(--t-title3);
     font-weight: 600;
     color: var(--label-3);
@@ -149,37 +149,6 @@
     line-height: 1.45;
 }
 
-/* ---------- 感受 ---------- */
-.mood-row {
-    display: flex;
-    gap: var(--sp-2);
-    margin-top: var(--sp-2);
-}
-
-.mood-item {
-    flex: 1;
-    background: var(--fill-1);
-    border: none;
-    border-radius: var(--r-sm);
-    padding: var(--sp-2) 0;
-    text-align: center;
-    font-size: var(--t-footnote);
-    color: var(--label-2);
-    transition: transform 0.2s var(--ease-spring), background-color 0.18s ease, box-shadow 0.18s ease;
-}
-
-.mood-item:active {
-    transform: scale(0.96);
-}
-
-.mood-item.sel {
-    background: var(--bg-card);
-    color: var(--tint);
-    font-weight: 600;
-    box-shadow: 0 0 0 3rpx var(--tint) inset, 0 4rpx 14rpx rgba(80, 50, 20, 0.10);
-}
-
-/* ---------- 时间选择 ---------- */
 .dt-row {
     display: flex;
     gap: var(--sp-2);
@@ -297,15 +266,165 @@
     color: #a5641f;
 }
 
-/* ---------- 感受：图标在上，文字在下 ---------- */
+.dt-row {
+    display: flex;
+    gap: var(--sp-2);
+    margin-top: var(--sp-3);
+}
+
+.picker-half {
+    flex: 1;
+}
+
+.picker-value {
+    background: var(--fill-1);
+    border-radius: var(--r-sm);
+    padding: var(--sp-2);
+    font-size: var(--t-footnote);
+    color: var(--label);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 按钮 ---------- */
+.primary-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100% !important;
+    height: 100rpx;
+    margin-top: var(--sp-4);
+    padding: 0;
+    border: none;
+    border-radius: var(--r-full);
+    background: var(--tint);
+    color: #ffffff;
+    font-size: var(--t-body);
+    font-weight: 600;
+    letter-spacing: 0.5rpx;
+    box-sizing: border-box;
+    box-shadow: 0 10rpx 28rpx rgba(139, 94, 60, 0.22);
+    transition: transform 0.2s var(--ease-spring), opacity 0.12s ease;
+}
+
+.primary-btn::after {
+    border: none;
+}
+
+.primary-hover {
+    transform: scale(0.97);
+    opacity: 0.9;
+}
+
+.danger-link {
+    text-align: center;
+    font-size: var(--t-subhead);
+    color: var(--red);
+    padding: var(--sp-3) 0 4rpx;
+}
+
+/* ---------- 分节标签 ---------- */
+.sec-label {
+    margin: var(--sp-3) 0 var(--sp-2);
+    font-size: var(--t-caption2);
+    color: var(--label-3);
+    letter-spacing: 1rpx;
+}
+
+/* ---------- 颜色 ---------- */
+.cl-row {
+    display: flex;
+    gap: var(--sp-2);
+}
+
+.cl-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8rpx;
+    padding: 12rpx 0 10rpx;
+    border-radius: var(--r-sm);
+    background: var(--fill-1);
+    box-shadow: 0 0 0 3rpx transparent inset;
+    transition: transform 0.2s var(--ease-spring), background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.cl-item:active {
+    transform: scale(0.95);
+}
+
+.cl-item.sel {
+    background: var(--bg-card);
+    box-shadow: 0 0 0 3rpx var(--tint) inset, 0 4rpx 14rpx rgba(80, 50, 20, 0.10);
+}
+
+.cl-dot {
+    width: 44rpx;
+    height: 44rpx;
+    border-radius: var(--r-full);
+    /* 浅色块在浅底上也要有边，否则像没渲染 */
+    box-shadow: inset 0 0 0 1rpx rgba(60, 40, 20, 0.14);
+}
+
+.cl-name {
+    font-size: 20rpx;
+    color: var(--label-3);
+    line-height: 1.2;
+}
+
+.cl-item.sel .cl-name {
+    color: var(--tint);
+    font-weight: 600;
+}
+
+/* 颜色提示偏提醒语气，和形状提示区分开 */
+.bs-hint.warn {
+    color: #a5641f;
+}
+
+/* ---------- 感受：与「颜色」同一套盒子，图标更大一号 ---------- */
+.mood-row {
+    display: flex;
+    gap: var(--sp-2);
+}
+
+.mood-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6rpx;
+    padding: 10rpx 0 8rpx;
+    border-radius: var(--r-sm);
+    background: var(--fill-1);
+    border: none;
+    box-shadow: 0 0 0 3rpx transparent inset;
+    transition: transform 0.2s var(--ease-spring), background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.mood-item:active {
+    transform: scale(0.95);
+}
+
+.mood-item.sel {
+    background: var(--bg-card);
+    box-shadow: 0 0 0 3rpx var(--tint) inset, 0 4rpx 14rpx rgba(80, 50, 20, 0.10);
+}
+
 .mood-icon {
     display: block;
-    width: 46rpx;
-    height: 46rpx;
-    margin: 0 auto 6rpx;
+    width: 84rpx;
+    height: 84rpx;
 }
 
 .mood-text {
-    font-size: var(--t-footnote);
+    font-size: 20rpx;
     line-height: 1.2;
+    color: var(--label-3);
+}
+
+.mood-item.sel .mood-text {
+    color: var(--tint);
+    font-weight: 600;
 }

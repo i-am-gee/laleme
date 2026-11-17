@@ -46,10 +46,20 @@ def draw_me(d, c):
     d.ellipse([s(29), s(13), s(52), s(36)], fill=c)
     d.ellipse([s(18), s(44), s(63), s(68)], fill=c)
 
+
+def draw_rank(d, c):
+    # 奖牌：双飘带 + 环形奖章 + 里面一颗小便便
+    d.polygon([(s(29), s(8)), (s(41), s(8)), (s(45), s(31)), (s(33), s(31))], fill=c)
+    d.polygon([(s(52), s(8)), (s(64), s(8)), (s(60), s(31)), (s(48), s(31))], fill=c)
+    d.ellipse([s(20), s(28), s(61), s(69)], outline=c, width=s(5))
+    d.ellipse([s(31), s(44), s(51), s(57)], fill=c)
+    d.ellipse([s(35), s(38), s(47), s(48)], fill=c)
+
 ICONS = {
     "home": draw_home,
     "history": draw_history,
     "stats": draw_stats,
+    "rank": draw_rank,
     "me": draw_me,
 }
 

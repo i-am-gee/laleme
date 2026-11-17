@@ -1,49 +1,12 @@
-const { BRISTOL, BADGES, streakDays, dayStr, POOP_COLORS } = require('../../utils/constants.js');
+const { BRISTOL, BADGES, streakDays, dayStr } = require('../../utils/constants.js');
 const { createRecordStore } = require('../../utils/record-store.js');
 const haptics = require('../../utils/haptics.js');
 const share = require('../../utils/share.js');
 const pk = require('../../utils/pk/api.js');
+const rank = require('../../utils/rank.js');
 const { getNavTop } = require('../../utils/nav.js');
 
 const store = createRecordStore();
-
-// 每天几次：最近 7 天，每天列出每次的形状与颜色
-const WEEKDAY = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-const DAILY_MAX_SHOTS = 6;
-
-function colorHexOf(key) {
-    const hit = POOP_COLORS.filter(function (c) { return c.key === key; })[0];
-    return hit ? hit.hex : '';
-}
-
-function buildDaily(records) {
-    const list = records || [];
-    const out = [];
-    const now = new Date();
-    for (let i = 0; i < 7; i += 1) {
-        const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-        const start = day.getTime();
-        const end = start + 86400000;
-        const today = list
-            .filter(function (r) { return r.timestamp >= start && r.timestamp < end; })
-            .sort(function (a, b) { return a.timestamp - b.timestamp; });
-        out.push({
-            key: String(start),
-            date: (day.getMonth() + 1) + '/' + day.getDate(),
-            wd: WEEKDAY[day.getDay()],
-            count: today.length,
-            shots: today.slice(0, DAILY_MAX_SHOTS).map(function (r) {
-                const meta = BRISTOL[r.bristol - 1];
-                return {
-                    icon: meta ? meta.icon : '',
-                    color: colorHexOf(r.color),
-                };
-            }),
-            more: today.length > DAILY_MAX_SHOTS ? today.length - DAILY_MAX_SHOTS : 0,
-        });
-    }
-    return out;
-}
 
 // 自定义范围默认：近 30 天
 function defaultRange() {
@@ -80,11 +43,19 @@ Page({
         }),
         gotCount: 0,
         hasDist: false,
-        dailyList: [],
         navTop: 72,
         pkOn: false,
         pkFriends: 0,
         pkEntryLine: '和朋友比比谁更顺',
+        rankName: '未定级',
+        rankDays: 0,
+        rankPct: 0,
+        rankNextLine: '',
+        rankHint: '',
+        rankSub: '',
+        rankIcon: '/assets/rank/none.png',
+        rankPeakName: '—',
+        rankTicks: [],
     },
 
     onLoad() {
@@ -201,7 +172,8 @@ Page({
                 return;
             }
             const records = res.data;
-            that.setData({ dailyList: buildDaily(records) });
+            // 段位：统计页与首页共用同一份结算结果
+            const rk = rank.sync(records);
             let list;
             let rangeLabel = '';
             if (period === 'week') {
@@ -295,6 +267,15 @@ Page({
                 hasDist: dist.length > 0,
                 achList: achList,
                 gotCount: gotCount,
+                rankName: rk.name,
+                rankDays: rk.days,
+                rankPct: rk.pct,
+                rankNextLine: rk.nextLine,
+                rankHint: rk.hint,
+                rankSub: rk.days > 0 ? '连续 ' + rk.days + ' 天' : '还没有记录，先记一次',
+                rankIcon: rk.icon,
+                rankPeakName: rk.peak > rk.level ? rk.peakName : '',
+                rankTicks: rk.ticks,
             });
         });
     },
