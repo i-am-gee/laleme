@@ -107,6 +107,8 @@ export async function notifyFriendsOnRecord(db, pusher, openid) {
     if (res.ok) {
       await db.consumeQuota(fid, pusher.TPL.friend);
       sent += 1;
+    } else {
+      await db.clearPushed(fid, 'friend', day);
     }
   }
   return { sent };

@@ -367,6 +367,9 @@ async function runDailyReminder() {
     if (res.ok) {
       await db.consumeQuota(u.openid, pusher.TPL.daily);
       sent += 1;
+    } else {
+      // 发不出去（未授权 / 额度问题）就把占位撤掉，别占着今天的名额
+      await db.clearPushed(u.openid, 'daily', today);
     }
   }
   console.log('[cron:daily]', { users: users.length, sent, skippedQuota, skippedDone });

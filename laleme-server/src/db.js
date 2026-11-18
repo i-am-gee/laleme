@@ -396,6 +396,11 @@ export async function openDb() {
     }
   };
 
+  // 发送失败时撤销占位，否则这一天的提醒名额会被白白吃掉
+  base.clearPushed = async function clearPushed(openid, type, day) {
+    await base.run('DELETE FROM push_logs WHERE openid = ? AND type = ? AND day = ?', [openid, type, day]);
+  };
+
   base.pushedToday = async function pushedToday(openid, type, day) {
     const row = await base.one('SELECT 1 AS x FROM push_logs WHERE openid = ? AND type = ? AND day = ?', [openid, type, day]);
     return !!row;
