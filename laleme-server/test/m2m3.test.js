@@ -137,6 +137,19 @@ await call('POST', '/api/friends/remove', 'u_a', { friendId: 'u_b' });
 const afterRemove = await call('GET', '/api/friends', 'u_a');
 check('解除后好友列表为空', afterRemove.data.friends.length === 0);
 
+// 15. 注销：记录、额度、关系全部清掉
+const beforePurge = await call('POST', '/api/login', 'u_c', { code: 'debug:u_c' });
+check('注销前用户存在', beforePurge.data.recordCount >= 0);
+const purge = await call('DELETE', '/api/account', 'u_c');
+check('注销返回成功', purge.data.ok === true);
+const afterPurge = await call('GET', '/api/push/status', 'u_c');
+// 注销后令牌里的 openid 仍可访问，但数据已清空（相当于新用户）
+check('注销后额度清零', afterPurge.data.quota.daily === 0 && afterPurge.data.quota.friend === 0, afterPurge.data.quota);
+const cList = await call('GET', '/api/friends', 'u_c');
+check('注销后好友关系清空', cList.data.friends.length === 0);
+const aList = await call('GET', '/api/friends', 'u_a');
+check('对方也看不到关系', aList.data.friends.every((f) => f.id !== 'u_c'), aList.data.friends);
+
 server.close();
 console.log(`\n结果：${pass} 通过，${fail} 失败`);
 process.exit(fail ? 1 : 0);

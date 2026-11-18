@@ -9,6 +9,7 @@ const store = createRecordStore();
 
 Page({
     data: {
+        cloudOn: false,
         total: 0,
         pasteText: '',
         pasteOpen: false,
@@ -23,6 +24,38 @@ Page({
 
     onShow() {
         this.refresh();
+        const cfg = require('../../utils/cloud.js').readConfig();
+        this.setData({ cloudOn: !!(cfg.enabled && cfg.token) });
+    },
+
+    // 删除云端数据：只清服务器上的副本，本机记录保留
+    purgeCloud() {
+        const that = this;
+        wx.showModal({
+            title: '删除云端数据',
+            content: '服务器上的记录、好友关系、提醒额度都会被删除，且无法恢复。本机记录不受影响。',
+            confirmText: '删除',
+            confirmColor: '#ff3b30',
+            success(res) {
+                if (!res.confirm) {
+                    return;
+                }
+                wx.showLoading({ title: '删除中' });
+                require('../../utils/cloud.js')
+                    .call('/api/account', 'DELETE')
+                    .then(function () {
+                        require('../../utils/sync.js').disable();
+                        require('../../utils/cloud.js').writeConfig({ token: '', cursor: 0, lastSync: 0 });
+                        wx.hideLoading();
+                        that.setData({ cloudOn: false });
+                        wx.showToast({ title: '云端数据已删除', icon: 'success' });
+                    })
+                    .catch(function (err) {
+                        wx.hideLoading();
+                        wx.showToast({ title: err.message || '删除失败', icon: 'none' });
+                    });
+            },
+        });
     },
 
     refresh() {

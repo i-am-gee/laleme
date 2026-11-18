@@ -343,3 +343,8 @@
     font-size: var(--t-body);
     font-weight: 600;
 }
+
+/* 危险操作：与普通行区分开，用系统红令牌 */
+.row-title.danger {
+    color: var(--red);
+}

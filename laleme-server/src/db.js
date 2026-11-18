@@ -421,5 +421,16 @@ export async function openDb() {
     );
   };
 
+  // 注销：把这个 openid 的所有痕迹删干净（记录、关系、额度、日志、账号）
+  base.purgeUser = async function purgeUser(openid) {
+    await base.run('DELETE FROM records WHERE openid = ?', [openid]);
+    await base.run('DELETE FROM friends WHERE a = ? OR b = ?', [openid, openid]);
+    await base.run('DELETE FROM invites WHERE from_id = ?', [openid]);
+    await base.run('DELETE FROM push_quota WHERE openid = ?', [openid]);
+    await base.run('DELETE FROM push_logs WHERE openid = ?', [openid]);
+    await base.run('DELETE FROM devices WHERE openid = ?', [openid]);
+    await base.run('DELETE FROM users WHERE openid = ?', [openid]);
+  };
+
   return base;
 }

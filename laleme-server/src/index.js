@@ -19,6 +19,30 @@ const COLORS = new Set(['brown', 'dark', 'tan', 'green', 'black', 'red']);
 
 let db;
 
+// 极简限流：单实例内存计数，够用且不引入依赖。
+// 多实例部署时需换成 Redis，否则各实例各算各的。
+const RATE_WINDOW = 60 * 1000;
+const RATE_LIMIT = 120;
+const rateMap = new Map();
+
+function rateLimited(key) {
+  const now = Date.now();
+  const rec = rateMap.get(key);
+  if (!rec || now - rec.start > RATE_WINDOW) {
+    rateMap.set(key, { start: now, n: 1 });
+    return false;
+  }
+  rec.n += 1;
+  if (rateMap.size > 5000) {
+    for (const [k, v] of rateMap) {
+      if (now - v.start > RATE_WINDOW) {
+        rateMap.delete(k);
+      }
+    }
+  }
+  return rec.n > RATE_LIMIT;
+}
+
 /* ---------------------------- 工具 ---------------------------- */
 
 function send(res, status, payload) {
@@ -166,6 +190,19 @@ async function handle(req, res) {
   const openid = openidOf(req);
   if (!openid) {
     fail(res, 401, 'unauthorized', '登录已失效，请重新进入小程序');
+    return;
+  }
+
+  if (rateLimited(openid)) {
+    fail(res, 429, 'too_many_requests', '操作太频繁，请稍后再试');
+    return;
+  }
+
+  // 注销：删除该用户的全部云端数据（隐私指引里承诺过的能力）
+  if (path === '/api/account' && req.method === 'DELETE') {
+    await db.purgeUser(openid);
+    console.log('[account:purge]', openid);
+    send(res, 200, { ok: true });
     return;
   }
 
