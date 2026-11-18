@@ -3,6 +3,8 @@ const { createRecordStore } = require('../../utils/record-store.js');
 const haptics = require('../../utils/haptics.js');
 const share = require('../../utils/share.js');
 const { getNavTop } = require('../../utils/nav.js');
+const cloud = require('../../utils/cloud.js');
+const sync = require('../../utils/sync.js');
 
 const store = createRecordStore();
 
@@ -12,6 +14,8 @@ Page({
         firstText: '-',
         streakText: '未开始',
         navTop: 72,
+        cloudOn: false,
+        cloudStatus: '未同步',
     },
 
     onLoad() {
@@ -21,6 +25,61 @@ Page({
     onShow() {
         syncTabBar(this, 3);
         this.refresh();
+        this.refreshCloud();
+    },
+
+    refreshCloud() {
+        const cfg = cloud.readConfig();
+        const last = cfg.lastSync ? dayStr(cfg.lastSync) : '';
+        this.setData({
+            cloudOn: !!cfg.enabled,
+            cloudStatus: cfg.lastSync ? '已同步 · 最近 ' + last : '等待首次同步',
+        });
+        if (cfg.enabled) {
+            const that = this;
+            sync.syncNow().then(function () {
+                that.refreshCloud();
+                that.refresh();
+            }).catch(function () {});
+        }
+    },
+
+    // 开启：先让用户知道传什么，再登录并把本地全部推上去
+    onCloudToggle(e) {
+        const that = this;
+        const on = e.detail.value;
+        if (!on) {
+            sync.disable().then(function () {
+                haptics.tap();
+                that.refreshCloud();
+                wx.showToast({ title: '已关闭云同步', icon: 'none' });
+            });
+            return;
+        }
+        wx.showModal({
+            title: '开启云同步',
+            content: '开启后，记录会上传到云端，用于换手机或清缓存后恢复。数据只用于你本人的记录恢复，不会展示给任何人。可随时关闭并删除云端数据。',
+            confirmText: '开启',
+            cancelText: '再想想',
+            success(res) {
+                if (!res.confirm) {
+                    that.setData({ cloudOn: false });
+                    return;
+                }
+                wx.showLoading({ title: '同步中' });
+                sync.enable({}).then(function () {
+                    wx.hideLoading();
+                    haptics.tap();
+                    that.refreshCloud();
+                    that.refresh();
+                    wx.showToast({ title: '已开启', icon: 'success' });
+                }).catch(function (err) {
+                    wx.hideLoading();
+                    that.setData({ cloudOn: false });
+                    wx.showToast({ title: err.message || '同步失败', icon: 'none' });
+                });
+            },
+        });
     },
 
     onReady() {

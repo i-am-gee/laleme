@@ -1,0 +1,19 @@
+{
+  "name": "laleme-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "拉了么服务端：账号、记录同步（M1）",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "DB_DRIVER=sqlite ALLOW_DEBUG_AUTH=1 PORT=3100 node src/index.js",
+    "test": "node test/m1.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "mysql2": "^3.11.0"
+  }
+}

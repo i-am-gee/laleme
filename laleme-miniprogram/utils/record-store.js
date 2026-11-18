@@ -98,6 +98,12 @@ function createRecordStore() {
                     return { data: null, error: NOT_FOUND_OR_FORBIDDEN_ERROR };
                 }
                 writeRecords(filtered);
+                // 留一块墓碑：云端要靠它知道这条被删了，否则换机后旧记录会游回来
+                try {
+                    require('./sync.js').markDeleted(itemId);
+                } catch (e) {
+                    // 同步模块不可用时不影响本地删除
+                }
                 return { data: { removed: removed }, error: null };
             });
         },

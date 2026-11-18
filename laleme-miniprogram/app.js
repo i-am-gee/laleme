@@ -31,6 +31,28 @@ App({
         }
         // 冷启动先结算一次，避免带着一个过期计时进来
         this.settleExpiredTimer();
+        // 开了云同步的用户，冷启动补一次同步（失败静默，不影响使用）
+        this.syncInBackground();
+    },
+
+    onShow() {
+        // 从后台回来、切页回来都可能产生本地改动，节流后补一次同步
+        this.syncInBackground();
+    },
+
+    syncInBackground() {
+        const cloud = require('./utils/cloud.js');
+        const cfg = cloud.readConfig();
+        if (!cfg.enabled) {
+            return;
+        }
+        const now = Date.now();
+        // 30 秒内不重复触发，避免频繁切页把请求打满
+        if (this._lastSyncAt && now - this._lastSyncAt < 30 * 1000) {
+            return;
+        }
+        this._lastSyncAt = now;
+        require('./utils/sync.js').syncNow().catch(function () {});
     },
 
     // 计时超过上限（1 小时）视为忘了结束：直接收尾成一条记录，不让用户白记
