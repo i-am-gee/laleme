@@ -26,9 +26,8 @@ if [[ "${1:-}" == "--test" ]]; then
     echo "未配置 WEBHOOK_URL，告警只会写本地日志：$ALERT_LOG"
     exit 2
   fi
-  payload=$(python3 -c 'import json,time; print(json.dumps({"msgtype":"text","text":{"content":"【拉了么】告警通道测试
-时间："+time.strftime("%Y-%m-%d %H:%M:%S")+"
-收到这条说明配置成功。"}}))')
+  payload=$(printf '【拉了么】告警通道测试\n时间：%s\n收到这条说明配置成功。' "$(date '+%F %T')" \
+    | python3 -c 'import json,sys; print(json.dumps({"msgtype":"text","text":{"content":sys.stdin.read()}}))')
   resp=$(curl -s -m 8 -X POST "$WEBHOOK_URL" -H 'content-type: application/json' -d "$payload")
   echo "返回：$resp"
   echo "$resp" | grep -q '"errcode":0' && exit 0 || exit 1
@@ -147,7 +146,8 @@ ${warns_str}"
   echo "${now} 发送告警：${status}" >> "$ALERT_LOG"
 
   if [[ -n "$WEBHOOK_URL" ]]; then
-    payload=$(python3 -c 'import json,sys; print(json.dumps({"msgtype":"text","text":{"content":sys.argv[1]}}))' "$msg")
+    payload=$(printf '%s' "$msg" \
+      | python3 -c 'import json,sys; print(json.dumps({"msgtype":"text","text":{"content":sys.stdin.read()}}))')
     curl -s -m 8 -X POST "$WEBHOOK_URL" -H 'content-type: application/json' -d "$payload" >/dev/null 2>&1
   fi
 fi
