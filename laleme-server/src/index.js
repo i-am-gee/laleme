@@ -4,9 +4,14 @@
 import http from 'node:http';
 import { openDb } from './db.js';
 import { exchangeCode, openidFromRequest, signToken } from './auth.js';
+import crypto from 'node:crypto';
+import * as friends from './friends.js';
+import * as pusher from './push.js';
+import { startOfToday, todayKey } from './stats.js';
 
 const PORT = Number(process.env.PORT || 80);
 const ALLOW_DEBUG_AUTH = process.env.ALLOW_DEBUG_AUTH === '1';
+const CRON_SECRET = process.env.CRON_SECRET || '';
 const MAX_BODY = 1024 * 1024; // 1MB，一次最多 200 条记录足够
 
 const MOODS = new Set(['good', 'normal', 'hard']);
@@ -117,6 +122,18 @@ async function handle(req, res) {
   }
 
   // 登录：code 换 openid → 建档 → 发令牌。这是唯一不需要令牌的写接口。
+  // 定时任务入口：每天 20:00 由 systemd timer 触发，用独立密钥鉴权
+  if (path === '/api/cron/daily' && req.method === 'POST') {
+    const secret = req.headers['x-cron-secret'] || '';
+    if (!CRON_SECRET || secret !== CRON_SECRET) {
+      fail(res, 403, 'forbidden', '无权调用');
+      return;
+    }
+    const stat = await runDailyReminder();
+    send(res, 200, stat);
+    return;
+  }
+
   if (path === '/api/login' && req.method === 'POST') {
     const body = await readBody(req);
     const code = String(body.code || '').trim();
@@ -167,6 +184,15 @@ async function handle(req, res) {
       await db.touchDevice(openid, String(body.clientId).slice(0, 64));
     }
     send(res, 200, { accepted, rejected, serverTime: Date.now() });
+
+    // 好友提醒是副作用：不阻塞响应，失败也不影响同步结果
+    const todayStart = Date.now() - 24 * 3600 * 1000;
+    const hasToday = list.some((r) => r && !r.deleted && Number(r.ts) >= todayStart);
+    if (hasToday && accepted.length) {
+      friends.notifyFriendsOnRecord(db, pusher, openid).catch((err) => {
+        console.error('[notify]', err.message);
+      });
+    }
     return;
   }
 
@@ -193,7 +219,152 @@ async function handle(req, res) {
     return;
   }
 
+  /* ---------------- 好友 ---------------- */
+
+  if (path === '/api/friends' && req.method === 'GET') {
+    const data = await friends.listWithMe(db, openid);
+    const settings = await friends.getSettings(db, openid);
+    const quota = {
+      daily: await db.quotaOf(openid, pusher.TPL.daily),
+      friend: await db.quotaOf(openid, pusher.TPL.friend),
+    };
+    send(res, 200, { ...data, settings, quota });
+    return;
+  }
+
+  if (path === '/api/friends/invite' && req.method === 'POST') {
+    const token = crypto.randomBytes(12).toString('hex');
+    const expireAt = Date.now() + 48 * 3600 * 1000;
+    await db.createInvite(openid, token, expireAt);
+    send(res, 200, { token, expireAt });
+    return;
+  }
+
+  if (path === '/api/friends/accept' && req.method === 'POST') {
+    const body = await readBody(req);
+    const token = String(body.token || '').trim();
+    if (!token) {
+      fail(res, 400, 'missing_token', '缺少邀请码');
+      return;
+    }
+    const invite = await db.takeInvite(token);
+    if (!invite) {
+      fail(res, 410, 'invite_invalid', '邀请已失效，请让对方重新分享');
+      return;
+    }
+    if (invite.from_id === openid) {
+      fail(res, 400, 'self_invite', '不能添加自己');
+      return;
+    }
+    await db.addFriend(openid, invite.from_id);
+    send(res, 200, { ok: true, friendId: invite.from_id });
+    return;
+  }
+
+  if (path === '/api/friends/remove' && req.method === 'POST') {
+    const body = await readBody(req);
+    const target = String(body.friendId || '').trim();
+    if (!target) {
+      fail(res, 400, 'missing_target', '缺少好友标识');
+      return;
+    }
+    await db.removeFriend(openid, target);
+    send(res, 200, { ok: true });
+    return;
+  }
+
+  if (path === '/api/friends/rank' && req.method === 'GET') {
+    send(res, 200, await friends.ranking(db, openid));
+    return;
+  }
+
+  /* ---------------- 订阅与设置 ---------------- */
+
+  if (path === '/api/push/quota' && req.method === 'POST') {
+    const body = await readBody(req);
+    const kind = body.kind === 'friend' ? 'friend' : 'daily';
+    const templateId = kind === 'friend' ? pusher.TPL.friend : pusher.TPL.daily;
+    if (!templateId) {
+      fail(res, 503, 'template_missing', '服务端尚未配置订阅消息模板');
+      return;
+    }
+    const n = Math.max(0, Math.min(20, Number(body.count || 1)));
+    if (n > 0) {
+      await db.addQuota(openid, templateId, n);
+    }
+    send(res, 200, { kind, quota: await db.quotaOf(openid, templateId) });
+    return;
+  }
+
+  if (path === '/api/push/status' && req.method === 'GET') {
+    send(res, 200, {
+      settings: await friends.getSettings(db, openid),
+      quota: {
+        daily: await db.quotaOf(openid, pusher.TPL.daily),
+        friend: await db.quotaOf(openid, pusher.TPL.friend),
+      },
+      templatesConfigured: !!(pusher.TPL.daily || pusher.TPL.friend),
+      // 模板 ID 不是机密，客户端要用它拉起订阅弹窗
+      templates: { daily: pusher.TPL.daily, friend: pusher.TPL.friend },
+    });
+    return;
+  }
+
+  if (path === '/api/push/settings' && req.method === 'POST') {
+    const body = await readBody(req);
+    const patch = {};
+    if (typeof body.dailyRemind === 'boolean') patch.dailyRemind = body.dailyRemind;
+    if (typeof body.friendNotify === 'boolean') patch.friendNotify = body.friendNotify;
+    send(res, 200, { settings: await friends.saveSettings(db, openid, patch) });
+    return;
+  }
+
   fail(res, 404, 'not_found', '接口不存在');
+}
+
+// 每日提醒：当天没有记录 + 有额度 + 未关闭开关 → 发一条
+async function runDailyReminder() {
+  const today = todayKey();
+  const todayStart = startOfToday();
+  const users = await db.all('SELECT openid, settings FROM users', []);
+  let sent = 0;
+  let skippedQuota = 0;
+  let skippedDone = 0;
+
+  for (const u of users) {
+    const s = await friends.getSettings(db, u.openid);
+    if (!s.dailyRemind) {
+      continue;
+    }
+    const rows = await db.all(
+      'SELECT ts FROM records WHERE openid = ? AND deleted = 0 AND ts >= ? LIMIT 1',
+      [u.openid, todayStart]
+    );
+    if (rows.length) {
+      skippedDone += 1;
+      continue;
+    }
+    const quota = await db.quotaOf(u.openid, pusher.TPL.daily);
+    if (quota <= 0) {
+      skippedQuota += 1;
+      continue;
+    }
+    const claimed = await db.markPushed(u.openid, 'daily', today);
+    if (!claimed) {
+      continue;
+    }
+    const res = await pusher.sendSubscribe({
+      openid: u.openid,
+      templateId: pusher.TPL.daily,
+      data: pusher.dailyData({ streak: 0 }),
+    });
+    if (res.ok) {
+      await db.consumeQuota(u.openid, pusher.TPL.daily);
+      sent += 1;
+    }
+  }
+  console.log('[cron:daily]', { users: users.length, sent, skippedQuota, skippedDone });
+  return { users: users.length, sent, skippedQuota, skippedDone };
 }
 
 /* ---------------------------- 启动 ---------------------------- */

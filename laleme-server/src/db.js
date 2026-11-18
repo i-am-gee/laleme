@@ -33,6 +33,33 @@ CREATE TABLE IF NOT EXISTS records (
   UNIQUE (openid, client_id)
 );
 CREATE INDEX IF NOT EXISTS idx_records_pull ON records (openid, updated_at);
+CREATE TABLE IF NOT EXISTS friends (
+  a          TEXT NOT NULL,
+  b          TEXT NOT NULL,
+  status     TEXT NOT NULL DEFAULT 'active',
+  created_at INTEGER NOT NULL,
+  PRIMARY KEY (a, b)
+);
+CREATE TABLE IF NOT EXISTS invites (
+  token      TEXT PRIMARY KEY,
+  from_id    TEXT NOT NULL,
+  expire_at  INTEGER NOT NULL,
+  used       INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS push_quota (
+  openid      TEXT NOT NULL,
+  template_id TEXT NOT NULL,
+  count       INTEGER NOT NULL DEFAULT 0,
+  updated_at  INTEGER NOT NULL,
+  PRIMARY KEY (openid, template_id)
+);
+CREATE TABLE IF NOT EXISTS push_logs (
+  openid   TEXT NOT NULL,
+  type     TEXT NOT NULL,
+  day      TEXT NOT NULL,
+  sent_at  INTEGER NOT NULL,
+  PRIMARY KEY (openid, type, day)
+);
 CREATE TABLE IF NOT EXISTS devices (
   openid     TEXT NOT NULL,
   client_id  TEXT NOT NULL,
@@ -63,6 +90,34 @@ const MYSQL_SCHEMA = [
     updated_at   BIGINT NOT NULL,
     UNIQUE KEY uk_openid_client (openid, client_id),
     KEY idx_records_pull (openid, updated_at)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+  `CREATE TABLE IF NOT EXISTS friends (
+    a VARCHAR(64) NOT NULL,
+    b VARCHAR(64) NOT NULL,
+    status VARCHAR(16) NOT NULL DEFAULT 'active',
+    created_at BIGINT NOT NULL,
+    PRIMARY KEY (a, b),
+    KEY idx_friends_b (b)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+  `CREATE TABLE IF NOT EXISTS invites (
+    token VARCHAR(64) PRIMARY KEY,
+    from_id VARCHAR(64) NOT NULL,
+    expire_at BIGINT NOT NULL,
+    used TINYINT NOT NULL DEFAULT 0
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+  `CREATE TABLE IF NOT EXISTS push_quota (
+    openid VARCHAR(64) NOT NULL,
+    template_id VARCHAR(64) NOT NULL,
+    count INT NOT NULL DEFAULT 0,
+    updated_at BIGINT NOT NULL,
+    PRIMARY KEY (openid, template_id)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+  `CREATE TABLE IF NOT EXISTS push_logs (
+    openid VARCHAR(64) NOT NULL,
+    type VARCHAR(24) NOT NULL,
+    day VARCHAR(10) NOT NULL,
+    sent_at BIGINT NOT NULL,
+    PRIMARY KEY (openid, type, day)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
   `CREATE TABLE IF NOT EXISTS devices (
     openid    VARCHAR(64) NOT NULL,
@@ -244,6 +299,121 @@ export async function openDb() {
         [openid, clientId, now]
       );
     }
+  };
+
+  /* ---------- 好友 ---------- */
+
+  base.addFriend = async function addFriend(x, y) {
+    const [a, b] = x < y ? [x, y] : [y, x];
+    const now = Date.now();
+    if (base.driver === 'mysql') {
+      await base.run(
+        'INSERT INTO friends (a, b, status, created_at) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE status = VALUES(status)',
+        [a, b, 'active', now]
+      );
+    } else {
+      await base.run(
+        'INSERT INTO friends (a, b, status, created_at) VALUES (?, ?, ?, ?) ON CONFLICT (a, b) DO UPDATE SET status = excluded.status',
+        [a, b, 'active', now]
+      );
+    }
+  };
+
+  base.removeFriend = async function removeFriend(x, y) {
+    const [a, b] = x < y ? [x, y] : [y, x];
+    await base.run('DELETE FROM friends WHERE a = ? AND b = ?', [a, b]);
+  };
+
+  base.friendIds = async function friendIds(openid) {
+    const rows = await base.all(
+      'SELECT a, b FROM friends WHERE status = ? AND (a = ? OR b = ?)',
+      ['active', openid, openid]
+    );
+    return rows.map((r) => (r.a === openid ? r.b : r.a));
+  };
+
+  base.usersByIds = async function usersByIds(ids) {
+    if (!ids.length) {
+      return [];
+    }
+    const marks = ids.map(() => '?').join(',');
+    return base.all(
+      `SELECT openid, nick, avatar, updated_at FROM users WHERE openid IN (${marks})`,
+      ids
+    );
+  };
+
+  /* ---------- 邀请 ---------- */
+
+  base.createInvite = async function createInvite(from, token, expireAt) {
+    await base.run('INSERT INTO invites (token, from_id, expire_at, used) VALUES (?, ?, ?, 0)', [token, from, expireAt]);
+  };
+
+  base.takeInvite = async function takeInvite(token) {
+    const row = await base.one('SELECT * FROM invites WHERE token = ?', [token]);
+    if (!row || row.used || Number(row.expire_at) < Date.now()) {
+      return null;
+    }
+    await base.run('UPDATE invites SET used = 1 WHERE token = ?', [token]);
+    return row;
+  };
+
+  /* ---------- 订阅额度与发送记录 ---------- */
+
+  base.addQuota = async function addQuota(openid, templateId, n) {
+    const now = Date.now();
+    if (base.driver === 'mysql') {
+      await base.run(
+        'INSERT INTO push_quota (openid, template_id, count, updated_at) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE count = count + VALUES(count), updated_at = VALUES(updated_at)',
+        [openid, templateId, n, now]
+      );
+    } else {
+      await base.run(
+        'INSERT INTO push_quota (openid, template_id, count, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT (openid, template_id) DO UPDATE SET count = push_quota.count + excluded.count, updated_at = excluded.updated_at',
+        [openid, templateId, n, now]
+      );
+    }
+  };
+
+  base.quotaOf = async function quotaOf(openid, templateId) {
+    const row = await base.one('SELECT count FROM push_quota WHERE openid = ? AND template_id = ?', [openid, templateId]);
+    return Number(row?.count || 0);
+  };
+
+  base.consumeQuota = async function consumeQuota(openid, templateId) {
+    await base.run(
+      'UPDATE push_quota SET count = CASE WHEN count > 0 THEN count - 1 ELSE 0 END WHERE openid = ? AND template_id = ?',
+      [openid, templateId]
+    );
+  };
+
+  base.markPushed = async function markPushed(openid, type, day) {
+    try {
+      await base.run('INSERT INTO push_logs (openid, type, day, sent_at) VALUES (?, ?, ?, ?)', [openid, type, day, Date.now()]);
+      return true;
+    } catch {
+      return false; // 主键冲突 = 今天已经发过
+    }
+  };
+
+  base.pushedToday = async function pushedToday(openid, type, day) {
+    const row = await base.one('SELECT 1 AS x FROM push_logs WHERE openid = ? AND type = ? AND day = ?', [openid, type, day]);
+    return !!row;
+  };
+
+  /* ---------- 统计用：取一批用户近 N 天的记录 ---------- */
+
+  base.recordsSince = async function recordsSince(ids, sinceTs) {
+    if (!ids.length) {
+      return [];
+    }
+    const marks = ids.map(() => '?').join(',');
+    return base.all(
+      `SELECT openid, ts, duration_min FROM records
+       WHERE openid IN (${marks}) AND deleted = 0 AND ts >= ?
+       ORDER BY ts DESC`,
+      [...ids, sinceTs]
+    );
   };
 
   return base;

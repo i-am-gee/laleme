@@ -606,6 +606,13 @@ Component({
                 timer.stop();
                 that.clearDraft();
                 that.triggerEvent('saved', { mode: 'create' });
+
+                // 顺手攒一条「每日提醒」的订阅额度：此刻用户刚拿到正反馈，通过率最高
+                try {
+                    require('../../utils/subscribe.js').askAfterRecord();
+                } catch (e) {
+                    // 订阅模块不可用不影响保存
+                }
             });
         },
 
