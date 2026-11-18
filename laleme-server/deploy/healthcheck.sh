@@ -20,6 +20,20 @@ ENV_FILE="/etc/laleme-alert.env"
 [[ -f "$ENV_FILE" ]] && . "$ENV_FILE"
 WEBHOOK_URL="${WEBHOOK_URL:-}"
 
+# 自测：发一条测试消息，验证 webhook 通不通（不影响状态文件）
+if [[ "${1:-}" == "--test" ]]; then
+  if [[ -z "$WEBHOOK_URL" ]]; then
+    echo "未配置 WEBHOOK_URL，告警只会写本地日志：$ALERT_LOG"
+    exit 2
+  fi
+  payload=$(python3 -c 'import json,time; print(json.dumps({"msgtype":"text","text":{"content":"【拉了么】告警通道测试
+时间："+time.strftime("%Y-%m-%d %H:%M:%S")+"
+收到这条说明配置成功。"}}))')
+  resp=$(curl -s -m 8 -X POST "$WEBHOOK_URL" -H 'content-type: application/json' -d "$payload")
+  echo "返回：$resp"
+  echo "$resp" | grep -q '"errcode":0' && exit 0 || exit 1
+fi
+
 problems=()
 warns=()
 
