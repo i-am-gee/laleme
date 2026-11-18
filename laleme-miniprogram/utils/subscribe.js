@@ -7,7 +7,13 @@
 
 const cloud = require('./cloud.js');
 
-let tplCache = null;
+// 兜底模板 ID：域名未通时也能拉起订阅弹窗（模板 ID 不是机密）
+const FALLBACK = {
+    daily: 'BaUrqUdUiNw1dlrA1mpiC916AbZwnN2MDB9f0iad5Zw',
+    friend: 'PkZTrMlzHqbcRxWSkUqoqOqAWrId0pqmeFXCZNmo3hw',
+};
+
+let tplCache = FALLBACK;
 
 // 提前把模板 ID 拿到手：应用启动、页面显示时调用，异步无所谓
 function preload() {
