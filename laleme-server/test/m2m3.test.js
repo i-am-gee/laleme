@@ -137,7 +137,48 @@ await call('POST', '/api/friends/remove', 'u_a', { friendId: 'u_b' });
 const afterRemove = await call('GET', '/api/friends', 'u_a');
 check('解除后好友列表为空', afterRemove.data.friends.length === 0);
 
-// 15. 注销：记录、额度、关系全部清掉
+// 15. 好友订阅：只收被订阅者的动态
+for (const [id, nick] of [['u_d', '订阅者'], ['u_e', '被订阅'], ['u_f', '未订阅']]) {
+    await call('POST', '/api/login', id, { code: 'debug:' + id, nick });
+}
+for (const other of ['u_e', 'u_f']) {
+    const inv2 = await call('POST', '/api/friends/invite', other);
+    await call('POST', '/api/friends/accept', 'u_d', { token: inv2.data.token });
+}
+const subSelf = await call('POST', '/api/friends/subscribe', 'u_d', { friendId: 'u_d', on: true });
+check('不能订阅自己', subSelf.status === 400);
+const subStranger = await call('POST', '/api/friends/subscribe', 'u_d', { friendId: 'u_a', on: true });
+check('不能订阅非好友', subStranger.status === 403);
+
+const sub = await call('POST', '/api/friends/subscribe', 'u_d', { friendId: 'u_e', on: true });
+check('订阅好友成功', sub.data.ok === true && sub.data.subsCount === 1);
+const rankD = await call('GET', '/api/friends/rank', 'u_d');
+const rowE = rankD.data.list.find((u) => u.id === 'u_e');
+const rowF = rankD.data.list.find((u) => u.id === 'u_f');
+check('榜单带订阅标记', rowE.subscribed === true && rowF.subscribed === false, { e: rowE.subscribed, f: rowF.subscribed });
+
+await call('POST', '/api/push/quota', 'u_d', { kind: 'friend', count: 2 });
+await call('POST', '/api/push/settings', 'u_d', { friendNotify: true });
+
+// 被订阅者打卡 → 通知
+await pushRecords('u_e', [{ clientId: 'e1', ts: Date.now(), durationMin: 5, bristol: 4, mood: 'good', color: 'brown', updatedAt: Date.now() }]);
+await new Promise((r) => setTimeout(r, 400));
+const sq1 = (await call('GET', '/api/push/status', 'u_d')).data.quota.friend;
+check('被订阅者打卡会通知', sq1 === 1, sq1);
+
+// 未订阅者的动态 → 不通知
+await pushRecords('u_f', [{ clientId: 'f1', ts: Date.now(), durationMin: 5, bristol: 4, mood: 'good', color: 'brown', updatedAt: Date.now() }]);
+await new Promise((r) => setTimeout(r, 400));
+const sq2 = (await call('GET', '/api/push/status', 'u_d')).data.quota.friend;
+check('未订阅者的动态不打扰', sq2 === 1, sq2);
+
+// 取消订阅
+const unsub = await call('POST', '/api/friends/subscribe', 'u_d', { friendId: 'u_e', on: false });
+check('取消订阅成功', unsub.data.subsCount === 0);
+const rankD2 = await call('GET', '/api/friends/rank', 'u_d');
+check('取消后标记归零', rankD2.data.list.find((u) => u.id === 'u_e').subscribed === false);
+
+// 16. 注销：记录、额度、关系全部清掉
 const beforePurge = await call('POST', '/api/login', 'u_c', { code: 'debug:u_c' });
 check('注销前用户存在', beforePurge.data.recordCount >= 0);
 const purge = await call('DELETE', '/api/account', 'u_c');

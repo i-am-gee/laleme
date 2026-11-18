@@ -26,6 +26,7 @@ Page({
         hasFriends: false,
         quota: 0,
         friendNotify: true,
+        subsCount: 0,
     },
 
     onLoad(options) {
@@ -59,6 +60,7 @@ Page({
                     friendCount: list.length,
                     hasFriends: list.length > 0,
                     quota: (res.quota && res.quota.friend) || 0,
+                    subsCount: res.subsCount || 0,
                     friendNotify: res.settings ? res.settings.friendNotify !== false : true,
                 });
                 // 预先生成邀请码：分享接口是同步的，码必须提前在手
@@ -123,6 +125,36 @@ Page({
             }
             that.refresh();
         });
+    },
+
+    // 榜单上的订阅：先授权攒一条额度（同步，必须在点击栈里），再写订阅关系
+    onToggleSub(e) {
+        const id = e.currentTarget.dataset.id;
+        const wasOn = e.currentTarget.dataset.on === true || e.currentTarget.dataset.on === 'true';
+        const on = !wasOn;
+        const that = this;
+        haptics.tap();
+
+        if (on) {
+            // 订阅只是「谁拉了通知我」，真正能不能收到还取决于额度
+            subscribe.askSync('friend');
+        }
+
+        cloud.call('/api/friends/subscribe', 'POST', { friendId: id, on: on })
+            .then(function (res) {
+                const rank = that.data.rank.map(function (u) {
+                    return u.id === id ? Object.assign({}, u, { subscribed: on }) : u;
+                });
+                that.setData({ rank: rank, subsCount: res.subsCount || 0 });
+                wx.showToast({
+                    title: on ? '已订阅，他拉了会通知你' : '已取消订阅',
+                    icon: 'none',
+                });
+                return null;
+            })
+            .catch(function (err) {
+                wx.showToast({ title: err.message || '操作失败', icon: 'none' });
+            });
     },
 
     onShareTouch() {

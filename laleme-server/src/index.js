@@ -317,6 +317,28 @@ async function handle(req, res) {
     return;
   }
 
+  // 订阅某个好友：他拉了要通知我
+  if (path === '/api/friends/subscribe' && req.method === 'POST') {
+    const body = await readBody(req);
+    const target = String(body.friendId || '').trim();
+    if (!target) {
+      fail(res, 400, 'missing_target', '缺少好友标识');
+      return;
+    }
+    if (target === openid) {
+      fail(res, 400, 'self_subscribe', '不能订阅自己');
+      return;
+    }
+    const ids = await db.friendIds(openid);
+    if (!ids.includes(target)) {
+      fail(res, 403, 'not_friend', '只能订阅好友');
+      return;
+    }
+    await db.setSub(openid, target, !!body.on);
+    send(res, 200, { ok: true, friendId: target, on: !!body.on, subsCount: (await db.subsOf(openid)).length });
+    return;
+  }
+
   if (path === '/api/friends/rank' && req.method === 'GET') {
     send(res, 200, await friends.ranking(db, openid));
     return;

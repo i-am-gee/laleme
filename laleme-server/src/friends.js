@@ -41,17 +41,25 @@ async function profilesOf(db, ids) {
 }
 
 // 我的资料 + 好友列表（含自己，便于页面直接渲染"我"那一行）
+// 加订阅标记：谁拉了要通知我（榜单上的小铃铛）
+function markSubs(list, subs) {
+  const set = new Set(subs);
+  return list.map((u) => ({ ...u, subscribed: set.has(u.id) }));
+}
+
 export async function listWithMe(db, openid) {
   const ids = [openid, ...(await db.friendIds(openid))];
   const list = await profilesOf(db, ids);
+  const subs = await db.subsOf(openid);
   const me = list.find((u) => u.id === openid);
-  const friends = list.filter((u) => u.id !== openid);
-  return { me, friends };
+  const friends = markSubs(list.filter((u) => u.id !== openid), subs);
+  return { me, friends, subsCount: subs.length };
 }
 
 export async function ranking(db, openid) {
   const ids = [openid, ...(await db.friendIds(openid))];
   const list = await profilesOf(db, ids);
+  const subs = new Set(await db.subsOf(openid));
   const ranked = rankList(list).map((u) => ({
     id: u.id,
     nick: u.nick,
@@ -62,6 +70,7 @@ export async function ranking(db, openid) {
     tierName: u.tierName,
     avgMin: u.avgMin,
     isMe: u.id === openid,
+    subscribed: subs.has(u.id),
   }));
   return { list: ranked, myRank: ranked.find((u) => u.isMe)?.rank || 0 };
 }
@@ -89,6 +98,11 @@ export async function notifyFriendsOnRecord(db, pusher, openid) {
   for (const fid of ids) {
     const fs = await getSettings(db, fid);
     if (!fs.friendNotify) {
+      continue;
+    }
+    // 订阅了具体好友的人，只收被订阅者动态；没订阅过任何人的，按总开关收全部
+    const mySubs = await db.subsOf(fid);
+    if (mySubs.length && !mySubs.includes(openid)) {
       continue;
     }
     const quota = await db.quotaOf(fid, pusher.TPL.friend);

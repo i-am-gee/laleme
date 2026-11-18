@@ -40,6 +40,12 @@ CREATE TABLE IF NOT EXISTS friends (
   created_at INTEGER NOT NULL,
   PRIMARY KEY (a, b)
 );
+CREATE TABLE IF NOT EXISTS friend_subs (
+  owner      TEXT NOT NULL,
+  target     TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  PRIMARY KEY (owner, target)
+);
 CREATE TABLE IF NOT EXISTS invites (
   token      TEXT PRIMARY KEY,
   from_id    TEXT NOT NULL,
@@ -98,6 +104,12 @@ const MYSQL_SCHEMA = [
     created_at BIGINT NOT NULL,
     PRIMARY KEY (a, b),
     KEY idx_friends_b (b)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+  `CREATE TABLE IF NOT EXISTS friend_subs (
+    owner VARCHAR(64) NOT NULL,
+    target VARCHAR(64) NOT NULL,
+    created_at BIGINT NOT NULL,
+    PRIMARY KEY (owner, target)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
   `CREATE TABLE IF NOT EXISTS invites (
     token VARCHAR(64) PRIMARY KEY,
@@ -343,6 +355,32 @@ export async function openDb() {
     );
   };
 
+  /* ---------- 好友订阅（谁拉了要通知我） ---------- */
+
+  base.setSub = async function setSub(owner, target, on) {
+    if (on) {
+      const now = Date.now();
+      if (base.driver === 'mysql') {
+        await base.run(
+          'INSERT INTO friend_subs (owner, target, created_at) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE created_at = VALUES(created_at)',
+          [owner, target, now]
+        );
+      } else {
+        await base.run(
+          'INSERT INTO friend_subs (owner, target, created_at) VALUES (?, ?, ?) ON CONFLICT (owner, target) DO UPDATE SET created_at = excluded.created_at',
+          [owner, target, now]
+        );
+      }
+    } else {
+      await base.run('DELETE FROM friend_subs WHERE owner = ? AND target = ?', [owner, target]);
+    }
+  };
+
+  base.subsOf = async function subsOf(owner) {
+    const rows = await base.all('SELECT target FROM friend_subs WHERE owner = ?', [owner]);
+    return rows.map((r) => r.target);
+  };
+
   /* ---------- 邀请 ---------- */
 
   base.createInvite = async function createInvite(from, token, expireAt) {
@@ -428,6 +466,7 @@ export async function openDb() {
     await base.run('DELETE FROM invites WHERE from_id = ?', [openid]);
     await base.run('DELETE FROM push_quota WHERE openid = ?', [openid]);
     await base.run('DELETE FROM push_logs WHERE openid = ?', [openid]);
+    await base.run('DELETE FROM friend_subs WHERE owner = ? OR target = ?', [openid, openid]);
     await base.run('DELETE FROM devices WHERE openid = ?', [openid]);
     await base.run('DELETE FROM users WHERE openid = ?', [openid]);
   };

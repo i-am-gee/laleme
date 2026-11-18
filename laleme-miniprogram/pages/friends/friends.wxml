@@ -33,10 +33,20 @@
             </view>
             <view class="rank-row {{item.isMe ? 'me' : ''}}" wx:for="{{rank}}" wx:key="id">
                 <text class="rank-no">{{item.rank}}</text>
-                <text class="rank-nick">{{item.nick}}</text>
-                <text class="rank-meta">{{item.weekDays}} 天 · {{item.tierName}}</text>
+                <view class="rank-main">
+                    <view class="rank-nick">{{item.nick}}</view>
+                    <view class="rank-meta">{{item.weekDays}} 天 · {{item.tierName}}{{item.todayDone ? ' · 今天已拉' : ''}}</view>
+                </view>
+                <view
+                    wx:if="{{!item.isMe}}"
+                    class="sub-pill {{item.subscribed ? 'on' : ''}}"
+                    data-id="{{item.id}}"
+                    data-on="{{item.subscribed}}"
+                    catchtap="onToggleSub"
+                    hover-class="sub-pill-hover"
+                >{{item.subscribed ? '已订阅' : '订阅'}}</view>
             </view>
-            <view class="rank-foot">你排在第 {{myRank}} 名</view>
+            <view class="rank-foot">你排在第 {{myRank}} 名{{subsCount ? ' · 已订阅 ' + subsCount + ' 人' : ''}}</view>
         </view>
 
         <!-- 好友 -->
