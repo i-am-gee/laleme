@@ -104,6 +104,30 @@ wx.setStorageSync('laleme_cloud', {
 
 ---
 
+## 四·补、告警与体检
+
+每 5 分钟自动体检一次（`systemctl list-timers 'laleme-*'` 可看下次时间）：
+
+| 检查项 | 触发条件 |
+|---|---|
+| 三个服务是否在跑 | `laleme-server` / `nginx` / `mysql` 任一不是 active |
+| 接口可用性 | `/api/health` 无响应或 `driver` 不是 mysql |
+| 磁盘 / 内存 | 磁盘 ≥85% 或可用内存 <80MB |
+| 证书 | 剩余 <7 天 |
+| 备份 | 最近备份超过 36 小时或没有 |
+| 日志 | 5xx 超过 20 条、推送失败超过 50 条（仅提示） |
+
+配置推送（企业微信群机器人）：
+
+```bash
+vi /etc/laleme-alert.env
+# WEBHOOK_URL=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxx
+```
+
+不填也可以，告警会写进 `/var/log/laleme-alert.log`。
+
+机制：状态不变不打扰；同类故障最多每小时提醒一次；恢复时发一条「已恢复」。
+
 ## 五、日常运维
 
 | 事项 | 命令 |
