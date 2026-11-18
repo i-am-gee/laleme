@@ -97,6 +97,7 @@ laleme-miniprogram/       微信小程序（原生框架，零依赖）
 - **原生小程序框架**，无第三方依赖，源码约 416KB（含 78KB 图片资产），上传包体约 154KB
 - **canvas 2d** 动态绘制分享海报（500×400，5:4 与微信缩略图比例一致，dpr 适配，`canvas.createImage` 预加载徽章）
 - **隐私合规三层设计**：首启弹窗（`open-type="agreePrivacyAuthorization"`）→ 指引全文页 → 常驻入口，配合 `wx.onNeedPrivacyAuthorization` 动态应答
+- 上线回归清单：**[docs/上线回归清单.md](./docs/上线回归清单.md)**（域名打通后照单跑一遍）
 - 文档：**[拉了么-产品说明书.md](./拉了么-产品说明书.md)**（产品说明书，面向合作方与团队）／ **[拉了么-产品文档.md](./拉了么-产品文档.md)**（研发交接版，含数据模型与状态机）；`拉了么-产品设计文档.md` 为早期设计稿，已归档；`拉了么/index.html` 为 Web 版原型
 - **图标资产**：PIL 脚本生成（`gen-tabbar-icons.py`、`gen-badge-icons.py`），同色系棕色，4x 超采样抗锯齿
 
