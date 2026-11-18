@@ -1,0 +1,274 @@
+/* 卡片间距：全局 .card 只管底色与圆角，间距在这里补 */
+.card + .card,
+.card + .primary-btn {
+    margin-top: var(--sp-3);
+}
+
+/* 主按钮：与「我的」页同款胶囊（该类是页面级样式，不是全局） */
+.primary-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100% !important;
+    height: 100rpx;
+    margin: var(--sp-4) 0 var(--sp-2);
+    padding: 0;
+    border: none;
+    border-radius: var(--r-full);
+    background: var(--tint);
+    color: #ffffff;
+    font-size: var(--t-body);
+    font-weight: 600;
+    letter-spacing: 0.5rpx;
+    box-shadow: 0 10rpx 28rpx rgba(139, 94, 60, 0.22);
+    transition: transform 0.2s var(--ease-spring), opacity 0.12s ease;
+    box-sizing: border-box;
+}
+
+.primary-btn::after {
+    border: none;
+}
+
+.primary-hover {
+    transform: scale(0.97);
+    opacity: 0.9;
+}
+
+/* ---------- 我 ---------- */
+.me-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+}
+
+.me-left {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    min-width: 0;
+}
+
+.me-badge {
+    width: 72rpx;
+    height: 72rpx;
+    flex: none;
+}
+
+.me-main {
+    min-width: 0;
+}
+
+.me-name {
+    font-size: var(--t-body);
+    font-weight: 600;
+    color: var(--label);
+}
+
+.me-sub {
+    margin-top: 4rpx;
+    font-size: var(--t-caption);
+    color: var(--label-3);
+}
+
+.me-today {
+    flex: none;
+    padding: 8rpx 18rpx;
+    border-radius: var(--r-full);
+    font-size: var(--t-caption);
+    color: var(--label-3);
+    background: var(--fill-1);
+}
+
+.me-today.on {
+    color: var(--tint-strong);
+    background: rgba(139, 94, 60, 0.12);
+}
+
+/* ---------- 区块标题 ---------- */
+.sec-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: var(--sp-2);
+}
+
+.sec-title {
+    font-size: var(--t-footnote);
+    color: var(--label-3);
+    letter-spacing: 1rpx;
+}
+
+.sec-hint {
+    font-size: var(--t-caption);
+    color: var(--label-4);
+}
+
+/* ---------- 排名 ---------- */
+.rank-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: 14rpx 0;
+    border-bottom: 1rpx solid var(--sep);
+}
+
+.rank-row:last-of-type {
+    border-bottom: none;
+}
+
+.rank-row.me .rank-nick {
+    color: var(--tint-strong);
+    font-weight: 600;
+}
+
+.rank-no {
+    width: 44rpx;
+    font-size: var(--t-footnote);
+    font-weight: 600;
+    color: var(--label-3);
+    font-variant-numeric: tabular-nums;
+}
+
+.rank-nick {
+    flex: 1;
+    font-size: var(--t-subhead);
+    color: var(--label);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rank-meta {
+    flex: none;
+    font-size: var(--t-caption);
+    color: var(--label-3);
+}
+
+.rank-foot {
+    margin-top: var(--sp-2);
+    font-size: var(--t-caption);
+    color: var(--label-3);
+}
+
+/* ---------- 好友列表 ---------- */
+.fr-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: 16rpx 0;
+    border-bottom: 1rpx solid var(--sep);
+}
+
+.fr-row:last-child {
+    border-bottom: none;
+}
+
+.fr-dot {
+    width: 14rpx;
+    height: 14rpx;
+    border-radius: var(--r-full);
+    background: var(--fill-3);
+    flex: none;
+}
+
+.fr-dot.on {
+    background: var(--tint);
+}
+
+.fr-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.fr-nick {
+    font-size: var(--t-subhead);
+    color: var(--label);
+}
+
+.fr-meta {
+    margin-top: 4rpx;
+    font-size: var(--t-caption);
+    color: var(--label-3);
+}
+
+.fr-state {
+    flex: none;
+    font-size: var(--t-caption);
+    color: var(--label-3);
+}
+
+.fr-empty {
+    padding: 20rpx 0;
+    font-size: var(--t-footnote);
+    color: var(--label-3);
+    line-height: 1.6;
+}
+
+/* ---------- 开关行 ---------- */
+.sw-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+}
+
+.sw-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.sw-label {
+    font-size: var(--t-body);
+    color: var(--label);
+}
+
+.sw-sub {
+    margin-top: 4rpx;
+    font-size: var(--t-caption);
+    color: var(--label-3);
+}
+
+.sw {
+    transform: scale(0.86);
+    transform-origin: right center;
+}
+
+/* ---------- 其他 ---------- */
+.fs-empty {
+    margin-top: var(--sp-3);
+    padding: 56rpx var(--sp-5);
+    text-align: center;
+}
+
+.fs-empty-t {
+    font-size: var(--t-body);
+    font-weight: 600;
+    color: var(--label);
+}
+
+.fs-empty-d {
+    margin-top: 12rpx;
+    font-size: var(--t-footnote);
+    color: var(--label-3);
+    line-height: 1.7;
+}
+
+.fs-empty-btn {
+    display: inline-block;
+    margin-top: 28rpx;
+    padding: 16rpx 44rpx;
+    border-radius: var(--r-full);
+    background: var(--fill-1);
+    font-size: var(--t-footnote);
+    color: var(--tint-strong);
+    font-weight: 600;
+}
+
+.fs-note {
+    margin-top: var(--sp-3);
+    font-size: var(--t-caption);
+    color: var(--label-4);
+    line-height: 1.6;
+    text-align: center;
+}

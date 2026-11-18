@@ -47,6 +47,7 @@ Page({
         pkOn: false,
         pkFriends: 0,
         pkEntryLine: '和朋友比比谁更顺',
+        friendsLine: '开启云同步后可添加好友',
         rankName: '未定级',
         rankDays: 0,
         rankPct: 0,
@@ -73,9 +74,19 @@ Page({
         });
         this.render(this.data.period);
         this.syncPkEntry();
+        this.syncFriendsLine();
     },
 
     // 入口只显示状态，具体对比在 PK 页拉
+    syncFriendsLine() {
+        const cfg = require('../../utils/cloud.js').readConfig();
+        this.setData({
+            friendsLine: cfg.enabled && cfg.token
+                ? '看看谁今天已经拉了'
+                : '开启云同步后可添加好友',
+        });
+    },
+
     syncPkEntry() {
         const that = this;
         pk.getMode().then(function (on) {
@@ -96,6 +107,11 @@ Page({
                     : '已开启，等第一位好友进来',
             });
         }).catch(function () {});
+    },
+
+    openFriends() {
+        haptics.tap();
+        wx.navigateTo({ url: '/pages/friends/friends' });
     },
 
     openPk() {

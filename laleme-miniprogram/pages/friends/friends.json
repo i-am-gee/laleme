@@ -1,0 +1,6 @@
+{
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "timer-bar": "/components/timer-bar/index"
+  }
+}

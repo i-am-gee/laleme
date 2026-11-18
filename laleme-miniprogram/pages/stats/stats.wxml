@@ -45,10 +45,11 @@
     </button>
 
     <!-- 好友 PK：紧接段位，方便直接拿段位去比 -->
-    <view class="card pk-entry" bindtap="openPk" hover-class="pk-entry-press" hover-stay-time="80">
+    <!-- 好友：只看得见彼此今天有没有记录 -->
+    <view class="card pk-entry" bindtap="openFriends" hover-class="pk-entry-press" hover-stay-time="80">
         <view class="pk-entry-main">
-            <view class="pk-entry-t">好友 PK</view>
-            <view class="pk-entry-d">{{pkEntryLine}}</view>
+            <view class="pk-entry-t">好友</view>
+            <view class="pk-entry-d">{{friendsLine}}</view>
         </view>
         <view class="chevron"></view>
     </view>

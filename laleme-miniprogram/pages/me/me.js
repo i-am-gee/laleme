@@ -16,6 +16,8 @@ Page({
         navTop: 72,
         cloudOn: false,
         cloudStatus: '未同步',
+        dailyRemind: true,
+        remindStatus: '今天没记时提醒一次',
     },
 
     onLoad() {
@@ -35,13 +37,49 @@ Page({
             cloudOn: !!cfg.enabled,
             cloudStatus: cfg.lastSync ? '已同步 · 最近 ' + last : '等待首次同步',
         });
-        if (cfg.enabled) {
+        if (cfg.enabled && cfg.token) {
             const that = this;
             sync.syncNow().then(function () {
                 that.refreshCloud();
                 that.refresh();
             }).catch(function () {});
+            this.refreshRemind();
         }
+    },
+
+    // 提醒开关与剩余额度：一次性订阅，额度用一次少一次，要让用户看得见
+    refreshRemind() {
+        const that = this;
+        require('../../utils/subscribe.js').status().then(function (res) {
+            const q = (res.quota && res.quota.daily) || 0;
+            that.setData({
+                dailyRemind: !(res.settings && res.settings.dailyRemind === false),
+                remindStatus: q > 0 ? '还剩 ' + q + ' 次可提醒' : '点开关时授权一次，攒一次提醒',
+            });
+        }).catch(function () {});
+    },
+
+    onRemindToggle(e) {
+        const on = e.detail.value;
+        const that = this;
+        const sub = require('../../utils/subscribe.js');
+        if (!on) {
+            sub.setSettings({ dailyRemind: false }).then(function () {
+                haptics.tap();
+                that.setData({ dailyRemind: false, remindStatus: '已关闭' });
+            });
+            return;
+        }
+        sub.ask('daily').then(function (r) {
+            haptics.tap();
+            that.setData({ dailyRemind: true });
+            if (r === 'skip') {
+                wx.showToast({ title: '模板未配置，暂不可用', icon: 'none' });
+            } else if (r === 'reject') {
+                wx.showToast({ title: '未授权，收不到提醒', icon: 'none' });
+            }
+            that.refreshRemind();
+        });
     },
 
     // 开启：先让用户知道传什么，再登录并把本地全部推上去

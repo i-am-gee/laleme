@@ -25,6 +25,13 @@
             </view>
             <switch class="cloud-switch" checked="{{cloudOn}}" color="#8b5e3c" bindchange="onCloudToggle" />
         </view>
+        <view class="info-row" wx:if="{{cloudOn}}">
+            <view class="label-wrap">
+                <text class="label">每日提醒</text>
+                <text class="label-sub">{{remindStatus}}</text>
+            </view>
+            <switch class="cloud-switch" checked="{{dailyRemind}}" color="#8b5e3c" bindchange="onRemindToggle" />
+        </view>
         <view class="info-row link-row" bindtap="goPrivacy">
             <text class="label">用户隐私保护指引</text>
             <view class="chevron"></view>
@@ -35,7 +42,7 @@
     <button class="ghost-btn" hover-class="ghost-hover" bindtap="goDataPage" bindtouchstart="onShareTouch">数据备份与恢复</button>
 
     <view class="card about">
-        <view class="about-text">「拉了么」v1.16.0 · 记录默认只存本机；开启云同步后上传，仅用于你本人的数据恢复，不对任何人展示。\n\n性状分类采用国际通用的布里斯托大便分类法（Bristol Stool Scale）。\n\n本应用不构成医疗建议，持续异常请咨询消化科医生。</view>
+        <view class="about-text">「拉了么」v1.17.0 · 记录默认只存本机；开启云同步后上传，仅用于你本人的数据恢复，不对任何人展示。\n\n性状分类采用国际通用的布里斯托大便分类法（Bristol Stool Scale）。\n\n本应用不构成医疗建议，持续异常请咨询消化科医生。</view>
 
         <view class="about-divider"></view>
 
