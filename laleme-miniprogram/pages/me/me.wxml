@@ -25,7 +25,7 @@
             </view>
             <switch class="cloud-switch" checked="{{cloudOn}}" color="#8b5e3c" bindchange="onCloudToggle" />
         </view>
-        <view class="info-row" wx:if="{{cloudOn}}">
+        <view class="info-row">
             <view class="label-wrap">
                 <text class="label">每日提醒</text>
                 <text class="label-sub">{{remindStatus}}</text>

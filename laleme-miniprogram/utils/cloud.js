@@ -124,8 +124,20 @@ function login(profile) {
     });
 }
 
+// 静默登录：只换 openid 拿令牌，不上传任何记录（提醒功能只需要它）
+function ensureToken() {
+    const cfg = readConfig();
+    if (cfg.token) {
+        return Promise.resolve(cfg.token);
+    }
+    return login({}).then(function (res) {
+        return res.token;
+    });
+}
+
 module.exports = {
     login: login,
+    ensureToken: ensureToken,
     CFG_KEY: CFG_KEY,
     readConfig: readConfig,
     writeConfig: writeConfig,

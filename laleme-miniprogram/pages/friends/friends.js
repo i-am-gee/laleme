@@ -34,6 +34,7 @@ Page({
     },
 
     onShow() {
+        subscribe.preload();
         this.refresh();
     },
 
@@ -113,8 +114,8 @@ Page({
             });
             return;
         }
-        // 打开时顺手要一次授权：一次性订阅，点一次才能收到一条
-        subscribe.askForFriendNotify().then(function (r) {
+        // 点击栈里同步弹窗，否则微信会拒绝
+        subscribe.askSync('friend').then(function (r) {
             haptics.tap();
             that.setData({ friendNotify: true });
             if (r === 'reject') {

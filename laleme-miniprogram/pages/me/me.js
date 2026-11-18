@@ -50,6 +50,7 @@ Page({
     // 提醒开关与剩余额度：一次性订阅，额度用一次少一次，要让用户看得见
     refreshRemind() {
         const that = this;
+        require('../../utils/subscribe.js').preload();
         require('../../utils/subscribe.js').status().then(function (res) {
             const q = (res.quota && res.quota.daily) || 0;
             that.setData({
@@ -70,7 +71,8 @@ Page({
             });
             return;
         }
-        sub.ask('daily').then(function (r) {
+        // 必须在点击栈里同步调用，不能先 await 再弹
+        sub.askSync('daily').then(function (r) {
             haptics.tap();
             that.setData({ dailyRemind: true });
             if (r === 'skip') {

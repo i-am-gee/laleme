@@ -134,6 +134,13 @@ async function handle(req, res) {
     return;
   }
 
+  // 模板 ID 不是机密，且订阅弹窗必须在点击栈里同步发起，
+  // 客户端要在点击前就拿到 ID —— 所以这个接口不要求登录。
+  if (path === '/api/push/templates' && req.method === 'GET') {
+    send(res, 200, { daily: pusher.TPL.daily, friend: pusher.TPL.friend });
+    return;
+  }
+
   if (path === '/api/login' && req.method === 'POST') {
     const body = await readBody(req);
     const code = String(body.code || '').trim();

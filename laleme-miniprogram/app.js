@@ -31,6 +31,12 @@ App({
         }
         // 冷启动先结算一次，避免带着一个过期计时进来
         this.settleExpiredTimer();
+        // 预热订阅模板 ID：点击弹窗时必须是同步调用，ID 得提前在手
+        try {
+            require('./utils/subscribe.js').preload();
+        } catch (e) {
+            // 忽略
+        }
         // 开了云同步的用户，冷启动补一次同步（失败静默，不影响使用）
         this.syncInBackground();
     },
