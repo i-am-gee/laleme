@@ -165,6 +165,9 @@ function syncNow() {
     if (!cfg.enabled) {
         return Promise.resolve({ skipped: true });
     }
+    if (!cfg.token) {
+        return Promise.resolve({ skipped: true, reason: 'not_logged_in' });
+    }
     if (this._running) {
         return this._running;
     }
@@ -184,10 +187,10 @@ function syncNow() {
     return that._running;
 }
 
-// 首次开启：登录建档 → 把本地全部推上去 → 再拉一次（合并其他设备的数据）
+// 首次开启：登录换令牌 → 把本地全部推上去 → 再拉一次（合并其他设备的数据）
 function enable(profile) {
-    cloud.writeConfig({ enabled: true, cursor: 0 });
-    return cloud.call('/api/login', 'POST', profile || {}).then(function (res) {
+    cloud.writeConfig({ enabled: true, cursor: 0, token: '' });
+    return cloud.login(profile || {}).then(function (res) {
         return syncNow().then(function (stat) {
             return { profile: res.profile, recordCount: res.recordCount, stat: stat };
         });

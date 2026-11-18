@@ -8,7 +8,7 @@ const require = createRequire(import.meta.url);
 const ROOT = '/Users/ghost/WorkBuddy/2026-11-09-16-58-52';
 
 // ---- 启动服务端（sqlite 内存库） ----
-const serverEnv = { ...process.env, DB_DRIVER: 'sqlite', SQLITE_FILE: ':memory:', ALLOW_DEBUG_AUTH: '1', PORT: '3188' };
+const serverEnv = { ...process.env, DB_DRIVER: 'sqlite', SQLITE_FILE: ':memory:', ALLOW_DEBUG_AUTH: '1', PORT: '3188', TOKEN_SECRET: 'test-secret' };
 const server = spawn(process.execPath, ['--experimental-sqlite', 'src/index.js'], {
     cwd: path.join(ROOT, 'laleme-server'),
     env: serverEnv,
@@ -36,6 +36,9 @@ const storage = (openid) => ({
 let current = 'alice';
 globalThis.wx = {
     ...storage('alice'),
+    login({ success }) {
+        success({ code: 'debug:' + current });
+    },
     request({ url, method, data, header, success, fail }) {
         fetch(url, { method, headers: header, body: method === 'GET' ? undefined : JSON.stringify(data) })
             .then(async (r) => success({ statusCode: r.status, data: await r.json() }))

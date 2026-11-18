@@ -61,6 +61,20 @@ bash /opt/laleme-server/deploy/install.sh api.xxx.com  # 有域名：同时配 n
 
 ---
 
+## 二·补、配置小程序密钥（必做）
+
+服务端用 `wx.login` 的 code 换 openid，需要 AppID 与 AppSecret：
+
+```bash
+ssh -i ~/.ssh/laleme_deploy root@8.153.164.6
+# AppID 已写入，只需补 AppSecret（在公众平台「开发管理 → 开发设置」里重置后复制）
+sed -i 's|^WX_SECRET=.*|WX_SECRET=你的AppSecret|' /etc/laleme-server.env
+systemctl restart laleme-server
+```
+
+> 身份鉴权已从「信任 X-WX-OPENID 头」改为「微信登录 + 服务端签名令牌」。
+> 原因是自建服务器上任何客户端都能伪造该头，等于任何人可冒充任意用户。
+
 ## 三、验证
 
 ```bash

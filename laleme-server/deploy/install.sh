@@ -57,8 +57,15 @@ log "4/7 写入环境变量"
 cat > "$ENV_FILE" <<ENV
 NODE_ENV=production
 PORT=${NODE_PORT}
+HOST=127.0.0.1
+TOKEN_SECRET=$(openssl rand -hex 32)
+WX_APPID=$(cat /opt/laleme-server/.wx_appid 2>/dev/null || echo '')
+WX_SECRET=$(cat /opt/laleme-server/.wx_secret 2>/dev/null || echo '')
 DB_DRIVER=mysql
 DB_HOST=127.0.0.1
+TOKEN_SECRET=$(openssl rand -hex 32)
+WX_APPID=$(cat /opt/laleme-server/.wx_appid 2>/dev/null || echo '')
+WX_SECRET=$(cat /opt/laleme-server/.wx_secret 2>/dev/null || echo '')
 DB_PORT=3306
 DB_USER=${DB_USER}
 DB_PASSWORD=${DB_PASSWORD}
@@ -101,8 +108,10 @@ chown -R www-data:www-data "$APP_DIR"
 systemctl daemon-reload
 systemctl enable "$SERVICE" >/dev/null
 systemctl restart "$SERVICE"
-sleep 2
-curl -fsS "http://127.0.0.1:${NODE_PORT}/api/health" && echo
+sleep 3
+# 自检不阻断后续步骤：失败时只提示，日志里能看到原因
+curl -fsS "http://127.0.0.1:${NODE_PORT}/api/health" && echo \
+  || { echo "健康检查未通过，稍后看 /var/log/${SERVICE}.log" >&2; }
 
 log "6/7 配置 nginx 反代"
 if [[ -n "$DOMAIN" ]]; then

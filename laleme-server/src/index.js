@@ -3,6 +3,7 @@
 
 import http from 'node:http';
 import { openDb } from './db.js';
+import { exchangeCode, openidFromRequest, signToken } from './auth.js';
 
 const PORT = Number(process.env.PORT || 80);
 const ALLOW_DEBUG_AUTH = process.env.ALLOW_DEBUG_AUTH === '1';
@@ -56,18 +57,10 @@ function readBody(req) {
   });
 }
 
+// 身份只从签名令牌取；debug 头仅在 ALLOW_DEBUG_AUTH=1 时可用。
+// 直接信任 X-WX-OPENID 这类头在自建服务器上是越权漏洞，已移除。
 function openidOf(req) {
-  const injected = req.headers['x-wx-openid'];
-  if (injected) {
-    return String(injected);
-  }
-  if (ALLOW_DEBUG_AUTH) {
-    const debug = req.headers['x-debug-openid'];
-    if (debug) {
-      return String(debug);
-    }
-  }
-  return null;
+  return openidFromRequest(req, ALLOW_DEBUG_AUTH);
 }
 
 // 单条记录的字段校验：宁可拒收，也不要让脏数据进库
@@ -123,21 +116,32 @@ async function handle(req, res) {
     return;
   }
 
-  const openid = openidOf(req);
-  if (!openid) {
-    fail(res, 401, 'unauthorized', '缺少用户身份');
-    return;
-  }
-
+  // 登录：code 换 openid → 建档 → 发令牌。这是唯一不需要令牌的写接口。
   if (path === '/api/login' && req.method === 'POST') {
     const body = await readBody(req);
+    const code = String(body.code || '').trim();
+    if (!code) {
+      fail(res, 400, 'missing_code', '缺少登录 code');
+      return;
+    }
+    // 本地联调允许 debug:<openid> 跳过微信换码，生产环境该开关默认关闭
+    const openid = ALLOW_DEBUG_AUTH && code.startsWith('debug:')
+      ? code.slice(6)
+      : await exchangeCode(code);
     const profile = await db.upsertUser(openid, {
       nick: body.nick,
       avatar: body.avatar,
       settings: body.settings,
     });
     const count = await db.countRecords(openid);
-    send(res, 200, { profile, recordCount: count });
+    send(res, 200, { token: signToken(openid), profile, recordCount: count });
+    return;
+  }
+
+  // 以下接口都要令牌
+  const openid = openidOf(req);
+  if (!openid) {
+    fail(res, 401, 'unauthorized', '登录已失效，请重新进入小程序');
     return;
   }
 
@@ -207,8 +211,10 @@ const server = http.createServer((req, res) => {
 db = await openDb();
 
 if (process.env.NODE_ENV !== 'test') {
-  server.listen(PORT, () => {
-    console.log(`[laleme-server] listening on ${PORT}, driver=${db.driver}`);
+  // 默认只监听回环：生产由 nginx 反代，Node 不应该直接暴露在公网
+  const HOST = process.env.HOST || '127.0.0.1';
+  server.listen(PORT, HOST, () => {
+    console.log(`[laleme-server] listening on ${HOST}:${PORT}, driver=${db.driver}`);
   });
 }
 

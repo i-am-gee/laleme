@@ -4,6 +4,7 @@ process.env.SQLITE_FILE = ':memory:';
 process.env.ALLOW_DEBUG_AUTH = '1';
 process.env.NODE_ENV = 'test';
 process.env.PORT = '3199';
+process.env.TOKEN_SECRET = 'test-secret-not-for-prod';
 
 const { server } = await import('../src/index.js');
 
@@ -40,11 +41,18 @@ const health = await fetch(base + '/api/health').then((r) => r.json());
 check('健康检查可用', health.ok === true && health.driver === 'sqlite');
 
 // 2. 无身份被拒
-const noAuth = await fetch(base + '/api/login', { method: 'POST' });
-check('缺少身份返回 401', noAuth.status === 401);
+const noCode = await fetch(base + '/api/login', { method: 'POST' });
+check('登录缺少 code 返回 400', noCode.status === 400);
+const noToken = await fetch(base + '/api/sync/pull?since=0', { method: 'GET' });
+check('受保护接口无令牌返回 401', noToken.status === 401);
+const badToken = await fetch(base + '/api/sync/pull?since=0', {
+    method: 'GET',
+    headers: { authorization: 'Bearer forged.token' },
+});
+check('伪造令牌被拒', badToken.status === 401);
 
 // 3. 登录建档
-const login = await j('POST', '/api/login', { nick: '小拉' });
+const login = await j('POST', '/api/login', { code: 'debug:u_alice', nick: '小拉' });
 check('登录返回昵称', login.data.profile.nick === '小拉');
 check('初始记录数为 0', login.data.recordCount === 0);
 
@@ -64,7 +72,7 @@ check('推送 3 条全部接受', push1.data.accepted.length === 3);
 
 // 5. 幂等：同 clientId 再推一次，条数不变
 await j('POST', '/api/sync/push', { clientId: 'dev1', records: [rec(1), rec(2), rec(3)] });
-const count1 = await j('POST', '/api/login', {});
+const count1 = await j('POST', '/api/login', { code: 'debug:u_alice' });
 check('重复推送不产生副本', count1.data.recordCount === 3);
 
 // 6. 非法数据被拒
@@ -91,7 +99,7 @@ check('游标之后无新增', pull2.data.records.length === 0);
 await j('POST', '/api/sync/push', { records: [rec(2, { deleted: true, updatedAt: 1794900009999 })] });
 const pull3 = await j('GET', `/api/sync/pull?since=${pull.data.cursor}`);
 check('软删可同步', pull3.data.records.length === 1 && pull3.data.records[0].deleted === true);
-const count2 = await j('POST', '/api/login', {});
+const count2 = await j('POST', '/api/login', { code: 'debug:u_alice' });
 check('软删后计数为 3', count2.data.recordCount === 3);
 
 // 10. 用户隔离

@@ -11,6 +11,7 @@ const DEFAULTS = {
     service: 'laleme-server',
     baseUrl: '',            // http 模式下的地址，如 http://127.0.0.1:3100
     debugOpenid: '',        // http 模式下的假身份，仅开发用
+    token: '',              // 服务端签发的登录令牌
     lastSync: 0,
     cursor: 0,
 };
@@ -36,14 +37,26 @@ function initCloud() {
     }
 }
 
+function authHeader(cfg) {
+    const header = { 'content-type': 'application/json' };
+    if (cfg.token) {
+        header.Authorization = 'Bearer ' + cfg.token;
+    }
+    return header;
+}
+
 function requestHttp(path, method, data) {
     const cfg = readConfig();
+    const header = authHeader(cfg);
+    if (!cfg.token && cfg.debugOpenid) {
+        header['x-debug-openid'] = cfg.debugOpenid;
+    }
     return new Promise(function (resolve, reject) {
         wx.request({
             url: cfg.baseUrl + path,
             method: method,
             data: data,
-            header: { 'content-type': 'application/json', 'x-debug-openid': cfg.debugOpenid || 'dev_user' },
+            header: header,
             success: function (res) {
                 if (res.statusCode >= 200 && res.statusCode < 300) {
                     resolve(res.data);
@@ -66,7 +79,7 @@ function requestContainer(path, method, data) {
             config: { env: cfg.env },
             path: path,
             method: method,
-            header: { 'X-WX-SERVICE': cfg.service, 'content-type': 'application/json' },
+            header: Object.assign({ 'X-WX-SERVICE': cfg.service }, authHeader(cfg)),
             data: data || {},
             success: function (res) {
                 if (res.statusCode >= 200 && res.statusCode < 300) {
@@ -88,7 +101,31 @@ function call(path, method, data) {
         : requestContainer(path, method, data);
 }
 
+// 登录：wx.login 拿 code → 服务端换 openid 并下发令牌
+function login(profile) {
+    return new Promise(function (resolve, reject) {
+        wx.login({
+            success(res) {
+                if (!res.code) {
+                    reject(new Error('微信登录失败，请重试'));
+                    return;
+                }
+                call('/api/login', 'POST', Object.assign({ code: res.code }, profile || {}))
+                    .then(function (data) {
+                        writeConfig({ token: data.token });
+                        resolve(data);
+                    })
+                    .catch(reject);
+            },
+            fail() {
+                reject(new Error('微信登录失败，请重试'));
+            },
+        });
+    });
+}
+
 module.exports = {
+    login: login,
     CFG_KEY: CFG_KEY,
     readConfig: readConfig,
     writeConfig: writeConfig,
