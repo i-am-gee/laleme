@@ -7,7 +7,7 @@ import { exchangeCode, openidFromRequest, signToken } from './auth.js';
 import crypto from 'node:crypto';
 import * as friends from './friends.js';
 import * as pusher from './push.js';
-import { startOfToday, todayKey } from './stats.js';
+import { startOfToday, summarize, todayKey } from './stats.js';
 
 const PORT = Number(process.env.PORT || 80);
 const ALLOW_DEBUG_AUTH = process.env.ALLOW_DEBUG_AUTH === '1';
@@ -353,10 +353,16 @@ async function runDailyReminder() {
     if (!claimed) {
       continue;
     }
+    // 连续天数：今天没记，从昨天往前数
+    const hist = await db.all(
+      'SELECT ts FROM records WHERE openid = ? AND deleted = 0 AND ts >= ?',
+      [u.openid, Date.now() - 120 * 24 * 3600 * 1000]
+    );
+    const streak = summarize(hist).streak;
     const res = await pusher.sendSubscribe({
       openid: u.openid,
       templateId: pusher.TPL.daily,
-      data: pusher.dailyData({ streak: 0 }),
+      data: pusher.dailyData({ streak }),
     });
     if (res.ok) {
       await db.consumeQuota(u.openid, pusher.TPL.daily);
