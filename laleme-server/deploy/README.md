@@ -126,7 +126,26 @@ vi /etc/laleme-alert.env
 
 不填也可以，告警会写进 `/var/log/laleme-alert.log`。
 
-机制：状态不变不打扰；同类故障最多每小时提醒一次；恢复时发一条「已恢复」。
+机制：状态变化时立刻推送；**持续故障每 60 分钟重提醒一次**；恢复时发一条「已恢复」；状态不变且不是故障时不写日志、不推送。
+
+状态文件 `/var/lib/laleme-health.state` 为三段式 `结论|故障起始|上次推送`，第二、三段分别只在状态变化与真正推送时更新——**这是重提醒能工作的前提**（早期版本每次都刷新时间戳，导致长故障只会响一次）。
+
+可调环境变量（调试与自测用）：
+
+| 变量 | 默认 | 用途 |
+|---|---|---|
+| `HEALTH_URL` | `http://127.0.0.1:3000/api/health` | 改指向一个关闭的端口即可造出 error 状态，无需停真实服务 |
+| `HEALTH_REPEAT_SECONDS` | `3600` | 重提醒间隔 |
+| `HEALTH_DRY_RUN` | `0` | 设 1 则只写日志、不推群 |
+| `STATE_FILE` / `ALERT_LOG` | `/var/lib/laleme-health.state` / `/var/log/laleme-alert.log` | 沙箱测试时改到 `/tmp`，不影响线上状态 |
+
+自测示例（不打扰群）：
+
+```bash
+env STATE_FILE=/tmp/t.state ALERT_LOG=/tmp/t.log HEALTH_DRY_RUN=1 \
+  HEALTH_URL=http://127.0.0.1:9 HEALTH_REPEAT_SECONDS=1 \
+  /usr/local/bin/laleme-healthcheck.sh
+```
 
 ## 五、日常运维
 

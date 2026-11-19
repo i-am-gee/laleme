@@ -12,13 +12,18 @@
 
 set -uo pipefail
 
-ALERT_LOG="/var/log/laleme-alert.log"
-STATE_FILE="/var/lib/laleme-health.state"
+ALERT_LOG="${ALERT_LOG:-/var/log/laleme-alert.log}"
+STATE_FILE="${STATE_FILE:-/var/lib/laleme-health.state}"
 APP_LOG="/var/log/laleme-server.log"
 ENV_FILE="/etc/laleme-alert.env"
 
 [[ -f "$ENV_FILE" ]] && . "$ENV_FILE"
 WEBHOOK_URL="${WEBHOOK_URL:-}"
+
+# 可调项（也用于自测：改指向一个关闭的端口即可造出 error 状态，不必真停服务）
+HEALTH_URL="${HEALTH_URL:-http://127.0.0.1:3000/api/health}"
+HEALTH_REPEAT_SECONDS="${HEALTH_REPEAT_SECONDS:-3600}"   # 持续故障的重提醒间隔
+HEALTH_DRY_RUN="${HEALTH_DRY_RUN:-0}"                    # 1 = 只写日志，不推群
 
 # 自测：发一条测试消息，验证 webhook 通不通（不影响状态文件）
 if [[ "${1:-}" == "--test" ]]; then
@@ -47,9 +52,9 @@ for svc in laleme-server nginx mysql; do
 done
 
 # ---------- 2. 接口可用 ----------
-body=$(curl -s -m 6 http://127.0.0.1:3000/api/health 2>/dev/null)
+body=$(curl -s -m 6 "$HEALTH_URL" 2>/dev/null)
 if [[ -z "$body" ]]; then
-  add_problem "健康接口无响应（127.0.0.1:3000）"
+  add_problem "健康接口无响应（${HEALTH_URL}）"
 elif ! echo "$body" | grep -q '"ok":true'; then
   add_problem "健康接口返回异常：$(echo "$body" | head -c 80)"
 elif ! echo "$body" | grep -q '"driver":"mysql"'; then
@@ -104,15 +109,28 @@ warns_str=""
 [[ ${#warns[@]} -gt 0 ]] && warns_str=$(printf '%s；' "${warns[@]}")
 
 # 状态没变且不是 error 时不打扰
+# 状态文件三段：结论 | 本次故障起始 | 上次推送时间
+# 关键：第二段只在状态变化时更新，第三段只在真正推送时更新。
+# 若把每次运行的时间都写进去，「持续故障」会比的是「5 分钟前」，
+# 永远不满足重提醒条件 —— 2026-11-19 的 5 小时中断只发了 1 条，就是这个问题。
+mkdir -p "$(dirname "$STATE_FILE")"
 prev_status=$(cut -d'|' -f1 "$STATE_FILE" 2>/dev/null || echo "")
-prev_time=$(cut -d'|' -f2 "$STATE_FILE" 2>/dev/null || echo 0)
+prev_since=$(cut -d'|' -f2 "$STATE_FILE" 2>/dev/null || echo 0)
+prev_alert=$(cut -d'|' -f3 "$STATE_FILE" 2>/dev/null || echo 0)
+prev_since=${prev_since:-0}
+prev_alert=${prev_alert:-0}
+# 兼容旧版两段格式：没有第三段时，用第二段作为上次推送时间
+[[ "$prev_alert" == "0" && "$prev_since" != "0" ]] && prev_alert=$prev_since
 now_ts=$(date +%s)
+
+since=$now_ts
+[[ "$status" == "$prev_status" ]] && since=$prev_since
 
 should_alert=0
 if [[ "$status" == "error" ]]; then
   if [[ "$status" != "$prev_status" ]]; then
     should_alert=1
-  elif (( now_ts - ${prev_time:-0} > 3600 )); then
+  elif (( now_ts - prev_alert >= HEALTH_REPEAT_SECONDS )); then
     should_alert=1
   fi
 elif [[ "$status" == "warn" && "$prev_status" == "error" ]]; then
@@ -121,14 +139,13 @@ elif [[ "$status" == "ok" && "$prev_status" == "error" ]]; then
   should_alert=1
 fi
 
-mkdir -p "$(dirname "$STATE_FILE")"
-echo "${status}|${now_ts}" > "$STATE_FILE"
-
-if [[ "$status" != "ok" ]]; then
-  echo "${now} [${status}] ${problems_str}${warns_str}" >> "$ALERT_LOG"
-fi
+alert_ts=$prev_alert
+[[ "$should_alert" -eq 1 ]] && alert_ts=$now_ts
+echo "${status}|${since}|${alert_ts}" > "$STATE_FILE"
 
 if [[ "$should_alert" -eq 1 ]]; then
+  echo "${now} [${status}] ${problems_str}${warns_str}" >> "$ALERT_LOG"
+
   if [[ "$status" == "ok" ]]; then
     msg="【拉了么】服务已恢复
 时间：${now}"
@@ -145,7 +162,7 @@ ${warns_str}"
 
   echo "${now} 发送告警：${status}" >> "$ALERT_LOG"
 
-  if [[ -n "$WEBHOOK_URL" ]]; then
+  if [[ -n "$WEBHOOK_URL" && "$HEALTH_DRY_RUN" != "1" ]]; then
     payload=$(printf '%s' "$msg" \
       | python3 -c 'import json,sys; print(json.dumps({"msgtype":"text","text":{"content":sys.stdin.read()}}))')
     curl -s -m 8 -X POST "$WEBHOOK_URL" -H 'content-type: application/json' -d "$payload" >/dev/null 2>&1
