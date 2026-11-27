@@ -16,8 +16,8 @@ Page({
         navTop: 72,
         cloudOn: false,
         cloudStatus: '未同步',
-        dailyRemind: true,
-        remindStatus: '今天没记时提醒一次',
+        dailyRemind: false,
+        remindStatus: '开启时授权一次，攒一次提醒',
     },
 
     onLoad() {
@@ -42,7 +42,9 @@ Page({
             sync.syncNow().then(function () {
                 that.refreshCloud();
                 that.refresh();
-            }).catch(function () {});
+            }).catch(function () {
+                that.setData({ cloudStatus: '同步失败，稍后自动重试' });
+            });
             this.refreshRemind();
         }
     },
@@ -57,7 +59,9 @@ Page({
                 dailyRemind: !(res.settings && res.settings.dailyRemind === false),
                 remindStatus: q > 0 ? '还剩 ' + q + ' 次可提醒' : '点开关时授权一次，攒一次提醒',
             });
-        }).catch(function () {});
+        }).catch(function () {
+            that.setData({ remindStatus: '连不上服务器，状态未知' });
+        });
     },
 
     onRemindToggle(e) {
@@ -68,16 +72,25 @@ Page({
             sub.setSettings({ dailyRemind: false }).then(function () {
                 haptics.tap();
                 that.setData({ dailyRemind: false, remindStatus: '已关闭' });
+            }).catch(function (err) {
+                that.setData({ dailyRemind: true });
+                wx.showToast({ title: err.message || '网络异常，请重试', icon: 'none' });
             });
             return;
         }
         // 必须在点击栈里同步调用，不能先 await 再弹
         sub.askSync('daily').then(function (r) {
             haptics.tap();
-            that.setData({ dailyRemind: true });
+            if (r === 'accept') {
+                that.setData({ dailyRemind: true });
+                that.refreshRemind();
+                return;
+            }
+            // 未授权就把开关弹回去，避免界面显示「已开启」但其实收不到
+            that.setData({ dailyRemind: false });
             if (r === 'skip') {
                 wx.showToast({ title: '模板未配置，暂不可用', icon: 'none' });
-            } else if (r === 'reject') {
+            } else {
                 wx.showToast({ title: '未授权，收不到提醒', icon: 'none' });
             }
             that.refreshRemind();
@@ -116,7 +129,10 @@ Page({
                 }).catch(function (err) {
                     wx.hideLoading();
                     that.setData({ cloudOn: false });
-                    wx.showToast({ title: err.message || '同步失败', icon: 'none' });
+                    // 底层 errMsg（如 request:fail net::ERR_CONNECTION_RESET）对用户没有意义，
+                    // 统一成一句可理解的提示，细节留给 console
+                    console.warn('[cloud] enable failed', err && err.message);
+                    wx.showToast({ title: '连不上服务器，请检查网络后重试', icon: 'none' });
                 });
             },
         });
