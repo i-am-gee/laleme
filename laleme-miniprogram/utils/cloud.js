@@ -1,24 +1,38 @@
 // 云端连接层：唯一的网络出口。
-// 生产走微信云托管的 wx.cloud.callContainer（免域名、免鉴权，平台注入 openid）；
-// 本地联调用 http 模式直连 127.0.0.1，方便在开发者工具里跑通全链路。
+// 生产：https 直连 api.laleme.ariel.today（自建 Node + nginx）。
+// 另外保留 container 模式（微信云托管）与 http 模式（本地联调）作为备选。
 
 const CFG_KEY = 'laleme_cloud';
 
 const DEFAULTS = {
     enabled: false,
-    mode: 'container',      // container | http
+    mode: 'http',           // http（自建服务器）| container（微信云托管）
     env: '',                // 云托管环境 ID
     service: 'laleme-server',
-    baseUrl: '',            // http 模式下的地址，如 http://127.0.0.1:3100
+    baseUrl: 'https://api.laleme.ariel.today',
     debugOpenid: '',        // http 模式下的假身份，仅开发用
     token: '',              // 服务端签发的登录令牌
     lastSync: 0,
     cursor: 0,
 };
 
+// 旧版曾用 http://8.153.164.6 直连联调，这些设备要迁到正式域名，
+// 否则升级后仍然打 IP，域名校验与证书都用不上。
+const LEGACY_HOSTS = ['http://8.153.164.6', 'http://127.0.0.1:3100'];
+
 function readConfig() {
     const raw = wx.getStorageSync(CFG_KEY);
-    return Object.assign({}, DEFAULTS, raw && typeof raw === 'object' ? raw : {});
+    const cfg = Object.assign({}, DEFAULTS, raw && typeof raw === 'object' ? raw : {});
+    if (cfg.baseUrl && LEGACY_HOSTS.some(function (h) { return cfg.baseUrl.indexOf(h) === 0; })) {
+        cfg.baseUrl = DEFAULTS.baseUrl;
+        cfg.mode = DEFAULTS.mode;
+        try {
+            wx.setStorageSync(CFG_KEY, Object.assign({}, raw, { baseUrl: cfg.baseUrl, mode: cfg.mode }));
+        } catch (e) {
+            // 存储不可用时只影响本次，不阻断
+        }
+    }
+    return cfg;
 }
 
 function writeConfig(patch) {

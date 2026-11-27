@@ -17,7 +17,10 @@
 | 开发者工具 / 体验版 | 能 | 勾「不校验合法域名」，直连 `http://8.153.164.6:3000` |
 | 正式版 | **不能** | 必须有域名 + 备案 + HTTPS 证书 |
 
-**域名路径**：在腾讯云买一个域名（`.com` 约 60–80 元/年）→ 提交 ICP 备案（个人可备，需 3–10 个工作日）→ A 记录指向 8.153.164.6 → 用 `certbot` 免费签证书（脚本里已带）。
+**域名路径**：域名 A 记录指向 8.153.164.6 → 签证书。
+
+> **签证书不能走 `certbot --nginx`（HTTP-01）。** 这台机器上，云厂商对未接入备案的域名在 80 端口直接返回 403，
+> ACME 的 HTTP 校验必然失败。实测 443 的 TLS 握手不受影响，因此改用 **TLS-ALPN-01**，脚本已内置该路径。
 
 > 备案要求服务器在腾讯云且有余量：现在这台机器就满足条件，别先解绑。
 
@@ -113,7 +116,7 @@ wx.setStorageSync('laleme_cloud', {
 | 三个服务是否在跑 | `laleme-server` / `nginx` / `mysql` 任一不是 active |
 | 接口可用性 | `/api/health` 无响应或 `driver` 不是 mysql |
 | 磁盘 / 内存 | 磁盘 ≥85% 或可用内存 <80MB |
-| 证书 | 剩余 <7 天 |
+| 证书 | 剩余 <7 天；另检查 443 是否仍返回 200 |
 | 备份 | 最近备份超过 36 小时或没有 |
 | 日志 | 5xx 超过 20 条、推送失败超过 50 条（仅提示） |
 
@@ -156,7 +159,7 @@ env STATE_FILE=/tmp/t.state ALERT_LOG=/tmp/t.log HEALTH_DRY_RUN=1 \
 | 看日志 | `tail -f /var/log/laleme-server.log` |
 | 改配置 | 编辑 `/etc/laleme-server.env` 后重启 |
 | 备份数据库 | `mysqldump -u laleme -p laleme > /root/backup-$(date +%F).sql` |
-| 续证书 | `certbot renew`（脚本已装，可加 cron） |
+| 续证书 | 无需手工：`acme.sh` 已装 cron（每天 4 次检查），到期前自动续；续期会先停 nginx 独占 443，签完自动拉起 |
 
 **建议加一条每日备份**：
 

@@ -70,14 +70,23 @@ mem_avail=$(free -m | awk 'NR==2{print $7}')
 [[ "$mem_avail" -lt 80 ]] && add_problem "可用内存仅 ${mem_avail}MB"
 [[ "$mem_avail" -ge 80 && "$mem_avail" -lt 150 ]] && add_warn "可用内存偏低 ${mem_avail}MB"
 
-# ---------- 4. 证书 ----------
-certdir="/etc/letsencrypt/live/api.laleme.ariel.today"
-if [[ -f "$certdir/fullchain.pem" ]]; then
-  end=$(openssl x509 -enddate -noout -in "$certdir/fullchain.pem" | cut -d= -f2)
+# ---------- 4. 证书与 HTTPS ----------
+# 证书由 acme.sh 以 TLS-ALPN-01 签发（80 端口被云厂商按域名拦截，HTTP-01 用不了），
+# 安装到 /etc/nginx/ssl；续期时 hook 会先停 nginx 再启，这里顺带验证 443 真的在服务。
+cert="/etc/nginx/ssl/api.laleme.ariel.today.pem"
+if [[ -f "$cert" ]]; then
+  end=$(openssl x509 -enddate -noout -in "$cert" | cut -d= -f2)
   end_ts=$(date -d "$end" +%s 2>/dev/null || echo 0)
   days=$(( (end_ts - $(date +%s)) / 86400 ))
   [[ "$days" -lt 7 ]] && add_problem "证书 ${days} 天后到期"
   [[ "$days" -ge 7 && "$days" -lt 20 ]] && add_warn "证书 ${days} 天后到期"
+
+  code=$(curl -s -m 8 -o /dev/null -w '%{http_code}' \
+    --resolve api.laleme.ariel.today:443:127.0.0.1 \
+    https://api.laleme.ariel.today/api/health 2>/dev/null)
+  [[ "$code" != "200" ]] && add_problem "HTTPS 443 不可用（返回 ${code:-无响应}）"
+else
+  add_warn "未找到证书 ${cert}"
 fi
 
 # ---------- 5. 推送失败率 ----------

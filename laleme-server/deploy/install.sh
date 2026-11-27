@@ -137,11 +137,63 @@ NGINX
   rm -f /etc/nginx/sites-enabled/default
   nginx -t && systemctl reload nginx
 
-  log "7/7 申请证书（需要域名已解析到本机）"
-  apt-get install -y -qq certbot python3-certbot-nginx >/dev/null
-  certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m "admin@${DOMAIN}" --redirect || {
-    echo "证书申请失败：确认 ${DOMAIN} 已 A 记录指向本机，且 80 端口放行。" >&2
-  }
+  log "7/7 申请证书（TLS-ALPN-01，不依赖 80 端口）"
+  # 为什么不用 certbot + HTTP-01：本机实测中，云厂商会对未接入备案的域名在 80 端口
+  # 直接返回 403，ACME 的 HTTP 校验必然失败；443 的 TLS 握手反而可以通过，
+  # 所以用 TLS-ALPN-01（acme.sh 的 --alpn）签发。
+  apt-get install -y -qq socat >/dev/null
+  if [[ ! -x /root/.acme.sh/acme.sh ]]; then
+    curl -s https://get.acme.sh | sh -s email="admin@${DOMAIN}" >/dev/null 2>&1 \
+      || { mkdir -p /tmp/acme-src && curl -sL https://gitee.com/neilpang/acme.sh/repository/archive/master.tar.gz \
+             | tar xz -C /tmp/acme-src --strip-components=1 \
+           && (cd /tmp/acme-src && ./acme.sh --install -m "admin@${DOMAIN}" >/dev/null 2>&1); }
+  fi
+  mkdir -p /etc/nginx/ssl
+  # pre/post hook：ALPN 校验要独占 443，必须先把 nginx 停下来，签完再拉起
+  /root/.acme.sh/acme.sh --issue --alpn -d "$DOMAIN" --server letsencrypt --keylength ec-256 \
+    --pre-hook "systemctl stop nginx" --post-hook "systemctl start nginx" \
+    || echo "证书申请失败：确认 ${DOMAIN} 的 A 记录指向本机，且 443 端口放行。" >&2
+
+  /root/.acme.sh/acme.sh --install-cert -d "$DOMAIN" --ecc \
+    --key-file "/etc/nginx/ssl/${DOMAIN}.key" \
+    --fullchain-file "/etc/nginx/ssl/${DOMAIN}.pem" \
+    --reloadcmd "systemctl restart nginx" >/dev/null 2>&1 || true
+
+  if [[ -f "/etc/nginx/ssl/${DOMAIN}.pem" ]]; then
+    cat > "/etc/nginx/sites-available/${SERVICE}" <<NGINX
+server {
+    listen 80;
+    server_name ${DOMAIN};
+    return 301 https://\$host\$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name ${DOMAIN};
+
+    ssl_certificate     /etc/nginx/ssl/${DOMAIN}.pem;
+    ssl_certificate_key /etc/nginx/ssl/${DOMAIN}.key;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_ciphers         ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache   shared:SSL:10m;
+    ssl_session_timeout 10m;
+
+    client_max_body_size 2m;
+    proxy_read_timeout 30s;
+
+    location / {
+        proxy_pass http://127.0.0.1:${NODE_PORT};
+        proxy_http_version 1.1;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}
+NGINX
+    nginx -t && systemctl reload nginx
+  fi
 else
   rm -f /etc/nginx/sites-enabled/default
   systemctl reload nginx || true
